@@ -1,4 +1,4 @@
-@startuml
+@startuml EntitiesModel
 title SMG Entities Model
 
   abstract class Node {
