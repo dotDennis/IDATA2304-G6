@@ -1,0 +1,72 @@
+@startuml
+title SMG Entities Model
+
+  abstract class Node {
+    - nodeId: String
+    - nodeType: NodeType 
+    --
+    + Node(nodeId,nodeType)
+    + setNodeId(nodeId): void
+    + getNodeId(): nodeId
+    + getNodeType(): NodeType
+  }
+
+  enum NodeType {
+    SENSOR
+    CONTROL
+  }
+
+  class SensorNode extends Node {
+    - sensors: List<Sensor>
+    - actuators: List<Actuator>
+    --
+    + addSensor(sensor) void
+    + removeSensor(sensorId): void
+    + addActuator(actuator): void
+    + removeActuator(actuatorId): void
+    + getSensors(): List<Sensor>
+    + getActuators(): List<Actuator>
+  }
+
+  class Sensor {
+    + sensorId: String
+    + sensorType: SensorType
+    + unit: String
+  }
+
+  enum SensorType {
+    TEMPERATURE
+    HUMIDITY
+    LIGHT
+    PH
+    WIND_SPEED
+    FERTILIZER
+  }
+
+  class Actuator {
+    + actuatorId: String
+    + actuatorType: ActuatorType
+    + state: boolean
+  }
+
+  enum ActuatorType {
+    FAN
+    HEATER
+    WINDOW_OPENER
+    VALVE
+    DOOR_LOCK
+    LIGHT_SWITCH
+  }
+
+
+
+/' ---------- Relationships ---------- '/
+SensorNode "1" o-- "*" Sensor
+SensorNode "1" o-- "*" Actuator
+
+Actuator --> ActuatorType
+Sensor --> SensorType
+Node --> NodeType
+
+
+@enduml
