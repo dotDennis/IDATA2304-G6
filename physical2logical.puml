@@ -1,0 +1,35 @@
+@startuml
+title SMG System - Physical vs Logical Architecture
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+rectangle "Greenhouse (Physical World)" as GH {
+  component "Physical Sensor(s)\n• Temperature probe\n• Humidity probe\n• Light sensor" as PS
+  component "Physical Actuator(s)\n• Fan motor\n• Heater relay\n• Window opener" as PA
+}
+
+node "SensorNode (Device + App)" as SN {
+  component "Sensor Drivers" as SD
+  component "Actuator Drivers" as AD
+  component "Node Runtime\n• collects readings\n• executes commands\n• TCP sockets" as NR
+}
+
+rectangle "User Side" as US {
+  node "ControlNode (App/UI)" as CN {
+    component "Control UI\n• lists nodes\n• shows data\n• sends commands" as UI
+  }
+}
+
+' Physical connections (inside the greenhouse)
+PS -down-> SD : read()
+PA -down-> AD : apply()
+
+' In-process wiring on SensorNode
+SD -down-> NR
+AD -down-> NR
+
+
+
+
+@enduml
