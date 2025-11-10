@@ -1,4 +1,4 @@
-package group6.entity;
+package group6.entity.device;
 
 /**
  * Defines all available sensor types that a SensorNode can host.

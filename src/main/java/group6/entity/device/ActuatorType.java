@@ -1,4 +1,4 @@
-package group6.entity;
+package group6.entity.device;
 
 /**
  * Defines all available actuator types that can be controlled by a SensorNode.

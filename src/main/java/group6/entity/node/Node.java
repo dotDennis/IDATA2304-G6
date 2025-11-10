@@ -1,4 +1,4 @@
-package group6.entity;
+package group6.entity.node;
 
 import java.util.EnumSet;
 
