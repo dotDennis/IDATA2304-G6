@@ -40,4 +40,8 @@ public abstract class Device<Type extends Enum<Type>> {
     public Type getDeviceType() {
         return deviceType;
     }
+
+    public String getDeviceTypeName() {
+        return deviceType.name();
+    }
 }
