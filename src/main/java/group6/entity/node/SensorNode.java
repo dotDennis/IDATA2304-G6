@@ -10,7 +10,7 @@ import group6.entity.device.Sensor;
  * SensorNode represents a node that contains sensors/actuators in the system.
  * It extends the abstract Node class.
  * 
- * @author dotDennis
+ * @author dotDennis, Fidjor
  * @since 0.1.0
  */
 public class SensorNode extends Node {
@@ -78,12 +78,72 @@ public class SensorNode extends Node {
      * @throws IllegalArgumentException if actuator is null
      * @return true if the actuator was removed, false otherwise
      */
+    public boolean removeActuator(Actuator actuator) {
+        if (actuator == null) {
+            throw new IllegalArgumentException("actuator cannot be null");
+        }
+        return this.actuators.remove(actuator);
+    }
+
 
     /**
-     * Removes an actuator from the SensorNode.
-     * 
-     * @param actuator the actuator to remove
+     * Gets all current sensor readings as a formatted string for protocol.
+     *Format: "sensorType:value,sensorType:value,..."
+     *
+     * @return the formatted sensor String
      */
+    public String getSensorDataString() {
+        StringBuilder data = new StringBuilder();
+        for (int i = 0; i < sensors.size(); i++) {
+            Sensor sensor = sensors.get(i);
+            data.append(sensor.getDeviceType().toString().toLowerCase());
+            data.append(":");
+            data.append(sensor.readValue());
+            if (i < sensors.size() - 1) {
+                data.append(",");
+            }
+        }
+        return data.toString();
+    }
+
+    /**
+     * Gets all actuator states as a formatted string for protocol.
+     * Format: "actuatorType: state,actuatorType: state,..."
+     *
+     * @return the formatted actuator string
+     */
+    public String getActuatorStatusString() {
+        StringBuilder status = new StringBuilder();
+        for (int i = 0; i < actuators.size(); i++) {
+            Actuator actuator = actuators.get(i);
+            status.append(actuator.getDeviceType().toString().toLowerCase());
+            status.append(":");
+            status.append(actuator.getState() ? "1" : "0");
+            if (i < actuators.size() - 1) {
+                status.append(",");
+            }
+        }
+        return status.toString();
+    }
+
+    /**
+     * Finds an actuator by its type
+     *
+     * @param typeName the actuator type name (heater, fan etc.)
+     * @return the actuator if found, null if otherwise
+     */
+    public Actuator findActuatorByType(String typeName) {
+        if (typeName == null) {
+            return null;
+        }
+        for (Actuator actuator : actuators) {
+            if (actuator.getDeviceType().toString().equalsIgnoreCase(typeName)) {
+                return actuator;
+            }
+        }
+        return null;
+    }
+
 
     // ---------- Getters ----------
     /**
