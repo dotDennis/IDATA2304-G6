@@ -34,6 +34,11 @@ public class Actuator extends Device<ActuatorType> {
      */
     public Actuator(String deviceId, ActuatorType deviceType, boolean state) {
         super(deviceId, deviceType);
+        setState(state);
+    }
+
+    // ---------- Setters ----------
+    public void setState(boolean state) {
         this.state = state;
     }
 
