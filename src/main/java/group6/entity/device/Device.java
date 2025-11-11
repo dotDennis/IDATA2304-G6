@@ -1,18 +1,18 @@
 package group6.entity.device;
 
-public abstract class Device<Type extends Enum<Type>>  {
-
+public abstract class Device<Type extends Enum<Type>> {
     private final String deviceId;
     private final Type deviceType;
-    
+
     /**
      * Constructs a Device with the specified ID and type.
      * 
      * @param deviceId   unique identifier for the device
      * @param deviceType type of the device
-     * @throws IllegalArgumentException if deviceId is null/blank or deviceType is null
+     * @throws IllegalArgumentException if deviceId is null/blank or deviceType is
+     *                                  null
      */
-    protected Device(String deviceId, Type deviceType){
+    protected Device(String deviceId, Type deviceType) {
         this.deviceId = validateDeviceId(deviceId);
         this.deviceType = validateDeviceType(deviceType);
     }
