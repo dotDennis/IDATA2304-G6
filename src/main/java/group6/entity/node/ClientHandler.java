@@ -6,6 +6,7 @@ import group6.protocol.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+import group6.net.Connection;
 
 /**
  * Handles communication with connected control panel.
@@ -18,8 +19,7 @@ public class ClientHandler implements Runnable {
 
   private final Socket socket;
   private final SensorNode sensorNode;
-  private PrintWriter out;
-  private BufferedReader in;
+  private Connection connection;
   private boolean running;
 
   /**
@@ -38,14 +38,16 @@ public class ClientHandler implements Runnable {
   public void run() {
     try{
       //input and output streams
-      out = new PrintWriter(socket.getOutputStream(), true);
-      in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+      connection = new Connection(socket);
       running = true;
 
       System.out.println("Client handler connected for node " + sensorNode.getNodeId());
 
       Thread sensorThread = new Thread(this::sendSensorDataPeriodically);
       sensorThread.start();
+
+      Thread actuatorThread = new Thread(this::sendActuatorStatusPeriodically);
+      actuatorThread.start();
 
       listenForCommands();
 
@@ -63,8 +65,12 @@ public class ClientHandler implements Runnable {
    *
    */
   public void sendMessage(Message message) {
-    if (out != null) {
-      out.println(message.toProtocolString());
+    if (connection != null && connection.isOpen()); {
+        try {
+            connection.sendUtf(message.toProtocolString());
+        }catch (IOException e) {
+            System.err.println("Error sending message "+ sensorNode.getNodeId());
+        }
     }
   }
 
@@ -76,12 +82,12 @@ public class ClientHandler implements Runnable {
   }
 
 
-/**
- * Sends sensor data to control panel every 5 seconds.
- */
+    /**
+    * Sends sensor data to control panel every 5 seconds.
+    */
   private void sendSensorDataPeriodically() {
     try {
-      while (running && !socket.isClosed()) {
+      while (running && connection.isOpen()) {
         String sensorData = sensorNode.getSensorDataString();
 
        Message message = new Message (MessageType.SENSOR_DATA, sensorNode.getNodeId(),sensorData);
@@ -94,13 +100,33 @@ public class ClientHandler implements Runnable {
    }
   }
 
+  /**
+   * Sends actuator status to control panel every 10 seconds.
+   */
+  private void sendActuatorStatusPeriodically() {
+    try {
+      while (running && connection.isOpen()) {
+          String actuatorStatus = sensorNode.getActuatorStatusString();
+
+          Message message = new Message(MessageType.ACTUATOR_STATUS, sensorNode.getNodeId(),actuatorStatus);
+          sendMessage(message);
+
+          Thread.sleep(10000);
+      }
+    }catch (InterruptedException e) {
+        System.out.println("Actuator status thread interrupted");
+    }
+  }
+
+
+
 /**
  * Listens for incoming commands from the control panel.
  */
  private void listenForCommands(){
    try {
-     String line;
-     while (running && (line = in.readLine()) != null){
+     while (running && connection.isOpen()){
+       String line = connection.recvUtf();
        Message message = Message.fromProtocolString(line);
 
        if (message == null) {
@@ -163,9 +189,9 @@ public class ClientHandler implements Runnable {
  */
   private void cleanup() {
     try {
-      if (in != null) in.close();
-      if (out != null) out.close();
-      if (socket != null) socket.close();
+      if (connection != null) {
+          connection.close();
+      }
     }catch (IOException e) {
       System.err.println("Error when closing connection "+ e.getMessage());
     }
