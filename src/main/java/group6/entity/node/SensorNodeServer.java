@@ -44,7 +44,9 @@ public class SensorNodeServer {
         Socket clientSocket = serverSocket.accept();
         System.out.println("Control panel connected");
 
-        //TODO: Handle the client connection
+        ClientHandler handler = new ClientHandler(clientSocket, sensorNode);
+        Thread clientThread = new Thread(handler);
+        clientThread.start();
       }
     }catch (IOException e) {
       System.err.println("Server error: " + e.getMessage());
