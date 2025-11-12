@@ -127,6 +127,26 @@ The protocol uses **separator-based marshalling**:
 - Multiple values within a field separated by comma `,`
 - Key-value pairs use colon `:`
 
+### 7.1.1 Framing & Encoding
+
+**Why:** TCP is a byte stream (no message boundaries). We add an explicit frame so each application message is received whole.
+
+- **Framing:** Every message is sent as **[ length:int32 (big-endian) ][ payload:byte[length] ]**.
+  - Receiver first reads 4 bytes (length), then reads exactly `length` bytes as the message payload.
+  - **Empty frames:** `length = 0` is allowed (reserved for heartbeat/keepalive pings).
+
+- **Encoding:** Unless otherwise stated, the payload is a **UTF-8 encoded string** carrying the protocol message
+  (e.g., `HELLO|sensor-01|caps=TEMP,HUMID` or JSON if we choose to).
+  
+- **Maximum frame size:** Default **1 MiB** (configurable). Frames above this are rejected.
+
+- **Timeouts:** Implementations may use a socket read timeout. On timeout, a node can (a) send a heartbeat, (b) log and continue, or (c) reconnect per reliability policy.
+
+- **Examples:**
+  - `HELLO|control-01`
+  - `DATA|sensor-01|temperature=22.5,humidity=65`
+  - `COMMAND|control-01->sensor-01|actuator=heater|action=ON`
+
 **Example**: `SENSOR_DATA|1|temperature:22.5,humidity:65.0`
 
 ### 7.2 Message Types
