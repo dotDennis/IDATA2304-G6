@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class Connection implements Closeable {
 
-    public static final int DEFAULT_MAX_FRAME_SIZE = 1 * 1024 * 1024; // 1 MB
+    public static final int DEFAULT_MAX_FRAME_SIZE = 1 * 1024 * 1024; // 1 MiB
 
     private final Socket socket;
     private final DataInputStream in;
