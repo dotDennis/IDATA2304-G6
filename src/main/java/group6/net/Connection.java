@@ -160,12 +160,19 @@ public class Connection implements Closeable {
     }
 
     /**
-     * Returns whether the connection is open.
+     * Returns whether the connection is open locally.
+     * <p>
+     * Note: this does not guarantee that the remote peer is still connected —
+     * only that our side has not closed or shut down the socket.
      * 
      * @return true if open, false if closed
      */
     public boolean isOpen() {
-        return !socket.isClosed() && socket.isConnected();
+        return socket != null
+                && socket.isConnected()
+                && !socket.isClosed()
+                && !socket.isInputShutdown()
+                && !socket.isOutputShutdown();
     }
 
     // -------- Getters --------
