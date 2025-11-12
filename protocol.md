@@ -122,10 +122,13 @@ The protocol is **stateful**:
 
 ### 7.1 Marshalling Method
 
+All payloads are encoded using UTF-8 as described in §7.1.1.
+
 The protocol uses **separator-based marshalling**:
 - Fields separated by pipe character `|`
 - Multiple values within a field separated by comma `,`
 - Key-value pairs use colon `:`
+
 
 ### 7.1.1 Framing & Encoding
 
@@ -353,19 +356,19 @@ Sensor Node → Control Panel: ACTUATOR_STATUS|1|heater:1
 - Heater icon immediately changes to ON
 - Temperature gradually increases over time
 
-## 10. Reliability Mechanisms
+## 10. Error Handling (selected codes)
 
-The protocol relies primarily on TCP's built-in reliability:
+Errors are communicated through dedicated `ERROR` messages, allowing nodes to react consistently to protocol or application-level issues.  
+All error messages use the same framing (§7.1.1) and UTF-8 encoding as other messages.
 
-- **Guaranteed Delivery**: TCP ensures all messages arrive in order
-- **Connection Monitoring**: Both nodes detect broken connections through TCP
-- **Reconnection**: Control panels automatically attempt reconnection after connection loss
-- **Acknowledgments**: ACK messages confirm command execution at application level
+### 10.1 Error Format
 
-**Potential Future Enhancements**:
-- Message sequence numbers to detect missing messages
-- Heartbeat messages to detect silent failures
-- Command timeout and retry mechanism
+- BAD_FORMAT          — Invalid/malformed payload or missing required fields
+- FRAME_TOO_LARGE     — Frame length exceeds maxFrameSize
+- UNSUPPORTED_TYPE    — Message type not recognized/allowed in this role
+- UNAUTHORIZED        — (if security later) auth/ACL failure
+- NOT_FOUND           — Target node/actuator/sensor not found
+- BUSY                — Temporary refusal; client MAY retry with backoff
 
 ## 11. Security Mechanisms
 
@@ -382,3 +385,41 @@ No security mechanisms are implemented in the current version.
 - Authentication mechanism for control panels
 - Authorization (which users can control which actuators)
 - Message signing to prevent tampering
+
+## 12. Reliability & Liveness
+
+The protocol builds upon TCP’s inherent reliability and extends it with additional safeguards to detect silent failures, maintain stable connections, and recover from temporary outages.
+
+- **Transport guarantees:**  
+  TCP provides ordered, reliable delivery. The protocol adds explicit message boundaries via **length-prefixed framing** (§7.1.1).
+
+- **Heartbeats:**  
+  - Control and Sensor nodes SHOULD send a **heartbeat** when no application messages have been sent for **T_idle** (e.g., 10 s).  
+  - Heartbeat payload is either:  
+    - a zero-length frame, or  
+    - `KEEPALIVE` (UTF-8 text)
+  - Receipt of any valid frame resets the idle timer.
+
+- **Timeout policy:**  
+  - **Read timeout (SO_TIMEOUT):** e.g., 5 s.  
+  - **Missed-heartbeat threshold:** 3 consecutive timeouts ⇒ declare peer down.  
+  - On declared peer-down, a node SHOULD:  
+    1. close the socket,  
+    2. start **reconnect with exponential backoff** (1 s → 2 s → 4 s → … max 30 s),  
+    3. optionally buffer outbound commands (bounded queue) and resend after reconnect.
+
+- **Oversized frames:**  
+  If `length > maxFrameSize`, receiver MUST drop the frame, send  
+  `ERROR|code=FRAME_TOO_LARGE`, and MAY close the connection to protect resources.
+
+- **Malformed frames/payloads:**  
+  Receiver MUST send `ERROR|code=BAD_FORMAT` and MAY close the connection if parsing cannot continue safely.
+
+- **Delivery semantics:**  
+  Commands are point-to-point (Control → specific Sensor).  
+  Sensors SHOULD confirm with `SUCCESS` or `FAILURE`, correlating via `corrId` when present.
+
+**Future enhancements (optional):**
+- Message sequence numbers for detecting lost or duplicated application messages.  
+- Command-level timeouts with automatic retry.  
+- Extended health reporting (latency, jitter, packet loss).  
