@@ -150,8 +150,6 @@ The protocol uses **separator-based marshalling**:
   - `DATA|sensor-01|temperature=22.5,humidity=65`
   - `COMMAND|control-01->sensor-01|actuator=heater|action=ON`
 
-**Example**: `SENSOR_DATA|1|temperature:22.5,humidity:65.0`
-
 ### 7.2 Message Types
 
 #### 7.2.1 SENSOR_DATA (Sensor Node → Control Panel)

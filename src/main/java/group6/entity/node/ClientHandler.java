@@ -90,7 +90,7 @@ public class ClientHandler implements Runnable {
       while (running && connection.isOpen()) {
         String sensorData = sensorNode.getSensorDataString();
 
-       Message message = new Message (MessageType.SENSOR_DATA, sensorNode.getNodeId(),sensorData);
+       Message message = new Message (MessageType.DATA, sensorNode.getNodeId(),sensorData);
         sendMessage(message);
 
         Thread.sleep(5000);
@@ -108,7 +108,7 @@ public class ClientHandler implements Runnable {
       while (running && connection.isOpen()) {
           String actuatorStatus = sensorNode.getActuatorStatusString();
 
-          Message message = new Message(MessageType.ACTUATOR_STATUS, sensorNode.getNodeId(),actuatorStatus);
+          Message message = new Message(MessageType.DATA, sensorNode.getNodeId(),actuatorStatus);
           sendMessage(message);
 
           Thread.sleep(10000);
@@ -169,7 +169,7 @@ public class ClientHandler implements Runnable {
     boolean newState = "1".equals(action);
     actuator.setState(newState);
 
-    Message ack = new Message(MessageType.ACK, sensorNode.getNodeId(),
+    Message ack = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
             actuatorType + ":" + action);
 
     sendMessage(ack);
