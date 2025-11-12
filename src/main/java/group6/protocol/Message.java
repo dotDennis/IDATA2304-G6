@@ -1,5 +1,7 @@
 package group6.protocol;
 
+import java.util.Objects;
+
 /**
  * Represents a protocol message that can be sent between nodes.
  * Handles parsing and building of protocol messages.
@@ -10,7 +12,7 @@ package group6.protocol;
 
 public class Message {
 
-  private final String messageType;
+  private final MessageType messageType;
   private final String nodeId;
   private final String data;
 
@@ -22,10 +24,10 @@ public class Message {
    * @param nodeId the nodeID
    * @param data the message data
    */
-  public Message(String messageType, String nodeId, String data) {
-    this.messageType = messageType;
+  public Message(MessageType messageType, String nodeId, String data) {
+    this.messageType = Objects.requireNonNull(messageType, "messageType cannot be null");
     this.nodeId = nodeId;
-    this.data = data;
+    this.data = (data==null) ? "" : data;
   }
 
   /**
