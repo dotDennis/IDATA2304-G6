@@ -1,5 +1,6 @@
 package group6.entity.node;
 
+import group6.entity.device.Actuator;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
@@ -43,16 +44,13 @@ public class ClientHandler implements Runnable {
 
       System.out.println("Client handler connected for node " + sensorNode.getNodeId());
 
-      //TODO: Start threads for sending data periodically
-      //TODO: Listen for incoming commands
+      Thread sensorThread = new Thread(this::sendSensorDataPeriodically);
+      sensorThread.start();
 
-      //for now connection is open
-      while (running && !socket.isClosed()) {
-        Thread.sleep(1000);
-      }
+      listenForCommands();
 
-    }catch (IOException | InterruptedException e) {
-      System.err.println("Client handler error "+ e.getMessage());
+    }catch (IOException e) {
+      System.err.println("Connection error for node "+ sensorNode.getNodeId());
     }finally {
       cleanup();
     }
@@ -77,9 +75,92 @@ public class ClientHandler implements Runnable {
     running = false;
   }
 
+
+/**
+ * Sends sensor data to control panel every 5 seconds.
+ */
+  private void sendSensorDataPeriodically() {
+    try {
+      while (running && !socket.isClosed()) {
+        String sensorData = sensorNode.getSensorDataString();
+
+       Message message = new Message (MessageType.SENSOR_DATA, sensorNode.getNodeId(),sensorData);
+        sendMessage(message);
+
+        Thread.sleep(5000);
+      }
+      }catch (InterruptedException e) {
+      System.out.println("Client handler error "+ e.getMessage());
+   }
+  }
+
+/**
+ * Listens for incoming commands from the control panel.
+ */
+ private void listenForCommands(){
+   try {
+     String line;
+     while (running && (line = in.readLine()) != null){
+       Message message = Message.fromProtocolString(line);
+
+       if (message == null) {
+         sendError("Invalid message received");
+         continue;
+       }
+       if(MessageType.COMMAND.equals(message.getMessageType())){
+         handleCommand(message.getData());
+       }
+     }
+   } catch (IOException e) {
+     System.err.println("Error reading command "+ e.getMessage());
+   }
+ }
+
   /**
-   * cleans up resources
+   * Handles a command from the control panel.
+   * Format: "actuatorType:action" (fan:1)
    */
+  private void handleCommand(String commandData) {
+    if (commandData == null || commandData.isEmpty()) {
+      sendError("Empty command");
+      return;
+    }
+    String[] parts = commandData.split(":");
+    if (parts.length != 2) {
+      sendError("Invalid command format");
+      return;
+    }
+
+    String actuatorType = parts[0];
+    String action = parts[1];
+
+    Actuator actuator = sensorNode.findActuatorByType(actuatorType);
+    if (actuator == null) {
+      sendError("Unknown actuator: " + actuatorType);
+      return;
+    }
+
+    boolean newState = "1".equals(action);
+    actuator.setState(newState);
+
+    Message ack = new Message(MessageType.ACK, sensorNode.getNodeId(),
+            actuatorType + ":" + action);
+
+    sendMessage(ack);
+  }
+
+  /**
+   * Sends an error message to the control panel.
+   */
+  private void sendError(String errorMessage) {
+    Message error = new Message(MessageType.ERROR, sensorNode.getNodeId(),errorMessage);
+
+    sendMessage(error);
+  }
+
+  /**
+ ** cleans up resources
+ */
   private void cleanup() {
     try {
       if (in != null) in.close();
