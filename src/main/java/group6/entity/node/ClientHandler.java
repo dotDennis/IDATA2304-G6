@@ -65,7 +65,7 @@ public class ClientHandler implements Runnable {
    *
    */
   public void sendMessage(Message message) {
-    if (connection != null && connection.isOpen()); {
+    if (connection != null && connection.isOpen()) {
         try {
             connection.sendUtf(message.toProtocolString());
         }catch (IOException e) {
