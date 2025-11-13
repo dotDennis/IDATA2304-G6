@@ -20,13 +20,13 @@ public class ClientHandler implements Runnable {
   private final Socket socket;
   private final SensorNode sensorNode;
   private Connection connection;
-  private boolean running;
+  private volatile boolean running;
 
   /**
    * Creates a handler for client connection.
    *
-   * @param socket the client socker
-   * @param sensorNode the sensor node
+   * @param socket     the client socker
+   * @param sensorNode the sensor node this handler belongs to
    */
   public ClientHandler(Socket socket, SensorNode sensorNode) {
     this.socket = socket;
@@ -36,24 +36,26 @@ public class ClientHandler implements Runnable {
 
   @Override
   public void run() {
-    try{
-      //input and output streams
+    try {
       connection = new Connection(socket);
       running = true;
 
-      System.out.println("Client handler connected for node " + sensorNode.getNodeId());
+      System.out.println("[ClientHandler] >> Connected for node " + sensorNode.getNodeId());
 
-      Thread sensorThread = new Thread(this::sendSensorDataPeriodically);
+      Thread sensorThread = new Thread(this::sendSensorDataPeriodically, "sensor-data-" + sensorNode.getNodeId());
       sensorThread.start();
 
-      Thread actuatorThread = new Thread(this::sendActuatorStatusPeriodically);
+      Thread actuatorThread = new Thread(this::sendActuatorStatusPeriodically,
+          "actuator-status-" + sensorNode.getNodeId());
       actuatorThread.start();
 
+      // Loop
       listenForCommands();
 
-    }catch (IOException e) {
-      System.err.println("Connection error for node "+ sensorNode.getNodeId());
-    }finally {
+    } catch (IOException e) {
+      System.err
+          .println("[ClientHandler] >> Connection error for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+    } finally {
       cleanup();
     }
   }
@@ -65,12 +67,16 @@ public class ClientHandler implements Runnable {
    *
    */
   public void sendMessage(Message message) {
-    if (connection != null && connection.isOpen()); {
-        try {
-            connection.sendUtf(message.toProtocolString());
-        }catch (IOException e) {
-            System.err.println("Error sending message "+ sensorNode.getNodeId());
-        }
+    if (connection == null || !connection.isOpen()) {
+      System.err.println("[ClientHandler] >> Cannot send, connection closed for node " + sensorNode.getNodeId());
+      return;
+    }
+    try {
+      connection.sendUtf(message.toProtocolString());
+    } catch (IOException e) {
+      System.err.println(
+          "[ClientHandler] >> Error sending message for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+      running = false;
     }
   }
 
@@ -81,23 +87,24 @@ public class ClientHandler implements Runnable {
     running = false;
   }
 
-
-    /**
-    * Sends sensor data to control panel every 5 seconds.
-    */
+  /**
+   * Sends sensor data to control panel every 5 seconds.
+   */
   private void sendSensorDataPeriodically() {
     try {
       while (running && connection.isOpen()) {
         String sensorData = sensorNode.getSensorDataString();
 
-       Message message = new Message (MessageType.DATA, sensorNode.getNodeId(),sensorData);
+        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
         sendMessage(message);
 
         Thread.sleep(5000);
       }
-      }catch (InterruptedException e) {
-      System.out.println("Client handler error "+ e.getMessage());
-   }
+    } catch (InterruptedException e) {
+      System.out.println("[ClientHandler] >> Sensor data thread interrupted for node " + sensorNode.getNodeId() + ": "
+          + e.getMessage());
+      Thread.currentThread().interrupt();
+    }
   }
 
   /**
@@ -106,41 +113,49 @@ public class ClientHandler implements Runnable {
   private void sendActuatorStatusPeriodically() {
     try {
       while (running && connection.isOpen()) {
-          String actuatorStatus = sensorNode.getActuatorStatusString();
+        String actuatorStatus = sensorNode.getActuatorStatusString();
 
-          Message message = new Message(MessageType.DATA, sensorNode.getNodeId(),actuatorStatus);
-          sendMessage(message);
+        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
+        sendMessage(message);
 
-          Thread.sleep(10000);
+        Thread.sleep(10000);
       }
-    }catch (InterruptedException e) {
-        System.out.println("Actuator status thread interrupted");
+    } catch (InterruptedException e) {
+      System.out.println("[ClientHandler] >> Actuator status thread interrupted for node " + sensorNode.getNodeId()
+          + ": " + e.getMessage());
+      Thread.currentThread().interrupt();
     }
   }
 
+  /**
+   * Listens for incoming commands from the control panel.
+   */
+  private void listenForCommands() {
+    try {
+      while (running && connection.isOpen()) {
+        String line = connection.recvUtf();
+        if (line == null || line.isEmpty()) {
+          continue;
+        }
 
+        Message message = Message.fromProtocolString(line);
 
-/**
- * Listens for incoming commands from the control panel.
- */
- private void listenForCommands(){
-   try {
-     while (running && connection.isOpen()){
-       String line = connection.recvUtf();
-       Message message = Message.fromProtocolString(line);
+        if (message == null) {
+          sendError("Invalid message received");
+          continue;
+        }
 
-       if (message == null) {
-         sendError("Invalid message received");
-         continue;
-       }
-       if(MessageType.COMMAND.equals(message.getMessageType())){
-         handleCommand(message.getData());
-       }
-     }
-   } catch (IOException e) {
-     System.err.println("Error reading command "+ e.getMessage());
-   }
- }
+        if (message.getMessageType() == MessageType.COMMAND) {
+          handleCommand(message.getData());
+        }
+      }
+    } catch (IOException e) {
+      System.err.println(
+          "[ClientHandler] >> Error reading command for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+    } finally {
+      running = false;
+    }
+  }
 
   /**
    * Handles a command from the control panel.
@@ -153,7 +168,7 @@ public class ClientHandler implements Runnable {
     }
     String[] parts = commandData.split(":");
     if (parts.length != 2) {
-      sendError("Invalid command format");
+      sendError("Invalid command format (expected actuator:action)");
       return;
     }
 
@@ -169,31 +184,31 @@ public class ClientHandler implements Runnable {
     boolean newState = "1".equals(action);
     actuator.setState(newState);
 
-    Message ack = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
-            actuatorType + ":" + action);
+    Message reply = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
+        actuatorType + ":" + action);
 
-    sendMessage(ack);
+    sendMessage(reply);
   }
 
   /**
    * Sends an error message to the control panel.
    */
   private void sendError(String errorMessage) {
-    Message error = new Message(MessageType.ERROR, sensorNode.getNodeId(),errorMessage);
+    Message error = new Message(MessageType.ERROR, sensorNode.getNodeId(), errorMessage);
 
     sendMessage(error);
   }
 
   /**
- ** cleans up resources
- */
+   ** cleans up resources
+   */
   private void cleanup() {
     try {
       if (connection != null) {
-          connection.close();
+        connection.close();
       }
-    }catch (IOException e) {
-      System.err.println("Error when closing connection "+ e.getMessage());
+    } catch (IOException ignored) {
+      System.out.println("[ClientHandler] >> Closed session for " + sensorNode.getNodeId());
     }
   }
 }
