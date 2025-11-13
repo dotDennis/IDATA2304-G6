@@ -88,7 +88,7 @@ public class TcpClient {
             throw new IllegalStateException("Not connected to server");
         }
         try {
-        connection.sendUtf(message.toProtocolString());
+            connection.sendUtf(message.toProtocolString());
         } catch (IOException e) {
             System.err.println("[TcpClient] >> Error sending message: " + e.getMessage());
         }
