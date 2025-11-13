@@ -19,7 +19,7 @@ public class Message {
   /**
    * Creates a message with type, nodeId and data.
    *
-   * @param messageType the type of the message (SENSOR_DATA, COMMAND, etc.)
+   * @param messageType the type of the message (DATA, COMMAND, etc.)
    * @param nodeId      the nodeID
    * @param data        the message data
    */
@@ -50,7 +50,7 @@ public class Message {
    * Parses a protocol string into a Message object.
    * 
    * Expected format: TYPE|nodeId|data (data is optional, but not null)
-   * example: SENSOR|1|temperature:18.5,humidity:60.0
+   * example: SENSOR|sensor-01|temperature:18.5,humidity:60.0
    *
    * @param protocolString the string to parse
    * @return Message object, or null if parsing fails
