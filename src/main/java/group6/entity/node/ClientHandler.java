@@ -12,7 +12,7 @@ import group6.net.Connection;
  * Handles communication with connected control panel.
  * Runs in its own thread.
  *
- * @author Fidjor
+ * @author Fidjor, dotDennis
  * @since 0.1.0
  */
 public class ClientHandler implements Runnable {
