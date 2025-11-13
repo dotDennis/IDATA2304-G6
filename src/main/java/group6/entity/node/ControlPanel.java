@@ -3,7 +3,6 @@ package group6.entity.node;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,9 +81,8 @@ public class ControlPanel extends Node {
    * @param sensorNodeId the ID of the node to connect to.
    * @param host         the host or IP address.
    * @param port         the portnumber
-   * @throws IOException if connection fails
    */
-  public void connectToSensorNode(String sensorNodeId, String host, int port) throws IOException {
+  public void connectToSensorNode(String sensorNodeId, String host, int port) {
     if (sensorClients.containsKey(sensorNodeId)) {
       System.out.println("[ControlPanel] Node " + sensorNodeId + " is already connected to " + host + ":" + port);
       return;
@@ -227,6 +225,17 @@ public class ControlPanel extends Node {
         }
       }
     }
+  }
+
+  /**
+   * Returns cached data for a given sensor node.
+   * Returns null if no such node exists yet.
+   *
+   * @param sensorNodeId the ID of the sensor node
+   * @return NodeData or null if none
+   */
+  public NodeData getNodeData(String sensorNodeId) {
+    return dataCache.get(sensorNodeId);
   }
 
   /**
