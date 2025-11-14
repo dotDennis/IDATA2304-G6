@@ -6,7 +6,7 @@
 
     <groupId>group6</groupId>
     <artifactId>IDATA2304-G6</artifactId>
-    <version>0.0.1</version> <!--{major.minor.bug-/hot- fix}-->
+    <version>0.1.0</version> <!--{major.minor.bug-/hot- fix}-->
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
