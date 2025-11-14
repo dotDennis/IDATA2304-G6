@@ -7,6 +7,8 @@ import group6.protocol.MessageType;
 import java.io.*;
 import java.net.Socket;
 import group6.net.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles communication with connected control panel.
@@ -17,6 +19,7 @@ import group6.net.Connection;
  */
 public class ClientHandler implements Runnable {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
   private final Socket socket;
   private final SensorNode sensorNode;
   private Connection connection;
@@ -40,7 +43,7 @@ public class ClientHandler implements Runnable {
       connection = new Connection(socket);
       running = true;
 
-      System.out.println("[ClientHandler] >> Connected for node " + sensorNode.getNodeId());
+      LOGGER.info("Control panel connected for node {}", sensorNode.getNodeId());
 
       Thread sensorThread = new Thread(this::sendSensorDataPeriodically, "sensor-data-" + sensorNode.getNodeId());
       sensorThread.start();
@@ -53,8 +56,7 @@ public class ClientHandler implements Runnable {
       listenForCommands();
 
     } catch (IOException e) {
-      System.err
-          .println("[ClientHandler] >> Connection error for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+      LOGGER.error("Connection error for node {}", sensorNode.getNodeId(), e);
     } finally {
       cleanup();
     }
@@ -68,14 +70,13 @@ public class ClientHandler implements Runnable {
    */
   public void sendMessage(Message message) {
     if (connection == null || !connection.isOpen()) {
-      System.err.println("[ClientHandler] >> Cannot send, connection closed for node " + sensorNode.getNodeId());
+      LOGGER.warn("Cannot send, connection closed for node {}", sensorNode.getNodeId());
       return;
     }
     try {
       connection.sendUtf(message.toProtocolString());
     } catch (IOException e) {
-      System.err.println(
-          "[ClientHandler] >> Error sending message for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+      LOGGER.error("Error sending message for node {}", sensorNode.getNodeId(), e);
       running = false;
     }
   }
@@ -101,8 +102,7 @@ public class ClientHandler implements Runnable {
         Thread.sleep(5000);
       }
     } catch (InterruptedException e) {
-      System.out.println("[ClientHandler] >> Sensor data thread interrupted for node " + sensorNode.getNodeId() + ": "
-          + e.getMessage());
+      LOGGER.debug("Sensor data thread interrupted for node {}", sensorNode.getNodeId(), e);
       Thread.currentThread().interrupt();
     }
   }
@@ -121,8 +121,7 @@ public class ClientHandler implements Runnable {
         Thread.sleep(10000);
       }
     } catch (InterruptedException e) {
-      System.out.println("[ClientHandler] >> Actuator status thread interrupted for node " + sensorNode.getNodeId()
-          + ": " + e.getMessage());
+      LOGGER.debug("Actuator status thread interrupted for node {}", sensorNode.getNodeId(), e);
       Thread.currentThread().interrupt();
     }
   }
@@ -150,8 +149,7 @@ public class ClientHandler implements Runnable {
         }
       }
     } catch (IOException e) {
-      System.err.println(
-          "[ClientHandler] >> Error reading command for node " + sensorNode.getNodeId() + ": " + e.getMessage());
+      LOGGER.error("Error reading command for node {}", sensorNode.getNodeId(), e);
     } finally {
       running = false;
     }
@@ -207,8 +205,9 @@ public class ClientHandler implements Runnable {
       if (connection != null) {
         connection.close();
       }
-    } catch (IOException ignored) {
-      System.out.println("[ClientHandler] >> Closed session for " + sensorNode.getNodeId());
+    } catch (IOException e) {
+      LOGGER.warn("Error while closing connection for {}", sensorNode.getNodeId(), e);
     }
+    LOGGER.info("Closed session for {}", sensorNode.getNodeId());
   }
 }

@@ -20,10 +20,7 @@ import org.xml.sax.SAXException;
  * file located in the root directory of the project.
  *
  * <p>
- * Created with assistance from ChatGPT.
- *
- * @author Svein Antonsen
- * @since 2.0-SNAPSHOT
+ * Fetched from older project.
  */
 public final class VersionUtil {
 

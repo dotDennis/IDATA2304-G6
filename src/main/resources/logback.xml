@@ -5,7 +5,10 @@
     </encoder>
   </appender>
 
-  <root level="OFF">
+
+  <!-- Accepted Levels: TRACE, DEBUG, INFO, WARN, ERROR, ALL, OFF  -->
+  <!-- Production default: INFO, WARN, ERROR -->
+  <root level="ALL">
     <appender-ref ref="CONSOLE" />
   </root>
 </configuration>

@@ -6,6 +6,8 @@ import java.net.Socket;
 
 import group6.entity.node.ClientHandler;
 import group6.entity.node.SensorNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TCP Server to handle incoming connections.
@@ -16,6 +18,7 @@ import group6.entity.node.SensorNode;
  */
 public class TcpServer {
     
+    private static final Logger LOGGER = LoggerFactory.getLogger(TcpServer.class);
     private final int port;
     private final SensorNode sensorNode;
     private volatile boolean running;
@@ -36,11 +39,11 @@ public class TcpServer {
         serverSocket = new ServerSocket(port);
         running = true;
 
-        System.out.println("[TcpServer] >> Listening on port " + port);
+        LOGGER.info("Listening on port {}", port);
 
         while (running) {
             Socket socket = serverSocket.accept(); // Blocking call
-            System.out.println("[TcpServer] >> Control panel connected: " + socket.getRemoteSocketAddress());
+            LOGGER.info("Control panel connected: {}", socket.getRemoteSocketAddress());
         
             ClientHandler handler = new ClientHandler(socket, sensorNode);
             new Thread(handler, "client-" + socket.getPort()).start();
@@ -52,11 +55,12 @@ public class TcpServer {
      */
     public void stop() {
         running = false;
+        LOGGER.info("Stopping server on port {}", port);
         if (serverSocket != null && !serverSocket.isClosed()) {
             try {
                 serverSocket.close();
             } catch (IOException ignored) {
-                System.out.println("[TcpServer] >> Server socket closed.");
+                LOGGER.debug("Server socket already closed.", ignored);
             }
         }
     }
