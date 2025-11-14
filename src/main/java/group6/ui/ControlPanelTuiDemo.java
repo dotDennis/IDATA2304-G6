@@ -9,6 +9,8 @@ import group6.entity.node.SensorNode;
 import group6.net.TcpServer;
 
 import java.util.Scanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Full demo launcher:
@@ -19,6 +21,8 @@ import java.util.Scanner;
  * @author dotDennis
  */
 public class ControlPanelTuiDemo {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ControlPanelTuiDemo.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -56,7 +60,7 @@ public class ControlPanelTuiDemo {
             try {
                 server.start();
             } catch (Exception e) {
-                System.err.println("[DEMO] Error in TcpServer: " + e.getMessage());
+                LOGGER.error("Error in TcpServer demo thread", e);
             }
         }, "DemoServer");
         serverThread.start();
