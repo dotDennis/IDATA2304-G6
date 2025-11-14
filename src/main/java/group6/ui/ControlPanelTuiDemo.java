@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * - Starts TcpServer in background
  * - Runs ControlPanel TUI
  *
- * @author dotDennis
+ * @author dotDennis, GPT******
  */
 public class ControlPanelTuiDemo {
 
