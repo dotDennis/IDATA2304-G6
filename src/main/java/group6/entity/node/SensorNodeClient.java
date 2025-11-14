@@ -6,7 +6,6 @@ import group6.net.Connection;
 import group6.net.TcpClient;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
-import group6.ui.helpers.VersionUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SensorNodeClient implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VersionUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensorNodeClient.class);
     private final String sensorNodeId;
     private final String host;
     private final int port;
@@ -63,7 +62,7 @@ public class SensorNodeClient implements Runnable {
             this.connection = tcpClient.getConnection();
             this.running = true;
 
-            System.out.println("[SensorNodeClient] >> Connected to control panel at " + host + ":" + port);
+            LOGGER.info("Connected to control panel at {}:{}", host, port);
 
             // 2) Handshake
             Message hello = new Message(MessageType.HELLO, sensorNodeId, "");
@@ -72,7 +71,7 @@ public class SensorNodeClient implements Runnable {
             // 3) Loop
             listenLoop();
         } catch (IOException e) {
-            System.err.println("[SensorNodeClient] >> Connection error on " + sensorNodeId + ": " + e.getMessage());
+            LOGGER.error("Connection error on {}", sensorNodeId, e);
         } finally {
             cleanup();
         }
@@ -93,7 +92,7 @@ public class SensorNodeClient implements Runnable {
 
             Message msg = Message.fromProtocolString(line);
             if (msg == null) {
-                System.err.println("[SensorNodeClient] >> Received invalid message from " + sensorNodeId + ": " + line);
+                LOGGER.warn("Received invalid message from {}: {}", sensorNodeId, line);
                 continue;
             }
 
@@ -109,15 +108,14 @@ public class SensorNodeClient implements Runnable {
      */
     public void sendMessage(Message message) {
         if (connection == null || !connection.isOpen()) {
-            System.err.println("[SensorNodeClient] >> Cannot send, connection closed for node " + sensorNodeId);
+            LOGGER.warn("Cannot send, connection closed for node {}", sensorNodeId);
             return;
         }
 
         try {
             connection.sendUtf(message.toProtocolString());
         } catch (IOException e) {
-            System.err.println(
-                    "[SensorNodeClient] >> Failed to send message from " + sensorNodeId + ": " + e.getMessage());
+            LOGGER.error("Failed to send message from {}", sensorNodeId, e);
             running = false;
         }
     }
@@ -151,7 +149,7 @@ public class SensorNodeClient implements Runnable {
             }
         } catch (IOException ignored) {
         }
-        System.out.println("[SensorNodeClient] >> Closed connection for node " + sensorNodeId);
+        LOGGER.info("Closed connection for node {}", sensorNodeId);
 
     }
 }

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import group6.protocol.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TCP Client wrapper for connecting to a remote node (TCP Server).
@@ -28,6 +30,7 @@ import group6.protocol.Message;
  */
 
 public class TcpClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TcpClient.class);
     private final String host;
     private final int port;
     private Connection connection;
@@ -51,7 +54,7 @@ public class TcpClient {
     public void connect() throws IOException {
         Socket socket = new Socket(host, port);
         this.connection = new Connection(socket);
-        System.out.println("[TcpClient] >> Connected to " + connection.getRemoteAddress());
+        LOGGER.info("Connected to {}", connection.getRemoteAddress());
     }
 
     /**
@@ -71,7 +74,7 @@ public class TcpClient {
             try {
                 connection.close();
             } catch (IOException ignored) {
-                System.err.println("[TcpClient] >> Connection closed.");
+                LOGGER.debug("Connection already closed.", ignored);
             }
         }
     }
@@ -87,11 +90,7 @@ public class TcpClient {
         if (!isConnected()) {
             throw new IllegalStateException("Not connected to server");
         }
-        try {
-            connection.sendUtf(message.toProtocolString());
-        } catch (IOException e) {
-            System.err.println("[TcpClient] >> Error sending message: " + e.getMessage());
-        }
+        connection.sendUtf(message.toProtocolString());
     }
 
     /**

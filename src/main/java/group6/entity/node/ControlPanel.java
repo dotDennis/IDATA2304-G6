@@ -6,6 +6,9 @@ import group6.protocol.MessageType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Control panel node (domain model).
  * 
@@ -19,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ControlPanel extends Node {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ControlPanel.class);
   private final Map<String, SensorNodeClient> sensorClients;
   private final Map<String, NodeData> dataCache;
   private volatile boolean running;
@@ -84,7 +88,7 @@ public class ControlPanel extends Node {
    */
   public void connectToSensorNode(String sensorNodeId, String host, int port) {
     if (sensorClients.containsKey(sensorNodeId)) {
-      System.out.println("[ControlPanel] Node " + sensorNodeId + " is already connected to " + host + ":" + port);
+      LOGGER.info("Node {} is already connected to {}:{}", sensorNodeId, host, port);
       return;
     }
 
@@ -93,7 +97,7 @@ public class ControlPanel extends Node {
     dataCache.put(sensorNodeId, new NodeData());
     client.start();
 
-    System.out.println("[ControlPanel] Connected to sensor node" + sensorNodeId + "at" + host + ":" + port);
+    LOGGER.info("Connecting to sensor node {} at {}:{}", sensorNodeId, host, port);
 
   }
 
@@ -107,7 +111,7 @@ public class ControlPanel extends Node {
   public void sendCommand(String sensorNodeId, String actuatorType, boolean state) {
     SensorNodeClient client = sensorClients.get(sensorNodeId);
     if (client == null) {
-      System.err.println("[ControlPanel] >> Not connected to sensornode :" + sensorNodeId);
+      LOGGER.warn("Cannot send command. Not connected to sensor node {}", sensorNodeId);
       return;
     }
     client.sendCommand(actuatorType, state);
@@ -170,15 +174,15 @@ public class ControlPanel extends Node {
     switch (type) {
       case DATA -> {
         parseAndCacheData(sensorNodeId, msg.getData());
-        System.out.println("[ControlPanel] >> Recieved data from " + sensorNodeId + ": " + msg.getData());
+        LOGGER.debug("Received data from {}: {}", sensorNodeId, msg.getData());
       }
       case SUCCESS ->
-        System.out.println("[ControlPanel] >> Command successful from " + sensorNodeId + ": " + msg.getData());
+        LOGGER.info("Command successful from {}: {}", sensorNodeId, msg.getData());
       case FAILURE ->
-        System.err.println("[ControlPanel] >> Command failed from " + sensorNodeId + ": " + msg.getData());
-      case ERROR -> System.err.println("[ControlPanel] >> Error from " + sensorNodeId + ": " + msg.getData());
+        LOGGER.warn("Command failed from {}: {}", sensorNodeId, msg.getData());
+      case ERROR -> LOGGER.error("Error reported from {}: {}", sensorNodeId, msg.getData());
       default ->
-        System.out.println("[ControlPanel] >> " + type + " from " + sensorNodeId + ", payload: " + msg.getData());
+        LOGGER.info("{} from {}, payload: {}", type, sensorNodeId, msg.getData());
     }
   }
 
@@ -204,7 +208,7 @@ public class ControlPanel extends Node {
     for (String pair : pairs) {
       String[] keyValue = pair.split(":");
       if (keyValue.length != 2) {
-        System.err.println("[ControlPanel] >> Invalid data format: " + pair);
+        LOGGER.warn("Invalid data format from {}: {}", sensorNodeId, pair);
         continue;
       }
 
@@ -221,7 +225,7 @@ public class ControlPanel extends Node {
           boolean state = value.equals("1");
           nodeData.updateActuator(key, state);
         } else {
-          System.err.println("[ControlPanel] >> Could not parse value " + value + " for key: " + key);
+          LOGGER.warn("Could not parse value {} for key: {} (node {})", value, key, sensorNodeId);
         }
       }
     }
@@ -244,20 +248,19 @@ public class ControlPanel extends Node {
    */
   public void shutdown() {
     running = false;
-    System.out.println("[ControlPanel] >> Shutting down...");
+    LOGGER.info("Shutting down control panel...");
 
     for (Map.Entry<String, SensorNodeClient> entry : sensorClients.entrySet()) {
       try {
         entry.getValue().stop();
-        System.out.println("[ControlPanel] >> Stopped client for node: " + entry.getKey());
+        LOGGER.info("Stopped client for node {}", entry.getKey());
       } catch (Exception e) {
-        System.err.println("[ControlPanel] >> Failed to stop connection for node: "
-            + entry.getKey() + ": " + e.getMessage());
+        LOGGER.error("Failed to stop client for node {}", entry.getKey(), e);
       }
     }
     sensorClients.clear();
     dataCache.clear();
-    System.out.println("[ControlPanel] >> Shutdown complete.");
+    LOGGER.info("Shutdown complete.");
   }
 
   /**
