@@ -23,6 +23,7 @@ public class MainView {
 
   private ConnectionView connectionView;
   private SensorDataView sensorDataView;
+  private ActuatorControlView actuatorControlView;
 
   /**
    * Creates the main view.
@@ -59,8 +60,15 @@ public class MainView {
 
     //SensorData section
     sensorDataView = new SensorDataView(controller);
-    centerBox.getChildren().addAll(connectionView.getView(), sensorDataView.getView());
+
+    //Actuator control section
+    actuatorControlView = new ActuatorControlView(controller);
+
+    centerBox.getChildren().addAll(connectionView.getView(),
+            sensorDataView.getView(), actuatorControlView.getView());
     root.setCenter(centerBox);
+
+
 
     //Status bar
     statusLabel.setStyle("-fx-background-color: white; -fx-padding: 5;" );
@@ -73,6 +81,7 @@ public class MainView {
    */
   public void refreshDisplay() {
     sensorDataView.refresh();
+    actuatorControlView.refresh();
   }
 
   /**
