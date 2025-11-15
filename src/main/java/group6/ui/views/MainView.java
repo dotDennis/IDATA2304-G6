@@ -3,7 +3,6 @@ package group6.ui.views;
 
 import group6.ui.controllers.GuiController;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -21,7 +20,9 @@ public class MainView {
   private final GuiController controller;
   private final BorderPane root;
   private final Label statusLabel;
+
   private ConnectionView connectionView;
+  private SensorDataView sensorDataView;
 
   /**
    * Creates the main view.
@@ -43,13 +44,12 @@ public class MainView {
     root.setPadding(new Insets(15));
 
     //Title
-    Label title = new Label("Smart Greenhouse Control Panel");
+    Label title = new Label("🏠 Smart Greenhouse Control Panel");
     title.setFont(Font.font("System", FontWeight.BOLD, 24));
     BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
     root.setTop(title);
 
-
-    //Main page (with placeholder content)
+    //Main content
     VBox centerBox = new VBox(15);
     centerBox.setPadding(new Insets(10));
 
@@ -57,18 +57,22 @@ public class MainView {
     connectionView = new ConnectionView(controller);
     connectionView.setStatusLabel(statusLabel);
 
-    //Placeholder for future views
-    Label placeholder = new Label("Sensor data and actuator controls" +
-            " will appear here after connecting");
-    placeholder.setStyle("-fx-text-fill: gray");
-
-    centerBox.getChildren().addAll(connectionView.getView(), placeholder);
-
+    //SensorData section
+    sensorDataView = new SensorDataView(controller);
+    centerBox.getChildren().addAll(connectionView.getView(), sensorDataView.getView());
     root.setCenter(centerBox);
 
     //Status bar
     statusLabel.setStyle("-fx-background-color: white; -fx-padding: 5;" );
     root.setBottom(statusLabel);
+  }
+
+  /**
+   * Refreshes all data displays.
+   * Called by auto refresh timer
+   */
+  public void refreshDisplay() {
+    sensorDataView.refresh();
   }
 
   /**
