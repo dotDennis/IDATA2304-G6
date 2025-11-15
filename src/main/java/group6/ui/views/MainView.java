@@ -20,6 +20,8 @@ public class MainView {
 
   private final GuiController controller;
   private final BorderPane root;
+  private final Label statusLabel;
+  private ConnectionView connectionView;
 
   /**
    * Creates the main view.
@@ -28,7 +30,8 @@ public class MainView {
    */
   public MainView(GuiController controller) {
     this.controller = controller;
-    root = new BorderPane();
+    this.root = new BorderPane();
+    this.statusLabel = new Label("Ready");
 
     setupLayout();
   }
@@ -47,28 +50,25 @@ public class MainView {
 
 
     //Main page (with placeholder content)
-    VBox centerBox = new VBox(20);
-    centerBox.setAlignment(Pos.CENTER);
-    centerBox.setPadding(new
+    VBox centerBox = new VBox(15);
+    centerBox.setPadding(new Insets(10));
 
-            Insets(50));
+    //Connection section
+    connectionView = new ConnectionView(controller);
+    connectionView.setStatusLabel(statusLabel);
 
-    Label placeholder = new Label("GUI Framework");
-    placeholder.setFont(Font.font("System", FontWeight.NORMAL, 18));
+    //Placeholder for future views
+    Label placeholder = new Label("Sensor data and actuator controls" +
+            " will appear here after connecting");
+    placeholder.setStyle("-fx-text-fill: gray");
 
-    Label instructions = new Label("Here: Implement connections");
-    instructions.setFont(Font.font("System", FontWeight.NORMAL, 14));
-    instructions.setStyle("-fx-text-fill: gray;");
+    centerBox.getChildren().addAll(connectionView.getView(), placeholder);
 
-    centerBox.getChildren().
-
-            addAll(placeholder, instructions);
     root.setCenter(centerBox);
 
     //Status bar
-    Label statusBar = new Label("Ready");
-    statusBar.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 5;");
-    root.setBottom(statusBar);
+    statusLabel.setStyle("-fx-background-color: white; -fx-padding: 5;" );
+    root.setBottom(statusLabel);
   }
 
   /**
