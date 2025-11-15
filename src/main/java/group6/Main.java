@@ -1,17 +1,18 @@
 package group6;
 
 import group6.ui.ControlPanelTuiDemo;
+import group6.ui.GreenhouseGuiApp;
 
 /**
- * Entry point for the application. Delegates to the ControlPanelTuiDemo so
- * running the project immediately launches the interactive demo.
+ * Entry point for the application.
+ * Launches JavaFX GUI application
  */
 public class Main {
   public static void main(String[] args) {
     try {
-      ControlPanelTuiDemo.main(args);
+      GreenhouseGuiApp.main(args);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to start ControlPanel TUI demo", e);
+      throw new RuntimeException("Failed to start ControlPanel GUI demo", e);
     }
   }
 }
