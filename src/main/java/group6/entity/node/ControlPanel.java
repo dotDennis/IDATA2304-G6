@@ -215,16 +215,16 @@ public class ControlPanel extends Node {
       String key = keyValue[0].trim().toLowerCase();
       String value = keyValue[1].trim();
 
-      try {
-        // For now try to parse as sensor (double value)
-        double numericalValue = Double.parseDouble(value);
-        nodeData.updateSensor(key, numericalValue);
-      } catch (NumberFormatException e) {
-        // If not a number, try as actuator 0 or 1
-        if (value.equals("0") || value.equals("1")) {
-          boolean state = value.equals("1");
-          nodeData.updateActuator(key, state);
-        } else {
+      // Check if it's an actuator (0 or 1) FIRST
+      if (value.equals("0") || value.equals("1")) {
+        boolean state = value.equals("1");
+        nodeData.updateActuator(key, state);
+      } else {
+        // Otherwise treat as sensor
+        try {
+          double numericalValue = Double.parseDouble(value);
+          nodeData.updateSensor(key, numericalValue);
+        } catch (NumberFormatException e) {
           LOGGER.warn("Could not parse value {} for key: {} (node {})", value, key, sensorNodeId);
         }
       }
