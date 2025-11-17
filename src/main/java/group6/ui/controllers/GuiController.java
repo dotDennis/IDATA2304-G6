@@ -117,6 +117,7 @@ public class GuiController {
    * Shuts down the controller and control panel
    */
   public void shutdown() {
+    stopAutoRefresh();
     if(controlPanel != null) {
       controlPanel.shutdown();
     }
