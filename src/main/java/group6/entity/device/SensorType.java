@@ -21,7 +21,7 @@ public enum SensorType {
         this.defaultUnit = defaultUnit;
     }
 
-    public String getDefaultUnit() {
+    public String getUnit() {
         return defaultUnit;
     }
 }
