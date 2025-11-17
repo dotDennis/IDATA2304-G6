@@ -1,6 +1,7 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * <p>
  * When ON, the window is considered "open". This could be used in the GUI
  * and/or influence temperature/humidity sensors in a more advanced way.
+ * For now simply adjusts temperature, humidity, and wind speed when applied.
  */
 public class WindowOpenerActuator extends Actuator {
 
@@ -19,8 +21,15 @@ public class WindowOpenerActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO:
-        // if ON, move temperature and humidity gradually towards outside conditions.
-        // In a simulation define outside conditions somewhere.
+        for (Sensor sensor : sensors) {
+            SensorType type = sensor.getDeviceType();
+            switch (type) {
+                case TEMPERATURE -> sensor.manualAdjust(-0.2);
+                case HUMIDITY -> sensor.manualAdjust(-0.3);
+                case WIND_SPEED -> sensor.manualAdjust(0.5);
+                default -> {
+                }
+            }
+        }
     }
 }
