@@ -1,6 +1,7 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
 
 import java.util.List;
@@ -19,8 +20,14 @@ public class HeaterActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO:
-        // Look for TEMPERATURE sensors and
-        // slightly increase their values when the heater is ON.
+        for (Sensor sensor : sensors) {
+            SensorType type = sensor.getDeviceType();
+            switch (type) {
+                case TEMPERATURE -> sensor.manualAdjust(0.4);
+                case HUMIDITY -> sensor.manualAdjust(-0.25);
+                default -> {
+                }
+            }
+        }
     }
 }
