@@ -1,6 +1,7 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
 
 import java.util.List;
@@ -19,7 +20,10 @@ public class LightSwitchActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO::
-        // if ON, slightly increase LIGHT sensor readings to simulate lamps.
+        for (Sensor sensor : sensors) {
+            if (sensor.getDeviceType() == SensorType.LIGHT) {
+                sensor.manualAdjust(60.0);
+            }
+        }
     }
 }
