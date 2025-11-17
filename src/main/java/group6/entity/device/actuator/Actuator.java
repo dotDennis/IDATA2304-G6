@@ -1,7 +1,10 @@
 package group6.entity.device.actuator;
 
+import java.util.List;
+
 import group6.entity.device.ActuatorType;
 import group6.entity.device.Device;
+import group6.entity.device.sensor.Sensor;
 
 /**
  * Base class for all actuators.
@@ -44,6 +47,22 @@ public abstract class Actuator extends Device<ActuatorType> {
      */
     public boolean getState() {
         return state;
+    }
+
+    // ---------- Simulation hook ----------
+
+    /**
+     * Applies this actuator's effect to a list of sensors.
+     * <p>
+     * Called by the SensorNode once per simulation tick (before/after
+     * reading sensor values).
+     * <p>
+     * Default implementation does nothing; concrete actuators override this.
+     *
+     * @param sensors list of sensors attached to the same SensorNode
+     */
+    public void applyEffect(List<Sensor> sensors) {
+        // Subclasses override where relevant.
     }
 
 }
