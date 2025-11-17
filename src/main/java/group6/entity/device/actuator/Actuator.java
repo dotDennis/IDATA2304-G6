@@ -3,104 +3,47 @@ package group6.entity.device.actuator;
 import group6.entity.device.ActuatorType;
 import group6.entity.device.Device;
 
-import java.time.LocalDateTime;
-
 /**
  * Base class for all actuators.
- * Holds common metadata + ON/OFF state and last-changed timestamp.
+ *
+ * All actuators start in OFF state.
+ * Concrete subclasses only define the actuator type, no custom state setup.
  *
  * @author dotDennis
  * @since 0.1.0
  */
 public abstract class Actuator extends Device<ActuatorType> {
 
-    private boolean state;
-    private LocalDateTime lastChanged;
+    private boolean state = false; // ALWAYS OFF on creation
 
     /**
-     * Base constructor for all actuators.
+     * Constructs an actuator with the specified ID and type.
+     * Actuator always starts OFF.
      *
-     * @param deviceId unique ID for this actuator (e.g. "heater-01")
-     * @param type     actuator type enum
+     * @param deviceId   unique identifier for the actuator
+     * @param deviceType type of the actuator
      */
-    protected Actuator(String deviceId, ActuatorType type) {
-        super(deviceId, type);
-        this.state = false;
-        this.lastChanged = LocalDateTime.now();
+    protected Actuator(String deviceId, ActuatorType deviceType) {
+        super(deviceId, deviceType);
     }
 
-    // ---------- Core state API ----------
-
+    // ---------- State ----------
     /**
-     * Turns the actuator ON.
-     */
-    public final void turnOn() {
-        setState(true);
-    }
-
-    /**
-     * Turns the actuator OFF.
-     */
-    public final void turnOff() {
-        setState(false);
-    }
-
-    /**
-     * Toggles the actuator state.
-     */
-    public final void toggle() {
-        setState(!state);
-    }
-
-    /**
-     * Sets the actuator state (true = ON, false = OFF).
-     * Subclasses can hook into onStateChanged().
+     * Turns the actuator ON or OFF.
      *
-     * @param newState desired state
+     * @param on true to turn ON, false to turn OFF
      */
-    public void setState(boolean newState) {
-        if (this.state == newState) {
-            return; // no-op
-        }
-        this.state = newState;
-        this.lastChanged = LocalDateTime.now();
-        onStateChanged(newState);
+    public void setState(boolean on) {
+        this.state = on;
     }
 
     /**
-     * Hook for subclasses when state changes (e.g. logging, internal adjustment).
-     * Default implementation does nothing.
-     *
-     * @param newState new state (true = ON, false = OFF)
-     */
-    protected void onStateChanged(boolean newState) {
-        // subclass hook – optional
-    }
-
-    // ---------- Getters ----------
-
-    /**
-     * @return true if actuator is ON
-     */
-    public boolean isOn() {
-        return state;
-    }
-
-    /**
-     * @return raw state flag
+     * Gets the current state of the actuator.
+     * 
+     * @return true if ON, false if OFF
      */
     public boolean getState() {
         return state;
     }
 
-    public LocalDateTime getLastChanged() {
-        return lastChanged;
-    }
-
-    /**
-     * Convenience: human-readable name from ActuatorType.
-     */
-    public String getDisplayName() {
-        return getDeviceType().getDisplayName();
-    }
 }
