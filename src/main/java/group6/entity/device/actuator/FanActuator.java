@@ -1,6 +1,7 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
 
 import java.util.List;
@@ -19,8 +20,15 @@ public class FanActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO:
-        // - decrease temperature a bit
-        // - decrease humidity a bit
+        for (Sensor sensor : sensors) {
+            SensorType type = sensor.getDeviceType();
+            switch (type) {
+                case TEMPERATURE -> sensor.manualAdjust(-0.3);
+                case HUMIDITY -> sensor.manualAdjust(-0.5);
+                case WIND_SPEED -> sensor.manualAdjust(0.4);
+                default -> {
+                }
+            }
+        }
     }
 }
