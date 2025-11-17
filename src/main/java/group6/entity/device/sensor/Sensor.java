@@ -12,7 +12,7 @@ import group6.entity.device.SensorType;
  *
  * Unit is taken from SensorType.getDefaultUnit().
  *
- * @author dotDennis
+ * @author dotDennis, Fidjor
  * @since 0.1.0
  */
 public abstract class Sensor extends Device<SensorType> {
