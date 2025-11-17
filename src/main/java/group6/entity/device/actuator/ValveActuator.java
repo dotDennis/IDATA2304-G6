@@ -1,6 +1,7 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
 
 import java.util.List;
@@ -18,7 +19,15 @@ public class ValveActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO:
-        // if ON, increase/decrase ph or increase fertilizer concentration sensors.
+        for (Sensor sensor : sensors) {
+            SensorType type = sensor.getDeviceType();
+            switch (type) {
+                case HUMIDITY -> sensor.manualAdjust(0.6);
+                case FERTILIZER -> sensor.manualAdjust(3.0);
+                case PH -> sensor.manualAdjust(-0.02);
+                default -> {
+                }
+            }
+        }
     }
 }
