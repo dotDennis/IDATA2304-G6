@@ -5,6 +5,7 @@ import group6.ui.controllers.GuiController;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -26,6 +27,8 @@ public class MainView {
   private final Label statusLabel;
   private final TabPane tabPane;
   private final Map<String, NodeTabView> nodeTabs;
+  private final ScrollPane scrollPane;
+  private final VBox centerContent;
 
   private ConnectionView connectionView;
 
@@ -40,6 +43,12 @@ public class MainView {
     this.statusLabel = new Label("Ready");
     this.tabPane = new TabPane();
     this.nodeTabs = new HashMap<>();
+    this.centerContent = new VBox(15);
+    this.centerContent.setPadding(new Insets(10));
+    this.centerContent.setFillWidth(true);
+    this.scrollPane = new ScrollPane(centerContent);
+    this.scrollPane.setFitToWidth(true);
+    this.scrollPane.setFitToHeight(true);
 
     setupLayout();
   }
@@ -56,10 +65,6 @@ public class MainView {
     BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
     root.setTop(title);
 
-    //Main content
-    VBox centerBox = new VBox(15);
-    centerBox.setPadding(new Insets(10));
-
     //Connection section
     connectionView = new ConnectionView(controller);
     connectionView.setStatusLabel(statusLabel);
@@ -70,17 +75,8 @@ public class MainView {
     //TabPane for multiple nodes
     tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 
-    if(nodeTabs.isEmpty()) {
-      Label placeholder = new Label("Connect to a sensornode to get started");
-      placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
-      placeholder.setPadding(new Insets(20));
-      centerBox.getChildren().addAll(connectionView.getView(), placeholder);
-    }else {
-      centerBox.getChildren().addAll(connectionView.getView(), tabPane);
-    }
-
-    root.setCenter(centerBox);
-
+    refreshCenterContent();
+    root.setCenter(scrollPane);
 
     //Status bar
     statusLabel.setStyle("-fx-background-color: white; -fx-padding: 5;" );
@@ -103,17 +99,10 @@ public class MainView {
     nodeTabs.put(nodeId, nodeTabView);
     tabPane.getTabs().add(nodeTabView.getTab());
 
-    //Update center content
-    if(nodeTabs.size() == 1) {
-      VBox centerBox = new VBox(15);
-      centerBox.setPadding(new Insets(10));
-      centerBox.getChildren().addAll(connectionView.getView(), tabPane);
-      root.setCenter(centerBox);
-    }
-
     //Select new tab
     tabPane.getSelectionModel().select(nodeTabView.getTab());
 
+    refreshCenterContent();
     statusLabel.setText("Connected to " + nodeId);
   }
 
@@ -127,17 +116,7 @@ public class MainView {
     if (nodeTabView != null) {
       tabPane.getTabs().remove(nodeTabView.getTab());
       statusLabel.setText("Disconnected from " + nodeId);
-
-      //If no tabs, show placeholder instead
-      if(nodeTabs.isEmpty()) {
-        VBox centerBox = new VBox(15);
-        centerBox.setPadding(new Insets(10));
-        Label placeholder = new Label("Connect to a sensornode to get started");
-        placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
-        placeholder.setPadding(new Insets(20));
-        centerBox.getChildren().addAll(connectionView.getView(), placeholder);
-        root.setCenter(centerBox);
-      }
+      refreshCenterContent();
     }
   }
 
@@ -158,5 +137,28 @@ public class MainView {
    */
   public Scene getScene() {
     return new Scene(root, 800, 600);
+  }
+
+  /**
+   * Refreshes the center content inside the scroll pane.
+   * Shows tabs when available, otherwise displays placeholder text.
+   */
+  private void refreshCenterContent() {
+    centerContent.getChildren().clear();
+    centerContent.getChildren().add(connectionView.getView());
+
+    if (nodeTabs.isEmpty()) {
+      centerContent.getChildren().add(createPlaceholderLabel());
+    } else {
+      centerContent.getChildren().add(tabPane);
+    }
+  }
+
+  private Label createPlaceholderLabel() {
+    Label placeholder = new Label("Connect to a sensornode to get started");
+    placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
+    placeholder.setPadding(new Insets(20));
+    placeholder.setWrapText(true);
+    return placeholder;
   }
 }
