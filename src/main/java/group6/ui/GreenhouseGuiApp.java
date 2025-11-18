@@ -1,9 +1,9 @@
 package group6.ui;
 
-import group6.entity.device.Actuator;
-import group6.entity.device.ActuatorType;
-import group6.entity.device.Sensor;
-import group6.entity.device.SensorType;
+import group6.entity.device.actuator.FanActuator;
+import group6.entity.device.actuator.HeaterActuator;
+import group6.entity.device.sensor.HumiditySensor;
+import group6.entity.device.sensor.TemperatureSensor;
 import group6.entity.node.ControlPanel;
 import group6.entity.node.SensorNode;
 import group6.net.TcpServer;
@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 /**
  * JavaFX application for Greenhouse control panel.
  * Entry point for the GUI application.
+ * 
+ * @
  *
  */
 public class GreenhouseGuiApp extends Application {
@@ -62,41 +64,15 @@ public class GreenhouseGuiApp extends Application {
       SensorNode node = new SensorNode("sensor-01");
 
       // Add demo actuators fist
-      Actuator heater = new Actuator("heater-1", ActuatorType.HEATER);
-      Actuator fan = new Actuator("fan-1", ActuatorType.FAN);
+      HeaterActuator heater = new HeaterActuator("heater-1");
+      FanActuator fan = new FanActuator("fan-1");
       node.addActuator(heater);
       node.addActuator(fan);
 
       // Add demo sensors that react to actuators
-      node.addSensor(new Sensor("temp-1", SensorType.TEMPERATURE) {
-        private double baseTemp = 20.0;
+      node.addSensor(new TemperatureSensor("temp-1"));
 
-        @Override
-        public double readValue() {
-          // If heater is ON, temperature increases
-          if (heater.getState()) {
-            baseTemp = Math.min(30.0, baseTemp + 0.5); // Max 30°C
-          } else {
-            baseTemp = Math.max(15.0, baseTemp - 0.3); // Min 15°C
-          }
-          return baseTemp + (Math.random() * 2 - 1); // Add some noise
-        }
-      });
-
-      node.addSensor(new Sensor("hum-1", SensorType.HUMIDITY) {
-        private double baseHumidity = 50.0;
-
-        @Override
-        public double readValue() {
-          // If fan is ON, humidity decreases
-          if (fan.getState()) {
-            baseHumidity = Math.max(30.0, baseHumidity - 0.5); // Min 30%
-          } else {
-            baseHumidity = Math.min(70.0, baseHumidity + 0.3); // Max 70%
-          }
-          return baseHumidity + (Math.random() * 4 - 2); // Add some noise
-        }
-      });
+      node.addSensor(new HumiditySensor("hum-1"));
 
       // Start TCP server
       demoServer = new TcpServer(12345, node);
