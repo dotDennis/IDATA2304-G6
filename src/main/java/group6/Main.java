@@ -1,6 +1,5 @@
 package group6;
 
-import group6.ui.ControlPanelTuiDemo;
 import group6.ui.GreenhouseGuiApp;
 
 /**
