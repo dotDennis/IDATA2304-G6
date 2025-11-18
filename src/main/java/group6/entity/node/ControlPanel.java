@@ -98,7 +98,28 @@ public class ControlPanel extends Node {
     client.start();
 
     LOGGER.info("Connecting to sensor node {} at {}:{}", sensorNodeId, host, port);
+  }
 
+  /**
+   * Disconnects from a sensor node.
+   *
+   * @param sensorNodeId the ID of the sensor node to disconnect
+   */
+  public void disconnectFromSensorNode(String sensorNodeId) {
+    SensorNodeClient client = sensorClients.get(sensorNodeId);
+    if (client == null) {
+      LOGGER.warn("Not connected to a sensor node {}", sensorNodeId);
+      return;
+    }
+
+    try {
+      client.stop();
+      sensorClients.remove(sensorNodeId);
+      dataCache.remove(sensorNodeId);
+      LOGGER.info("Disconnecting from sensor node {}", sensorNodeId);
+    } catch (Exception e) {
+      LOGGER.error("Failed to disconnect from sensor node {}", sensorNodeId, e);
+    }
   }
 
   /**

@@ -9,6 +9,8 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
 /**
  * View for connection controls.
  * Allows user to connect to sensornodes.
@@ -21,6 +23,7 @@ public class ConnectionView {
   private final GuiController controller;
   private final HBox view;
   private Label statusLabel;
+  private Consumer<String> onNodeConnected;
 
   /**
    * Creates the connection view.
@@ -88,6 +91,11 @@ public class ConnectionView {
       controller.connectToNode(nodeId, host, port);
       updateStatus("Connected to " + nodeId + "at " + host + ":" + port);
       LOGGER.info("Connection successful");
+
+      if(onNodeConnected != null) {
+        onNodeConnected.accept(nodeId);
+      }
+
     } catch (Exception e) {
       updateStatus("Connection failed: " + e.getMessage());
       LOGGER.error("Connection failed", e);
@@ -113,6 +121,15 @@ public class ConnectionView {
   public void setStatusLabel (Label statusLabel) {
     this.statusLabel = statusLabel;
     }
+
+  /**
+   * Sets the callback to invoke when a node is connected.
+   *
+   * @param callback consumer that accepts the nodeId
+   */
+  public void setOnNodeConnected (Consumer<String> callback) {
+    this.onNodeConnected = callback;
+  }
 
   /**
    * Gets the view

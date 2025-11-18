@@ -41,7 +41,7 @@ public class GreenhouseGuiApp extends Application {
     mainView = new MainView(controller);
 
     //Start auto refresh (every 2 seconds)
-    controller.startAutoRefresh(() -> mainView.refreshDisplay(), 2000);
+    controller.startAutoRefresh(() -> mainView.refreshAllTabs(), 2000);
 
     //Setup
     primaryStage.setTitle("Greenhouse Control Panel");

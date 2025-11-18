@@ -52,6 +52,22 @@ public class GuiController {
   }
 
   /**
+   * Disconnects from a sensor node.
+   *
+   * @param nodeId the node ID
+   * @throws RuntimeException if disconnect fails
+   */
+  public void disconnectNode(String nodeId) {
+    try {
+      controlPanel.disconnectFromSensorNode(nodeId);
+      LOGGER.info("Discconnected from {}", nodeId);
+    } catch (Exception e) {
+      LOGGER.error("Failed to disconnect from {}", nodeId, e);
+      throw new RuntimeException("Disconnection failed: " + e.getMessage(), e);
+    }
+  }
+
+  /**
    * Sends a command to control an actuator.
    *
    * @param nodeId the node ID.
