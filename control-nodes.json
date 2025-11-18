@@ -1,0 +1,10 @@
+[
+  {
+    "id": "control-01",
+    "displayName": "Control Node A"
+  },
+  {
+    "id": "control-02",
+    "displayName": "Control Node B"
+  }
+]
