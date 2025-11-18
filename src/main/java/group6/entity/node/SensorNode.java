@@ -93,6 +93,8 @@ public class SensorNode extends Node {
      * @return the formatted sensor String
      */
     public String getSensorDataString() {
+        applyActuatorEffects();
+
         StringBuilder data = new StringBuilder();
         for (int i = 0; i < sensors.size(); i++) {
             Sensor sensor = sensors.get(i);
@@ -162,5 +164,20 @@ public class SensorNode extends Node {
      */
     public List<Sensor> getSensors() {
         return sensors;
+    }
+
+    /**
+     * Applies effects from all active actuators to the attached sensors.
+     */
+    private void applyActuatorEffects() {
+        if (actuators.isEmpty() || sensors.isEmpty()) {
+            return;
+        }
+
+        for (Actuator actuator : actuators) {
+            if (actuator.getState()) {
+                actuator.applyEffect(sensors);
+            }
+        }
     }
 }
