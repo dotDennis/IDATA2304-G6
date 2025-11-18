@@ -1,0 +1,29 @@
+package group6.entity.device.actuator;
+
+import group6.entity.device.ActuatorType;
+import group6.entity.device.SensorType;
+import group6.entity.device.sensor.Sensor;
+
+import java.util.List;
+
+/**
+ * Actuator representing a light switch.
+ * <p>
+ * When ON, this actuator could increase the LIGHT sensor readings
+ * to simulate lux values (lighting) in the greenhouse.
+ */
+public class LightSwitchActuator extends Actuator {
+
+    public LightSwitchActuator(String deviceId) {
+        super(deviceId, ActuatorType.LIGHT_SWITCH);
+    }
+
+    @Override
+    public void applyEffect(List<Sensor> sensors) {
+        for (Sensor sensor : sensors) {
+            if (sensor.getDeviceType() == SensorType.LIGHT) {
+                sensor.manualAdjust(60.0);
+            }
+        }
+    }
+}

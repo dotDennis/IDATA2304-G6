@@ -1,11 +1,12 @@
 package group6.entity.node;
 
-import group6.entity.device.Actuator;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+
+import group6.entity.device.actuator.Actuator;
 import group6.net.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

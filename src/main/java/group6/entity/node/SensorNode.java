@@ -3,8 +3,8 @@ package group6.entity.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import group6.entity.device.Actuator;
-import group6.entity.device.Sensor;
+import group6.entity.device.actuator.Actuator;
+import group6.entity.device.sensor.Sensor;
 
 /**
  * SensorNode represents a node that contains sensors/actuators in the system.
