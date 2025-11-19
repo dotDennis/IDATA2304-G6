@@ -74,6 +74,18 @@ public class ControlPanel extends Node {
     public long getLastUpdate() {
       return lastUpdate;
     }
+
+    public void removeSensor(String key) {
+      if (key != null) {
+        sensorReadings.remove(key);
+      }
+    }
+
+    public void removeActuator(String key) {
+      if (key != null) {
+        actuatorStates.remove(key);
+      }
+    }
   }
 
   // --------- API ---------
@@ -276,6 +288,20 @@ public class ControlPanel extends Node {
    */
   public NodeData getNodeData(String sensorNodeId) {
     return dataCache.get(sensorNodeId);
+  }
+
+  public void removeCachedSensor(String sensorNodeId, String sensorKey) {
+    NodeData data = dataCache.get(sensorNodeId);
+    if (data != null) {
+      data.removeSensor(sensorKey);
+    }
+  }
+
+  public void removeCachedActuator(String sensorNodeId, String actuatorKey) {
+    NodeData data = dataCache.get(sensorNodeId);
+    if (data != null) {
+      data.removeActuator(actuatorKey);
+    }
   }
 
   /**
