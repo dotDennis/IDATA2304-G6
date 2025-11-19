@@ -7,6 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.type.CollectionType;
 
@@ -21,6 +24,7 @@ import tools.jackson.databind.type.CollectionType;
  */
 public final class ControlNodeLoader {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ControlNodeLoader.class);
   private static final ObjectMapper MAPPER = new ObjectMapper();
   private static final CollectionType ENTRY_LIST_TYPE = MAPPER.getTypeFactory().constructCollectionType(
       List.class,
@@ -32,10 +36,14 @@ public final class ControlNodeLoader {
 
   public static ControlNodeConfig load(Path file) throws IOException {
     if (file != null && Files.exists(file)) {
+      LOGGER.info("Loading control node config from {}", file.toAbsolutePath());
       try (InputStream in = Files.newInputStream(file)) {
-        return readEntries(in);
+        ControlNodeConfig config = readEntries(in);
+        LOGGER.info("Loaded {} control node entries", config.getEntries().size());
+        return config;
       }
     }
+    LOGGER.info("No config file found, using empty configuration");
     return ControlNodeConfig.fromEntries(null);
   }
 
@@ -46,9 +54,11 @@ public final class ControlNodeLoader {
     if (file.getParent() != null) {
       Files.createDirectories(file.getParent());
     }
+    LOGGER.info("Saving {} control node entries to {}", config.getEntries().size(), file.toAbsolutePath());
     try (OutputStream out = Files.newOutputStream(file)) {
       MAPPER.writerWithDefaultPrettyPrinter().writeValue(out, config.getEntries());
     }
+    LOGGER.info("Configuration written successfully");
   }
 
   /**
