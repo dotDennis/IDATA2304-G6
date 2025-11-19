@@ -17,11 +17,14 @@ import group6.entity.device.SensorType;
  */
 public abstract class Sensor extends Device<SensorType> {
 
+  private static final long DEFAULT_INTERVAL_MS = 5000;
+
   private final double minValue;
   private final double maxValue;
 
   protected double currentValue;
   private LocalDateTime lastUpdated;
+  private long updateIntervalMs = DEFAULT_INTERVAL_MS;
 
   /**
    * Base constructor for all sensors.
@@ -125,5 +128,16 @@ public abstract class Sensor extends Device<SensorType> {
 
   public LocalDateTime getLastUpdated() {
     return lastUpdated;
+  }
+
+  public synchronized void setUpdateInterval(long intervalMs) {
+    if (intervalMs <= 0) {
+      intervalMs = DEFAULT_INTERVAL_MS;
+    }
+    this.updateIntervalMs = intervalMs;
+  }
+
+  public synchronized long getUpdateInterval() {
+    return updateIntervalMs;
   }
 }
