@@ -3,12 +3,13 @@ package group6.entity.node;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import group6.protocol.DeviceKey;
 
 /**
  * Control panel node (domain model).
@@ -291,7 +292,8 @@ public class ControlPanel extends Node {
         continue;
       }
 
-      String key = normalizeDeviceKey(keyValue[0]);
+      DeviceKey parsedKey = DeviceKey.parse(keyValue[0]);
+      String key = parsedKey.toProtocolKey();
       String value = keyValue[1].trim();
 
       // Check if it's an actuator (0 or 1) FIRST
@@ -365,19 +367,6 @@ public class ControlPanel extends Node {
   }
 
   public static String normalizeDeviceKey(String rawKey) {
-    if (rawKey == null) {
-      return "";
-    }
-    String trimmed = rawKey.trim();
-    if (trimmed.isEmpty()) {
-      return trimmed;
-    }
-    int hashIndex = trimmed.indexOf('#');
-    if (hashIndex >= 0) {
-      String type = trimmed.substring(0, hashIndex).toLowerCase(Locale.ROOT);
-      String id = trimmed.substring(hashIndex + 1);
-      return type + "#" + id;
-    }
-    return trimmed.toLowerCase(Locale.ROOT);
+    return DeviceKey.parse(rawKey).toProtocolKey();
   }
 }
