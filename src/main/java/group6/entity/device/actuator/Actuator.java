@@ -37,7 +37,10 @@ public abstract class Actuator extends Device<ActuatorType> {
      * @param on true to turn ON, false to turn OFF
      */
     public void setState(boolean on) {
-        this.state = on;
+        if (this.state != on) {
+            this.state = on;
+            notifyDeviceUpdated();
+        }
     }
 
     /**
