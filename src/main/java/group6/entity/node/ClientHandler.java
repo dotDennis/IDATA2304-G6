@@ -224,10 +224,10 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
     }
 
     if (refreshSensors) {
-      sendSensorDataSnapshot();
+      sendSensorSnapshot();
     }
     if (refreshActuators) {
-      sendActuatorStatusSnapshot();
+      sendActuatorSnapshot();
     }
 
     Message reply = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
@@ -236,22 +236,19 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
-   * Sends a snapshot of current sensor data to the control panel.
-   * Snapshot just means sending the current data once and immediately.
+   * Sends a full snapshot of all sensor readings regardless of pending changes.
    */
-  private void sendSensorDataSnapshot() {
-    String sensorData = sensorNode.getSensorDataString();
-    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
+  private void sendSensorSnapshot() {
+    String snapshot = sensorNode.getSensorSnapshot();
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), snapshot);
     sendMessage(message);
   }
 
   /**
-   * Sends only the changed sensor data to the control panel.
-   * Only the sensors that have new data since the last update are sent.
-   * More efficient, and only used when sensors actually change with new data.
+   * Sends only sensors that have reported new readings since the last send (delta update).
    */
-  private void sendSensorDataUpdate() {
-    String updates = sensorNode.pendingSensorUpdates();
+  private void sendSensorDelta() {
+    String updates = sensorNode.drainPendingSensorUpdates();
     if (updates == null || updates.isEmpty()) {
       return;
     }
@@ -260,11 +257,10 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
-   * Sends a snapshot of current actuator status to the control panel.
-   * Snapshot just means sending the current data once and immediately.
+   * Sends a full snapshot of actuator states.
    */
-  private void sendActuatorStatusSnapshot() {
-    String actuatorStatus = sensorNode.getActuatorStatusString();
+  private void sendActuatorSnapshot() {
+    String actuatorStatus = sensorNode.getActuatorSnapshot();
     Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
     sendMessage(message);
   }
@@ -298,14 +294,14 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   @Override
   public void onSensorsUpdated(SensorNode node) {
     if (running && connection != null && connection.isOpen()) {
-      sendSensorDataUpdate();
+      sendSensorDelta();
     }
   }
 
   @Override
   public void onActuatorsUpdated(SensorNode node) {
     if (running && connection != null && connection.isOpen()) {
-      sendActuatorStatusSnapshot();
+      sendActuatorSnapshot();
     }
   }
 }

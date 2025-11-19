@@ -40,7 +40,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
     private long interval = 5000;
     private final Map<String, Long> deviceUpdateTimestamps = new ConcurrentHashMap<>();
     private final List<SensorNodeUpdateListener> updateListeners = new CopyOnWriteArrayList<>();
-    private final Set<String> pendingUpdate = ConcurrentHashMap.newKeySet();
+    private final Set<String> pendingSensorUpdates = ConcurrentHashMap.newKeySet();
 
     /**
      * Creates a new {@code SensorNode} with the given ID.
@@ -160,7 +160,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         deviceUpdateTimestamps.remove(device.getDeviceId());
 
         if (type == DeviceType.SENSOR) {
-            pendingUpdate.remove(normalizeId(device.getDeviceId()));
+            pendingSensorUpdates.remove(normalizeId(device.getDeviceId()));
         }
 
         return true;
@@ -178,7 +178,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * @return a formatted sensor data string, or an empty string if there are no
      *         sensors
      */
-    public String getSensorDataString() {
+    public String getSensorSnapshot() {
         applyActuatorEffects();
 
         StringBuilder data = new StringBuilder();
@@ -205,7 +205,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * @return a formatted actuator status string, or an empty string if there
      *         are no actuators
      */
-    public String getActuatorStatusString() {
+    public String getActuatorSnapshot() {
         StringBuilder status = new StringBuilder();
         for (int i = 0; i < actuators.size(); i++) {
             Actuator actuator = actuators.get(i);
@@ -345,7 +345,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         deviceUpdateTimestamps.put(device.getDeviceId(), System.currentTimeMillis());
 
         if (device instanceof Sensor) {
-            pendingUpdate.add(normalizeId(device.getDeviceId()));
+            pendingSensorUpdates.add(normalizeId(device.getDeviceId()));
             for (SensorNodeUpdateListener listener : updateListeners) {
                 listener.onSensorsUpdated(this);
             }
@@ -405,15 +405,15 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * @return a formatted string of pending sensor updates,
      *         or an empty string if there are none
      */
-    public String pendingSensorUpdates() {
-        if (pendingUpdate.isEmpty()) {
+    public String drainPendingSensorUpdates() {
+        if (pendingSensorUpdates.isEmpty()) {
             return "";
         }
 
         StringBuilder data = new StringBuilder();
         for (Sensor sensor : new ArrayList<>(sensors)) {
             String deviceKey = normalizeId(sensor.getDeviceId());
-            if (!pendingUpdate.remove(deviceKey)) {
+            if (!pendingSensorUpdates.remove(deviceKey)) {
                 continue;
             }
             if (data.length() > 0) {
