@@ -3,6 +3,7 @@ package group6.entity.node;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -260,7 +261,7 @@ public class ControlPanel extends Node {
         continue;
       }
 
-      String key = keyValue[0].trim().toLowerCase();
+      String key = normalizeDeviceKey(keyValue[0]);
       String value = keyValue[1].trim();
 
       // Check if it's an actuator (0 or 1) FIRST
@@ -331,5 +332,22 @@ public class ControlPanel extends Node {
    */
   public boolean isRunning() {
     return running;
+  }
+
+  public static String normalizeDeviceKey(String rawKey) {
+    if (rawKey == null) {
+      return "";
+    }
+    String trimmed = rawKey.trim();
+    if (trimmed.isEmpty()) {
+      return trimmed;
+    }
+    int hashIndex = trimmed.indexOf('#');
+    if (hashIndex >= 0) {
+      String type = trimmed.substring(0, hashIndex).toLowerCase(Locale.ROOT);
+      String id = trimmed.substring(hashIndex + 1);
+      return type + "#" + id;
+    }
+    return trimmed.toLowerCase(Locale.ROOT);
   }
 }
