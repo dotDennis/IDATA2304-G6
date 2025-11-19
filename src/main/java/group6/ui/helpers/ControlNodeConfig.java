@@ -27,7 +27,7 @@ public final class ControlNodeConfig {
   public static class Entry {
     private String id;
     private String displayName;
-    private long refreshInterval = 5000;
+    private long refreshInterval = 1000;
     private List<SensorNodeEntry> sensorNodes = new ArrayList<>();
 
     /**
@@ -67,7 +67,7 @@ public final class ControlNodeConfig {
     }
 
     public long getRefreshInterval() {
-      return refreshInterval <= 0 ? 5000 : refreshInterval;
+      return refreshInterval <= 0 ? 1000 : refreshInterval;
     }
 
     public void setRefreshInterval(long refreshInterval) {
@@ -86,11 +86,12 @@ public final class ControlNodeConfig {
     }
   }
 
-  @JsonPropertyOrder({ "id", "host", "port", "sensors", "actuators" })
+  @JsonPropertyOrder({ "id", "host", "port", "refreshInterval", "sensors", "actuators" })
   public static class SensorNodeEntry {
     private String id;
     private String host = "localhost";
     private int port;
+    private long refreshInterval = 5000;
     private List<DeviceEntry> sensors = new ArrayList<>();
     private List<DeviceEntry> actuators = new ArrayList<>();
 
@@ -116,6 +117,14 @@ public final class ControlNodeConfig {
 
     public void setPort(int port) {
       this.port = port;
+    }
+
+    public long getRefreshInterval() {
+      return refreshInterval <= 0 ? 5000 : refreshInterval;
+    }
+
+    public void setRefreshInterval(long refreshInterval) {
+      this.refreshInterval = refreshInterval;
     }
 
     public List<DeviceEntry> getSensors() {
