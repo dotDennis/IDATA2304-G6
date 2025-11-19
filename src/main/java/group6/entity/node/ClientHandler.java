@@ -90,7 +90,8 @@ public class ClientHandler implements Runnable {
   }
 
   /**
-   * Sends sensor data to control panel every 5 seconds.
+   * Sends sensor data to control panel according to the configured interval.
+   * Default is every 5 seconds.
    */
   private void sendSensorDataPeriodically() {
     try {
@@ -100,7 +101,7 @@ public class ClientHandler implements Runnable {
         Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
         sendMessage(message);
 
-        Thread.sleep(5000);
+        Thread.sleep(sensorNode.getSensorNodeInterval());
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Sensor data thread interrupted for node {}", sensorNode.getNodeId(), e);
