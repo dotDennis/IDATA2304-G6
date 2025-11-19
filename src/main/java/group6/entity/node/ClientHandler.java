@@ -176,7 +176,10 @@ public class ClientHandler implements Runnable {
       return;
     }
 
-    Actuator actuator = sensorNode.findActuatorByType(actuatorType);
+    Actuator actuator = sensorNode.findActuatorByDeviceId(actuatorType);
+    if (actuator == null) {
+      actuator = sensorNode.findActuatorByType(actuatorType);
+    }
     if (actuator == null) {
       sendError("Unknown actuator: " + actuatorType);
       return;
