@@ -46,21 +46,27 @@ public class ControlPanel extends Node {
   public static class NodeData {
     private final Map<String, Double> sensorReadings;
     private final Map<String, Boolean> actuatorStates;
+    private final Map<String, Long> sensorUpdatedAt;
+    private final Map<String, Long> actuatorUpdatedAt;
     private long lastUpdate;
 
     public NodeData() {
       this.sensorReadings = new ConcurrentHashMap<>();
       this.actuatorStates = new ConcurrentHashMap<>();
+      this.sensorUpdatedAt = new ConcurrentHashMap<>();
+      this.actuatorUpdatedAt = new ConcurrentHashMap<>();
       this.lastUpdate = System.currentTimeMillis();
     }
 
     public void updateSensor(String type, double value) {
       sensorReadings.put(type, value);
+      sensorUpdatedAt.put(type, System.currentTimeMillis());
       lastUpdate = System.currentTimeMillis();
     }
 
     public void updateActuator(String type, boolean state) {
       actuatorStates.put(type, state);
+      actuatorUpdatedAt.put(type, System.currentTimeMillis());
       lastUpdate = System.currentTimeMillis();
     }
 
@@ -79,17 +85,27 @@ public class ControlPanel extends Node {
     public void removeSensor(String key) {
       if (key != null) {
         sensorReadings.remove(key);
+        sensorUpdatedAt.remove(key);
       }
     }
 
     public void removeActuator(String key) {
       if (key != null) {
         actuatorStates.remove(key);
+        actuatorUpdatedAt.remove(key);
       }
     }
 
     public void touch() {
       lastUpdate = System.currentTimeMillis();
+    }
+
+    public long getSensorUpdatedAt(String key) {
+      return sensorUpdatedAt.getOrDefault(key, 0L);
+    }
+
+    public long getActuatorUpdatedAt(String key) {
+      return actuatorUpdatedAt.getOrDefault(key, 0L);
     }
   }
 
