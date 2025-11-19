@@ -3,6 +3,8 @@ package group6.ui.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import group6.entity.node.ControlPanel;
 
 /**
@@ -25,6 +27,8 @@ public final class ControlNodeConfig {
   public static class Entry {
     private String id;
     private String displayName;
+    private long refreshInterval = 2000;
+    private List<SensorNodeEntry> sensorNodes = new ArrayList<>();
 
     /**
      * Gets the identifier for this control node.
@@ -60,6 +64,109 @@ public final class ControlNodeConfig {
      */
     public void setDisplayName(String displayName) {
       this.displayName = displayName;
+    }
+
+    public long getRefreshInterval() {
+      return refreshInterval <= 0 ? 2000 : refreshInterval;
+    }
+
+    public void setRefreshInterval(long refreshInterval) {
+      this.refreshInterval = refreshInterval;
+    }
+
+    public List<SensorNodeEntry> getSensorNodes() {
+      if (sensorNodes == null) {
+        sensorNodes = new ArrayList<>();
+      }
+      return sensorNodes;
+    }
+
+    public void setSensorNodes(List<SensorNodeEntry> sensorNodes) {
+      this.sensorNodes = sensorNodes;
+    }
+  }
+
+  @JsonPropertyOrder({ "id", "host", "port", "sensors", "actuators" })
+  public static class SensorNodeEntry {
+    private String id;
+    private String host = "localhost";
+    private int port;
+    private List<DeviceEntry> sensors = new ArrayList<>();
+    private List<DeviceEntry> actuators = new ArrayList<>();
+
+    public String getId() {
+      return id;
+    }
+
+    public void setId(String id) {
+      this.id = id;
+    }
+
+    public String getHost() {
+      return host;
+    }
+
+    public void setHost(String host) {
+      this.host = host;
+    }
+
+    public int getPort() {
+      return port;
+    }
+
+    public void setPort(int port) {
+      this.port = port;
+    }
+
+    public List<DeviceEntry> getSensors() {
+      if (sensors == null) {
+        sensors = new ArrayList<>();
+      }
+      return sensors;
+    }
+
+    public void setSensors(List<DeviceEntry> sensors) {
+      this.sensors = sensors;
+    }
+
+    public List<DeviceEntry> getActuators() {
+      if (actuators == null) {
+        actuators = new ArrayList<>();
+      }
+      return actuators;
+    }
+
+    public void setActuators(List<DeviceEntry> actuators) {
+      this.actuators = actuators;
+    }
+  }
+
+  public static class DeviceEntry {
+    private String id;
+    private String type;
+
+    public DeviceEntry() {
+    }
+
+    public DeviceEntry(String id, String type) {
+      this.id = id;
+      this.type = type;
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public void setId(String id) {
+      this.id = id;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public void setType(String type) {
+      this.type = type;
     }
   }
 
@@ -101,6 +208,7 @@ public final class ControlNodeConfig {
     }
   }
 
+  private final List<Entry> entries;
   private final List<ControlNode> nodes;
 
   /**
@@ -108,7 +216,8 @@ public final class ControlNodeConfig {
    *
    * @param nodes list of configured control nodes
    */
-  private ControlNodeConfig(List<ControlNode> nodes) {
+  private ControlNodeConfig(List<Entry> entries, List<ControlNode> nodes) {
+    this.entries = entries;
     this.nodes = nodes;
   }
 
@@ -121,6 +230,10 @@ public final class ControlNodeConfig {
     return nodes;
   }
 
+  public List<Entry> getEntries() {
+    return entries;
+  }
+
   /**
    * Builds a {@link ControlNodeConfig} from JSON-deserialized entries.
    *
@@ -128,10 +241,14 @@ public final class ControlNodeConfig {
    * @return a configuration with one {@link ControlNode} per entry
    */
   public static ControlNodeConfig fromEntries(List<Entry> entries) {
-    List<ControlNode> nodes = new ArrayList<>(entries.size());
-    for (Entry entry : entries) {
-      nodes.add(new ControlNode(entry));
+    List<Entry> entryCopies = new ArrayList<>();
+    List<ControlNode> nodes = new ArrayList<>();
+    if (entries != null) {
+      for (Entry entry : entries) {
+        entryCopies.add(entry);
+        nodes.add(new ControlNode(entry));
+      }
     }
-    return new ControlNodeConfig(nodes);
+    return new ControlNodeConfig(entryCopies, nodes);
   }
 }
