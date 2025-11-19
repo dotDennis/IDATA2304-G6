@@ -2,9 +2,14 @@ package group6.entity.node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
+import group6.entity.device.Device;
+import group6.entity.device.DeviceUpdateListener;
 
 /**
  * SensorNode represents a node that contains sensors/actuators in the system.
@@ -13,11 +18,13 @@ import group6.entity.device.sensor.Sensor;
  * @author dotDennis, Fidjor
  * @since 0.1.0
  */
-public class SensorNode extends Node {
+public class SensorNode extends Node implements DeviceUpdateListener {
 
     private final List<Actuator> actuators;
     private final List<Sensor> sensors;
     private long interval = 5000;
+    private final Map<String, Long> deviceUpdateTimestamps = new ConcurrentHashMap<>();
+    private final List<SensorNodeUpdateListener> updateListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs a SensorNode with the specified ID.
@@ -44,6 +51,7 @@ public class SensorNode extends Node {
             throw new IllegalArgumentException("actuator cannot be null");
         }
         this.actuators.add(actuator);
+        actuator.addUpdateListener(this);
     }
 
     /**
@@ -56,6 +64,7 @@ public class SensorNode extends Node {
             throw new IllegalArgumentException("sensor cannot be null");
         }
         this.sensors.add(sensor);
+        sensor.addUpdateListener(this);
     }
 
     /**
@@ -69,7 +78,12 @@ public class SensorNode extends Node {
         if (sensor == null) {
             throw new IllegalArgumentException("sensor cannot be null");
         }
-        return this.sensors.remove(sensor);
+        boolean removed = this.sensors.remove(sensor);
+        if (removed) {
+            sensor.removeUpdateListener(this);
+            deviceUpdateTimestamps.remove(sensor.getDeviceId());
+        }
+        return removed;
     }
 
     /**
@@ -83,7 +97,12 @@ public class SensorNode extends Node {
         if (actuator == null) {
             throw new IllegalArgumentException("actuator cannot be null");
         }
-        return this.actuators.remove(actuator);
+        boolean removed = this.actuators.remove(actuator);
+        if (removed) {
+            actuator.removeUpdateListener(this);
+            deviceUpdateTimestamps.remove(actuator.getDeviceId());
+        }
+        return removed;
     }
 
 
@@ -210,5 +229,27 @@ public class SensorNode extends Node {
                 actuator.applyEffect(sensors);
             }
         }
+    }
+
+    @Override
+    public void onDeviceUpdated(Device<?> device) {
+        if (device == null) {
+            return;
+        }
+        deviceUpdateTimestamps.put(device.getDeviceId(), System.currentTimeMillis());
+    }
+
+    public long getDeviceUpdateTimestamp(String deviceId) {
+        return deviceUpdateTimestamps.getOrDefault(deviceId, 0L);
+    }
+
+    public void addUpdateListener(SensorNodeUpdateListener listener) {
+        if (listener != null) {
+            updateListeners.add(listener);
+        }
+    }
+
+    public void removeUpdateListener(SensorNodeUpdateListener listener) {
+        updateListeners.remove(listener);
     }
 }
