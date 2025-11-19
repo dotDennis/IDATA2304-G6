@@ -118,9 +118,10 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         StringBuilder data = new StringBuilder();
         for (int i = 0; i < sensors.size(); i++) {
             Sensor sensor = sensors.get(i);
-            data.append(formatDeviceKey(sensor.getDeviceType().toString().toLowerCase(), sensor.getDeviceId()));
+            double value = sensor.getCurrentValue();
+            data.append(formatDeviceKey(sensor.getDeviceType().toString(), sensor.getDeviceId()));
             data.append(":");
-            data.append(sensor.readValue());
+            data.append(value);
             if (i < sensors.size() - 1) {
                 data.append(",");
             }
