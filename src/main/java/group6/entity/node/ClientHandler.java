@@ -246,6 +246,20 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
+   * Sends only the changed sensor data to the control panel.
+   * Only the sensors that have new data since the last update are sent.
+   * More efficient, and only used when sensors actually change with new data.
+   */
+  private void sendSensorDataUpdate() {
+    String updates = sensorNode.pendingSensorUpdates();
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), updates);
+    sendMessage(message);
+  }
+
+  /**
    * Sends a snapshot of current actuator status to the control panel.
    * Snapshot just means sending the current data once and immediately.
    */
@@ -284,7 +298,7 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   @Override
   public void onSensorsUpdated(SensorNode node) {
     if (running && connection != null && connection.isOpen()) {
-      sendSensorDataSnapshot();
+      sendSensorDataUpdate();
     }
   }
 
