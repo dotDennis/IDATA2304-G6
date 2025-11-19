@@ -143,6 +143,8 @@ public class ClientHandler implements Runnable {
           handleCommand(message.getData());
         }
       }
+    } catch (EOFException e) {
+      LOGGER.info("Control panel disconnected from node {}", sensorNode.getNodeId());
     } catch (IOException e) {
       LOGGER.error("Error reading command for node {}", sensorNode.getNodeId(), e);
     } finally {
