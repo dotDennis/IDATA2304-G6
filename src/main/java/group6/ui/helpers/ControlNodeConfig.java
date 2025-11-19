@@ -153,6 +153,7 @@ public final class ControlNodeConfig {
   public static class DeviceEntry {
     private String id;
     private String type;
+    private long updateIntervalMs = 5000;
 
     public DeviceEntry() {
     }
@@ -160,6 +161,12 @@ public final class ControlNodeConfig {
     public DeviceEntry(String id, String type) {
       this.id = id;
       this.type = type;
+    }
+
+    public DeviceEntry(String id, String type, long updateIntervalMs) {
+      this.id = id;
+      this.type = type;
+      this.updateIntervalMs = updateIntervalMs;
     }
 
     public String getId() {
@@ -176,6 +183,14 @@ public final class ControlNodeConfig {
 
     public void setType(String type) {
       this.type = type;
+    }
+
+    public long getUpdateIntervalMs() {
+      return updateIntervalMs <= 0 ? 5000 : updateIntervalMs;
+    }
+
+    public void setUpdateIntervalMs(long updateIntervalMs) {
+      this.updateIntervalMs = updateIntervalMs;
     }
   }
 
