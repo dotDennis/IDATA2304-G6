@@ -99,7 +99,7 @@ public class SensorNode extends Node {
         StringBuilder data = new StringBuilder();
         for (int i = 0; i < sensors.size(); i++) {
             Sensor sensor = sensors.get(i);
-            data.append(sensor.getDeviceType().toString().toLowerCase());
+            data.append(formatDeviceKey(sensor.getDeviceType().toString().toLowerCase(), sensor.getDeviceId()));
             data.append(":");
             data.append(sensor.readValue());
             if (i < sensors.size() - 1) {
@@ -119,7 +119,7 @@ public class SensorNode extends Node {
         StringBuilder status = new StringBuilder();
         for (int i = 0; i < actuators.size(); i++) {
             Actuator actuator = actuators.get(i);
-            status.append(actuator.getDeviceType().toString().toLowerCase());
+            status.append(formatDeviceKey(actuator.getDeviceType().toString().toLowerCase(), actuator.getDeviceId()));
             status.append(":");
             status.append(actuator.getState() ? "1" : "0");
             if (i < actuators.size() - 1) {
@@ -127,6 +127,13 @@ public class SensorNode extends Node {
             }
         }
         return status.toString();
+    }
+
+    private String formatDeviceKey(String type, String deviceId) {
+        if (deviceId == null || deviceId.isBlank()) {
+            return type;
+        }
+        return type + "#" + deviceId.trim();
     }
 
     /**
@@ -141,6 +148,18 @@ public class SensorNode extends Node {
         }
         for (Actuator actuator : actuators) {
             if (actuator.getDeviceType().toString().equalsIgnoreCase(typeName)) {
+                return actuator;
+            }
+        }
+        return null;
+    }
+
+    public Actuator findActuatorByDeviceId(String deviceId) {
+        if (deviceId == null) {
+            return null;
+        }
+        for (Actuator actuator : actuators) {
+            if (actuator.getDeviceId().equalsIgnoreCase(deviceId)) {
                 return actuator;
             }
         }
