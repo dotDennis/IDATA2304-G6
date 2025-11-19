@@ -115,7 +115,11 @@ public abstract class Sensor extends Device<SensorType> {
     return maxValue;
   }
 
-  public double getCurrentValue() {
+  public synchronized double getCurrentValue() {
+    if (Double.isNaN(currentValue)) {
+      currentValue = (minValue + maxValue) / 2.0;
+      lastUpdated = LocalDateTime.now();
+    }
     return currentValue;
   }
 
