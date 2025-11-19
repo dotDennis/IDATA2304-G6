@@ -138,6 +138,21 @@ public class ControlPanel extends Node {
     client.sendCommand(actuatorType, state);
   }
 
+  /**
+   * Requests an immediate data refresh from a sensor node.
+   *
+   * @param sensorNodeId the node to refresh
+   * @param target       sensors, actuators or both
+   */
+  public void requestNodeSnapshot(String sensorNodeId, RefreshTarget target) {
+    SensorNodeClient client = sensorClients.get(sensorNodeId);
+    if (client == null) {
+      LOGGER.warn("Cannot refresh. Not connected to sensor node {}", sensorNodeId);
+      return;
+    }
+    client.requestDataRefresh(target);
+  }
+
   // TODO: Refactor to UI class later
   /**
    * Displays the cached data from a sensor node.
