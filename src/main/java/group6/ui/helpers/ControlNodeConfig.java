@@ -11,7 +11,9 @@ import group6.entity.node.ControlPanel;
  * The configuration is loaded from JSON as a list of {@link Entry}
  * objects. Each entry is converted into a {@link ControlNode}, which couples
  * the configuration data with its {@link ControlPanel}.
- * </p>
+ * 
+ * @author dotDennis
+ * @since 0.2.0
  */
 public final class ControlNodeConfig {
 
