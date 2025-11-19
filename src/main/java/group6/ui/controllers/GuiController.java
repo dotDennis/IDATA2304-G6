@@ -112,6 +112,14 @@ public class GuiController {
     return controlPanel.getNodeData(nodeId);
   }
 
+  public void clearSensorFromCache(String nodeId, String sensorKey) {
+    controlPanel.removeCachedSensor(nodeId, sensorKey);
+  }
+
+  public void clearActuatorFromCache(String nodeId, String actuatorKey) {
+    controlPanel.removeCachedActuator(nodeId, actuatorKey);
+  }
+
   /**
    * Starts periodic refresh.
    *
