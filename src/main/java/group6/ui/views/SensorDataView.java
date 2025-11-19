@@ -66,9 +66,14 @@ public class SensorDataView {
 
     //Display each sensor reading
     for (Map.Entry<String, Double> entry : sensors.entrySet()) {
-      String icon = getSensorIcon(entry.getKey());
-      String unit = getSensorUnit(entry.getKey());
-      String name = capitalize(entry.getKey());
+      String baseType = extractBaseType(entry.getKey());
+      String deviceId = extractDeviceId(entry.getKey());
+      String icon = getSensorIcon(baseType);
+      String unit = getSensorUnit(baseType);
+      String name = capitalize(baseType);
+      if (!deviceId.isEmpty()) {
+        name += " (" + deviceId + ")";
+      }
 
       Label sensorLabel = new Label(String.format("%s %s: %.2f %s", icon, name,
               entry.getValue(), unit));
@@ -127,5 +132,24 @@ public class SensorDataView {
     }
     return str.substring(0, 1).toUpperCase()
             + str.substring(1).replace("_", " ");
+  }
+
+  private String extractBaseType(String key){
+    if (key == null) {
+      return "";
+    }
+    int idx = key.indexOf('#');
+    return idx >= 0 ? key.substring(0, idx) : key;
+  }
+
+  private String extractDeviceId(String key){
+    if (key == null) {
+      return "";
+    }
+    int idx = key.indexOf('#');
+    if (idx >= 0 && idx < key.length() - 1) {
+      return key.substring(idx + 1);
+    }
+    return "";
   }
 }
