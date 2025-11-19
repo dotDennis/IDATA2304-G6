@@ -1,11 +1,7 @@
 package group6.entity.node;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import group6.entity.device.actuator.Actuator;
@@ -35,12 +31,11 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         ACTUATOR
     }
 
-    private final List<Actuator> actuators;
-    private final List<Sensor> sensors;
+    private final DeviceRegistry<Actuator> actuators;
+    private final DeviceRegistry<Sensor> sensors;
     private long interval = 5000;
-    private final Map<String, Long> deviceUpdateTimestamps = new ConcurrentHashMap<>();
+    private final DeviceUpdateTracker updateTracker;
     private final List<SensorNodeUpdateListener> updateListeners = new CopyOnWriteArrayList<>();
-    private final Set<String> pendingSensorUpdates = ConcurrentHashMap.newKeySet();
 
     /**
      * Creates a new {@code SensorNode} with the given ID.
@@ -49,8 +44,9 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      */
     public SensorNode(String nodeId) {
         super(nodeId, NodeType.SENSOR);
-        this.actuators = new ArrayList<>();
-        this.sensors = new ArrayList<>();
+        this.actuators = new DeviceRegistry<>();
+        this.sensors = new DeviceRegistry<>();
+        this.updateTracker = new DeviceUpdateTracker();
     }
 
     // ------- Device management -------
@@ -157,11 +153,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         }
 
         device.removeUpdateListener(this);
-        deviceUpdateTimestamps.remove(device.getDeviceId());
-
-        if (type == DeviceType.SENSOR) {
-            pendingSensorUpdates.remove(normalizeId(device.getDeviceId()));
-        }
+        updateTracker.removeDevice(device.getDeviceId());
 
         return true;
     }
@@ -181,14 +173,15 @@ public class SensorNode extends Node implements DeviceUpdateListener {
     public String getSensorSnapshot() {
         applyActuatorEffects();
 
+        List<Sensor> sensorList = sensors.snapshot();
         StringBuilder data = new StringBuilder();
-        for (int i = 0; i < sensors.size(); i++) {
-            Sensor sensor = sensors.get(i);
+        for (int i = 0; i < sensorList.size(); i++) {
+            Sensor sensor = sensorList.get(i);
             SensorReading reading = SensorReading.of(
                     DeviceKey.of(sensor.getDeviceType().toString(), sensor.getDeviceId()),
                     sensor.getCurrentValue());
             data.append(reading.toProtocolString());
-            if (i < sensors.size() - 1) {
+            if (i < sensorList.size() - 1) {
                 data.append(",");
             }
         }
@@ -206,14 +199,15 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      *         are no actuators
      */
     public String getActuatorSnapshot() {
+        List<Actuator> actuatorList = actuators.snapshot();
         StringBuilder status = new StringBuilder();
-        for (int i = 0; i < actuators.size(); i++) {
-            Actuator actuator = actuators.get(i);
+        for (int i = 0; i < actuatorList.size(); i++) {
+            Actuator actuator = actuatorList.get(i);
             status.append(
                     DeviceKey.of(actuator.getDeviceType().toString(), actuator.getDeviceId()).toProtocolKey());
             status.append(":");
             status.append(actuator.getState() ? "1" : "0");
-            if (i < actuators.size() - 1) {
+            if (i < actuatorList.size() - 1) {
                 status.append(",");
             }
         }
@@ -233,7 +227,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         if (typeName == null) {
             return null;
         }
-        for (Actuator actuator : actuators) {
+        for (Actuator actuator : actuators.snapshot()) {
             if (actuator.getDeviceType().toString().equalsIgnoreCase(typeName)) {
                 return actuator;
             }
@@ -252,7 +246,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         if (deviceId == null) {
             return null;
         }
-        for (Actuator actuator : actuators) {
+        for (Actuator actuator : actuators.snapshot()) {
             if (actuator.getDeviceId().equalsIgnoreCase(deviceId)) {
                 return actuator;
             }
@@ -269,7 +263,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * @return the list of actuators
      */
     public List<Actuator> getActuators() {
-        return actuators;
+        return actuators.snapshot();
     }
 
     /**
@@ -281,7 +275,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * @return the list of sensors
      */
     public List<Sensor> getSensors() {
-        return sensors;
+        return sensors.snapshot();
     }
 
     /**
@@ -316,13 +310,15 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      * without performing any work.
      */
     private void applyActuatorEffects() {
-        if (actuators.isEmpty() || sensors.isEmpty()) {
+        List<Actuator> actuatorList = actuators.snapshot();
+        List<Sensor> sensorList = sensors.snapshot();
+        if (actuatorList.isEmpty() || sensorList.isEmpty()) {
             return;
         }
 
-        for (Actuator actuator : actuators) {
+        for (Actuator actuator : actuatorList) {
             if (actuator.getState()) {
-                actuator.applyEffect(sensors);
+                actuator.applyEffect(sensorList);
             }
         }
     }
@@ -342,14 +338,13 @@ public class SensorNode extends Node implements DeviceUpdateListener {
             return;
         }
 
-        deviceUpdateTimestamps.put(device.getDeviceId(), System.currentTimeMillis());
-
         if (device instanceof Sensor) {
-            pendingSensorUpdates.add(normalizeId(device.getDeviceId()));
+            updateTracker.recordSensorUpdate(device.getDeviceId());
             for (SensorNodeUpdateListener listener : updateListeners) {
                 listener.onSensorsUpdated(this);
             }
         } else if (device instanceof Actuator) {
+            updateTracker.recordActuatorUpdate(device.getDeviceId());
             for (SensorNodeUpdateListener listener : updateListeners) {
                 listener.onActuatorsUpdated(this);
             }
@@ -367,7 +362,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      *         not been recorded
      */
     public long getDeviceUpdateTimestamp(String deviceId) {
-        return deviceUpdateTimestamps.getOrDefault(deviceId, 0L);
+        return updateTracker.getTimestamp(deviceId);
     }
 
     /**
@@ -406,14 +401,14 @@ public class SensorNode extends Node implements DeviceUpdateListener {
      *         or an empty string if there are none
      */
     public String drainPendingSensorUpdates() {
-        if (pendingSensorUpdates.isEmpty()) {
+        if (!updateTracker.hasPendingSensors()) {
             return "";
         }
 
         StringBuilder data = new StringBuilder();
-        for (Sensor sensor : new ArrayList<>(sensors)) {
+        for (Sensor sensor : sensors.snapshot()) {
             String deviceKey = normalizeId(sensor.getDeviceId());
-            if (!pendingSensorUpdates.remove(deviceKey)) {
+            if (!updateTracker.consumePendingSensor(deviceKey)) {
                 continue;
             }
             if (data.length() > 0) {
