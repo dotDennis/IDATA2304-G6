@@ -1,13 +1,15 @@
 package group6.ui;
 
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 import group6.ui.helpers.ControlNodeConfig;
 import group6.ui.helpers.ControlNodeLoader;
 import group6.ui.views.MainView;
-import javafx.scene.Scene;
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class GreenhouseGuiApp extends Application {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GreenhouseGuiApp.class);
+  private static final Path CONFIG_FILE = Paths.get("resources/config.json");
 
   private MainView mainView;
 
@@ -44,18 +47,21 @@ public class GreenhouseGuiApp extends Application {
 
   private ControlNodeConfig loadControlNodes() {
     try {
-      return ControlNodeLoader.loadFromResource("control-nodes.json");
+      return ControlNodeLoader.load(CONFIG_FILE);
     } catch (IOException e) {
-      LOGGER.warn("Failed to load control node config, using fallback", e);
-      ControlNodeConfig.Entry fallback = new ControlNodeConfig.Entry();
-      fallback.setId("control-01");
-      fallback.setDisplayName("Control Node");
-      return ControlNodeConfig.fromEntries(List.of(fallback));
+      LOGGER.warn("Failed to load control node config, starting fresh", e);
+      return ControlNodeConfig.fromEntries(Collections.emptyList());
     }
   }
 
   private void shutdown() {
     if (mainView != null) {
+      try {
+        ControlNodeConfig config = mainView.exportConfig();
+        ControlNodeLoader.save(CONFIG_FILE, config);
+      } catch (IOException e) {
+        LOGGER.warn("Failed to save configuration", e);
+      }
       mainView.shutdown();
     }
     LOGGER.info("Application shutdown successfully");
