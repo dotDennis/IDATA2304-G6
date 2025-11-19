@@ -237,6 +237,15 @@ public class SensorNode extends Node implements DeviceUpdateListener {
             return;
         }
         deviceUpdateTimestamps.put(device.getDeviceId(), System.currentTimeMillis());
+        if (device instanceof Sensor) {
+            for (SensorNodeUpdateListener listener : updateListeners) {
+                listener.onSensorsUpdated(this);
+            }
+        } else if (device instanceof Actuator) {
+            for (SensorNodeUpdateListener listener : updateListeners) {
+                listener.onActuatorsUpdated(this);
+            }
+        }
     }
 
     public long getDeviceUpdateTimestamp(String deviceId) {

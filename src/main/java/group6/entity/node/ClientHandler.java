@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author Fidjor, dotDennis
  * @since 0.1.0
  */
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
   private final Socket socket;
@@ -46,6 +46,8 @@ public class ClientHandler implements Runnable {
       running = true;
 
       LOGGER.info("Control panel connected for node {}", sensorNode.getNodeId());
+
+      sensorNode.addUpdateListener(this);
 
       Thread sensorThread = new Thread(this::sendSensorDataPeriodically, "sensor-data-" + sensorNode.getNodeId());
       sensorThread.start();
@@ -88,6 +90,7 @@ public class ClientHandler implements Runnable {
    */
   public void stop() {
     running = false;
+    sensorNode.removeUpdateListener(this);
     closeConnection();
   }
 
@@ -256,6 +259,7 @@ public class ClientHandler implements Runnable {
    ** cleans up resources
    */
   private void cleanup() {
+    sensorNode.removeUpdateListener(this);
     closeConnection();
     LOGGER.info("Closed session for {}", sensorNode.getNodeId());
   }
@@ -269,6 +273,20 @@ public class ClientHandler implements Runnable {
       }
     } catch (IOException e) {
       LOGGER.debug("Error while closing connection for {}", sensorNode.getNodeId(), e);
+    }
+  }
+
+  @Override
+  public void onSensorsUpdated(SensorNode node) {
+    if (running && connection != null && connection.isOpen()) {
+      sendSensorDataSnapshot();
+    }
+  }
+
+  @Override
+  public void onActuatorsUpdated(SensorNode node) {
+    if (running && connection != null && connection.isOpen()) {
+      sendActuatorStatusSnapshot();
     }
   }
 }
