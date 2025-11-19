@@ -2,6 +2,9 @@ package group6.ui.helpers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import tools.jackson.databind.ObjectMapper;
@@ -27,38 +30,25 @@ public final class ControlNodeLoader {
     // Utility class, no instances
   }
 
-  /**
-   * Loads a {@link ControlNodeConfig} from a JSON resource on the classpath.
-   *
-   * @param resourceName the name of the resource file (relative to classpath
-   *                     root)
-   * @return the parsed configuration
-   * @throws IOException if the resource is missing or cannot be read
-   */
-  public static ControlNodeConfig loadFromResource(String resourceName) throws IOException {
-    try (InputStream in = getRequiredResource(resourceName)) {
-      return readEntries(in);
+  public static ControlNodeConfig load(Path file) throws IOException {
+    if (file != null && Files.exists(file)) {
+      try (InputStream in = Files.newInputStream(file)) {
+        return readEntries(in);
+      }
     }
+    return ControlNodeConfig.fromEntries(null);
   }
 
-  // ---------- Private helpers ----------
-
-  /**
-   * Returns an input stream for the given resource or throws if not found.
-   * 
-   * @param name the resource name
-   * @return the input stream
-   * @throws IOException if the resource is missing
-   */
-  private static InputStream getRequiredResource(String name) throws IOException {
-    InputStream in = ControlNodeLoader.class
-        .getClassLoader()
-        .getResourceAsStream(name);
-
-    if (in == null) {
-      throw new IOException("Missing resource: " + name);
+  public static void save(Path file, ControlNodeConfig config) throws IOException {
+    if (file == null || config == null) {
+      return;
     }
-    return in;
+    if (file.getParent() != null) {
+      Files.createDirectories(file.getParent());
+    }
+    try (OutputStream out = Files.newOutputStream(file)) {
+      MAPPER.writerWithDefaultPrettyPrinter().writeValue(out, config.getEntries());
+    }
   }
 
   /**
