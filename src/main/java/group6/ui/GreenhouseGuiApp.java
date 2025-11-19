@@ -6,6 +6,7 @@ import java.util.List;
 import group6.ui.helpers.ControlNodeConfig;
 import group6.ui.helpers.ControlNodeLoader;
 import group6.ui.views.MainView;
+import javafx.scene.Scene;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -28,8 +29,11 @@ public class GreenhouseGuiApp extends Application {
     ControlNodeConfig config = loadControlNodes();
     mainView = new MainView(config);
 
+    Scene scene = mainView.getScene();
+    scene.getStylesheets().add(GreenhouseGuiApp.class.getResource("/global.css").toExternalForm());
+
     primaryStage.setTitle("Greenhouse Control Panel");
-    primaryStage.setScene(mainView.getScene());
+    primaryStage.setScene(scene);
     primaryStage.setOnCloseRequest(event -> {
       LOGGER.info("Exiting Greenhouse Application");
       shutdown();
