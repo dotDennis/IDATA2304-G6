@@ -27,7 +27,7 @@ public final class ControlNodeConfig {
   public static class Entry {
     private String id;
     private String displayName;
-    private long refreshInterval = 2000;
+    private long refreshInterval = 5000;
     private List<SensorNodeEntry> sensorNodes = new ArrayList<>();
 
     /**
@@ -67,7 +67,7 @@ public final class ControlNodeConfig {
     }
 
     public long getRefreshInterval() {
-      return refreshInterval <= 0 ? 2000 : refreshInterval;
+      return refreshInterval <= 0 ? 5000 : refreshInterval;
     }
 
     public void setRefreshInterval(long refreshInterval) {
