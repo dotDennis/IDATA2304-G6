@@ -12,6 +12,8 @@ import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
 import group6.entity.device.Device;
 import group6.entity.device.DeviceUpdateListener;
+import group6.protocol.DeviceKey;
+import group6.protocol.SensorReading;
 
 /**
  * Represents a node in the system that contains sensors and actuators.
@@ -182,9 +184,10 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         StringBuilder data = new StringBuilder();
         for (int i = 0; i < sensors.size(); i++) {
             Sensor sensor = sensors.get(i);
-            data.append(formatDeviceKey(sensor.getDeviceType().toString(), sensor.getDeviceId()));
-            data.append(":");
-            data.append(sensor.getCurrentValue());
+            SensorReading reading = SensorReading.of(
+                    DeviceKey.of(sensor.getDeviceType().toString(), sensor.getDeviceId()),
+                    sensor.getCurrentValue());
+            data.append(reading.toProtocolString());
             if (i < sensors.size() - 1) {
                 data.append(",");
             }
@@ -206,9 +209,8 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         StringBuilder status = new StringBuilder();
         for (int i = 0; i < actuators.size(); i++) {
             Actuator actuator = actuators.get(i);
-            status.append(formatDeviceKey(
-                    actuator.getDeviceType().toString().toLowerCase(Locale.ROOT),
-                    actuator.getDeviceId()));
+            status.append(
+                    DeviceKey.of(actuator.getDeviceType().toString(), actuator.getDeviceId()).toProtocolKey());
             status.append(":");
             status.append(actuator.getState() ? "1" : "0");
             if (i < actuators.size() - 1) {
@@ -216,24 +218,6 @@ public class SensorNode extends Node implements DeviceUpdateListener {
             }
         }
         return status.toString();
-    }
-
-    /**
-     * Formats a device key as {@code type#id} for protocol usage.
-     * <p>
-     * If deviceId is null or blank, only type is
-     * returned without an # separator.
-     *
-     * @param type     the device type name
-     * @param deviceId the device ID or null
-     *
-     * @return the formatted device key
-     */
-    private String formatDeviceKey(String type, String deviceId) {
-        if (deviceId == null || deviceId.isBlank()) {
-            return type;
-        }
-        return type + "#" + deviceId.trim();
     }
 
     // ------- Public Helpers -------
@@ -435,9 +419,10 @@ public class SensorNode extends Node implements DeviceUpdateListener {
             if (data.length() > 0) {
                 data.append(",");
             }
-            data.append(formatDeviceKey(sensor.getDeviceType().toString(), sensor.getDeviceId()));
-            data.append(":");
-            data.append(sensor.getCurrentValue());
+            SensorReading reading = SensorReading.of(
+                    DeviceKey.of(sensor.getDeviceType().toString(), sensor.getDeviceId()),
+                    sensor.getCurrentValue());
+            data.append(reading.toProtocolString());
         }
         return data.toString();
     }
