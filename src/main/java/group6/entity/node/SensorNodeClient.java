@@ -126,11 +126,24 @@ public class SensorNodeClient implements Runnable {
      * @param actuatorType the type of actuator
      * @param state        the desired state
      */
-    public void sendCommand(String actuatorType, boolean state) {
-        String commandData = actuatorType.toLowerCase() + ":" + (state ? "1" : "0");
-        Message command = new Message(MessageType.COMMAND, sensorNodeId, commandData);
-        sendMessage(command);
-    }
+  public void sendCommand(String actuatorType, boolean state) {
+    String commandData = actuatorType.toLowerCase() + ":" + (state ? "1" : "0");
+    Message command = new Message(MessageType.COMMAND, sensorNodeId, commandData);
+    sendMessage(command);
+  }
+
+  /**
+   * Requests the sensor node to immediately send updated data.
+   *
+   * @param target which data should be refreshed
+   */
+  public void requestDataRefresh(RefreshTarget target) {
+    RefreshTarget refreshTarget =
+        (target == null) ? RefreshTarget.ALL : target;
+    String commandData = refreshTarget.getCommandValue() + ":refresh";
+    Message command = new Message(MessageType.COMMAND, sensorNodeId, commandData);
+    sendMessage(command);
+  }
 
     /**
      * Stops the client and closes the connection.
