@@ -102,6 +102,7 @@ public abstract class Sensor extends Device<SensorType> {
 
     currentValue = next;
     lastUpdated = LocalDateTime.now();
+    notifyDeviceUpdated();
     return currentValue;
   }
 
