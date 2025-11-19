@@ -1,5 +1,6 @@
 package group6.entity.node;
 
+import java.io.EOFException;
 import java.io.IOException;
 
 import group6.net.Connection;
@@ -70,6 +71,8 @@ public class SensorNodeClient implements Runnable {
 
             // 3) Loop
             listenLoop();
+        } catch (EOFException e) {
+            LOGGER.info("Sensor node {} closed the connection", sensorNodeId);
         } catch (IOException e) {
             LOGGER.error("Connection error on {}", sensorNodeId, e);
         } finally {
@@ -85,7 +88,13 @@ public class SensorNodeClient implements Runnable {
      */
     private void listenLoop() throws IOException {
         while (running && connection.isOpen()) {
-            String line = connection.recvUtf();
+            String line;
+            try {
+                line = connection.recvUtf();
+            } catch (EOFException e) {
+                LOGGER.info("Connection closed while reading from {}", sensorNodeId);
+                break;
+            }
             if (line == null || line.isBlank()) {
                 continue;
             }
