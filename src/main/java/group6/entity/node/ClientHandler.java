@@ -101,7 +101,7 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   private void sendSensorDataPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        sendSensorDataSnapshot();
+        sendHeartbeat();
         Thread.sleep(sensorNode.getSensorNodeInterval());
       }
     } catch (InterruptedException e) {
@@ -116,7 +116,7 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   private void sendActuatorStatusPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        sendActuatorStatusSnapshot();
+        sendHeartbeat();
         Thread.sleep(10000);
       }
     } catch (InterruptedException e) {
@@ -253,6 +253,11 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
     String actuatorStatus = sensorNode.getActuatorStatusString();
     Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
     sendMessage(message);
+  }
+
+  private void sendHeartbeat() {
+    Message heartbeat = new Message(MessageType.DATA, sensorNode.getNodeId(), "");
+    sendMessage(heartbeat);
   }
 
   /**
