@@ -5,6 +5,7 @@ import group6.protocol.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 import group6.entity.device.actuator.Actuator;
 import group6.net.Connection;
@@ -143,7 +144,7 @@ public class ClientHandler implements Runnable {
           handleCommand(message.getData());
         }
       }
-    } catch (EOFException e) {
+    } catch (EOFException | SocketException e) {
       LOGGER.info("Control panel disconnected from node {}", sensorNode.getNodeId());
     } catch (IOException e) {
       LOGGER.error("Error reading command for node {}", sensorNode.getNodeId(), e);
