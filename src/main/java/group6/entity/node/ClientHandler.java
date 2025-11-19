@@ -83,10 +83,11 @@ public class ClientHandler implements Runnable {
   }
 
   /**
-   * Closes connection.
+   * Closes connection and stops handler. Used when the server shuts down.
    */
   public void stop() {
     running = false;
+    closeConnection();
   }
 
   /**
@@ -96,11 +97,7 @@ public class ClientHandler implements Runnable {
   private void sendSensorDataPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        String sensorData = sensorNode.getSensorDataString();
-
-        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
-        sendMessage(message);
-
+        sendSensorDataSnapshot();
         Thread.sleep(sensorNode.getSensorNodeInterval());
       }
     } catch (InterruptedException e) {
@@ -115,11 +112,7 @@ public class ClientHandler implements Runnable {
   private void sendActuatorStatusPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        String actuatorStatus = sensorNode.getActuatorStatusString();
-
-        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
-        sendMessage(message);
-
+        sendActuatorStatusSnapshot();
         Thread.sleep(10000);
       }
     } catch (InterruptedException e) {
@@ -175,6 +168,11 @@ public class ClientHandler implements Runnable {
     String actuatorType = parts[0];
     String action = parts[1];
 
+    if ("refresh".equalsIgnoreCase(action)) {
+      handleRefreshCommand(actuatorType);
+      return;
+    }
+
     Actuator actuator = sensorNode.findActuatorByType(actuatorType);
     if (actuator == null) {
       sendError("Unknown actuator: " + actuatorType);
@@ -198,18 +196,73 @@ public class ClientHandler implements Runnable {
 
     sendMessage(error);
   }
+ 
+  /**
+   * Handles refresh command from control panel.
+   * Used to request immediate data update.
+   * Often used after adding/removing sensors/actuators.
+   *
+   * @param action the refresh target (sensors, actuators, all)
+   */
+  private void handleRefreshCommand(String action) {
+    String normalized = action == null ? "" : action.trim().toLowerCase();
+    boolean refreshSensors = normalized.isEmpty() || "all".equals(normalized) || "sensors".equals(normalized);
+    boolean refreshActuators = normalized.isEmpty() || "all".equals(normalized) || "actuators".equals(normalized);
+
+    if (!refreshSensors && !refreshActuators) {
+      sendError("Unknown refresh target: " + action);
+      return;
+    }
+
+    if (refreshSensors) {
+      sendSensorDataSnapshot();
+    }
+    if (refreshActuators) {
+      sendActuatorStatusSnapshot();
+    }
+
+    Message reply = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
+        "refresh:" + (normalized.isEmpty() ? "all" : normalized));
+    sendMessage(reply);
+  }
+
+  /**
+   * Sends a snapshot of current sensor data to the control panel.
+   * Snapshot just means sending the current data once and immediately.
+   */
+  private void sendSensorDataSnapshot() {
+    String sensorData = sensorNode.getSensorDataString();
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
+    sendMessage(message);
+  }
+
+  /**
+   * Sends a snapshot of current actuator status to the control panel.
+   * Snapshot just means sending the current data once and immediately.
+   */
+  private void sendActuatorStatusSnapshot() {
+    String actuatorStatus = sensorNode.getActuatorStatusString();
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
+    sendMessage(message);
+  }
 
   /**
    ** cleans up resources
    */
   private void cleanup() {
+    closeConnection();
+    LOGGER.info("Closed session for {}", sensorNode.getNodeId());
+  }
+
+  private void closeConnection() {
     try {
       if (connection != null) {
         connection.close();
+      } else if (socket != null && !socket.isClosed()) {
+        socket.close();
       }
     } catch (IOException e) {
-      LOGGER.warn("Error while closing connection for {}", sensorNode.getNodeId(), e);
+      LOGGER.debug("Error while closing connection for {}", sensorNode.getNodeId(), e);
     }
-    LOGGER.info("Closed session for {}", sensorNode.getNodeId());
   }
 }
