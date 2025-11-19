@@ -87,6 +87,10 @@ public class ControlPanel extends Node {
         actuatorStates.remove(key);
       }
     }
+
+    public void touch() {
+      lastUpdate = System.currentTimeMillis();
+    }
   }
 
   // --------- API ---------
@@ -222,8 +226,17 @@ public class ControlPanel extends Node {
     MessageType type = msg.getMessageType();
     switch (type) {
       case DATA -> {
-        parseAndCacheData(sensorNodeId, msg.getData());
-        LOGGER.debug("Received data from {}: {}", sensorNodeId, msg.getData());
+        String payload = msg.getData();
+        if (payload == null) {
+          return;
+        }
+        boolean hasContent = !payload.isBlank();
+        parseAndCacheData(sensorNodeId, hasContent ? payload : null);
+        if (hasContent) {
+          LOGGER.debug("Received data from {}: {}", sensorNodeId, payload);
+        } else {
+          LOGGER.trace("Heartbeat from {}", sensorNodeId);
+        }
       }
       case SUCCESS ->
         LOGGER.info("Command successful from {}: {}", sensorNodeId, msg.getData());
@@ -244,12 +257,13 @@ public class ControlPanel extends Node {
    * @param data         the data string to parse.
    */
   private void parseAndCacheData(String sensorNodeId, String data) {
-    if (data == null || data.isEmpty()) {
+    NodeData nodeData = dataCache.get(sensorNodeId);
+    if (nodeData == null) {
       return;
     }
 
-    NodeData nodeData = dataCache.get(sensorNodeId);
-    if (nodeData == null) {
+    if (data == null || data.isEmpty()) {
+      nodeData.touch();
       return;
     }
 
