@@ -17,6 +17,7 @@ public class SensorNode extends Node {
 
     private final List<Actuator> actuators;
     private final List<Sensor> sensors;
+    private long interval = 5000;
 
     /**
      * Constructs a SensorNode with the specified ID.
@@ -164,6 +165,17 @@ public class SensorNode extends Node {
      */
     public List<Sensor> getSensors() {
         return sensors;
+    }
+
+    public long getSensorNodeInterval() {
+        return interval;
+    }
+
+    public void setSensorNodeInterval(long interval) {
+        if (interval <= 0) {
+            throw new IllegalArgumentException("sensorNodeInterval must be positive");
+        }
+        this.interval = interval;
     }
 
     /**
