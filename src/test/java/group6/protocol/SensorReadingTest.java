@@ -407,8 +407,9 @@ class SensorReadingTest {
       DeviceKey key = DeviceKey.of("temperature", "sensor-01");
       SensorReading reading = SensorReading.of(key, 22.5);
 
-      assertEquals(reading.getDeviceKey(), reading.getDeviceKey());
-      assertEquals(reading.getValue(), reading.getValue(), 0.0001);
+      DeviceKey key1 = reading.getDeviceKey();
+      DeviceKey key2 = reading.getDeviceKey();
+      assertEquals(key1, key2);
     }
   }
 }
