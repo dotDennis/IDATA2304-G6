@@ -1,4 +1,4 @@
-# Smart Greenhouse Management System
+# Student Made Gadgets - A smart greenhouse solution
 
 A distributed network application for monitoring and controlling greenhouse environments.
 
