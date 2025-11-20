@@ -1,13 +1,15 @@
 package group6.ui.views;
 
 import group6.entity.node.ControlPanel;
+import group6.entity.node.RefreshTarget;
 import group6.ui.controllers.GuiController;
+import group6.ui.helpers.DevicePresentation;
+import group6.ui.helpers.ToggleActuatorRow;
+import group6.ui.helpers.UiAlerts;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,9 @@ import org.slf4j.LoggerFactory;
 /**
  * View for actuator controls.
  * Allows user to control actuators
+ * 
+ * @author fidjor, dotDennis
+ * @since 0.2.0
  */
 public class ActuatorControlView {
 
@@ -25,14 +30,11 @@ public class ActuatorControlView {
   private final GuiController controller;
   private final TitledPane view;
   private final VBox contentBox;
-  private String currentNodeId = "sensor-01"; //default
-
-  //Cache UI components to update them instead of rebuilding
-  private final Map<String, RadioButton> onButtons = new HashMap<>();
-  private final Map<String, RadioButton> offButtons = new HashMap<>();
+  private String currentNodeId = "sensor-01"; // default
+  private final Map<String, ToggleActuatorRow> actuatorRows = new HashMap<>();
   private boolean uiBuilt = false;
   private long lastCommandTime = 0;
-  private static final long COMMAND_COOLDOWN = 1000; // 1 second
+  private static final long COMMAND_COOLDOWN = 400; // to avoid rapid toggles and UI flicker
 
   /**
    * Creates the actuator control view
@@ -52,9 +54,8 @@ public class ActuatorControlView {
     refresh();
   }
 
-  /**
-   * Refreshes the actuator control display
-   * Called periodically by auto-refresh or manually
+  /** 
+   * Refreshes the actuator control display using latest node data. 
    */
   public void refresh() {
     ControlPanel.NodeData data = controller.getNodeData(currentNodeId);
@@ -71,12 +72,10 @@ public class ActuatorControlView {
       return;
     }
 
-    // Build UI once
-    if (!uiBuilt) {
+    if (shouldRebuild(actuators)) {
       buildUI(actuators);
       uiBuilt = true;
     } else {
-      // Don't update buttons immediately after sending command
       long timeSinceCommand = System.currentTimeMillis() - lastCommandTime;
       if (timeSinceCommand > COMMAND_COOLDOWN) {
         updateButtonStates(actuators);
@@ -84,9 +83,12 @@ public class ActuatorControlView {
     }
   }
 
+  /** 
+   * Displays a placeholder label when no actuator data exists. 
+   * */
   private void showPlaceholder(String message) {
     if (contentBox.getChildren().size() == 1 &&
-            contentBox.getChildren().get(0) instanceof Label) {
+        contentBox.getChildren().get(0) instanceof Label) {
       Label existing = (Label) contentBox.getChildren().get(0);
       if (existing.getText().equals(message)) {
         return;
@@ -94,8 +96,7 @@ public class ActuatorControlView {
     }
 
     contentBox.getChildren().clear();
-    onButtons.clear();
-    offButtons.clear();
+    actuatorRows.clear();
     uiBuilt = false;
 
     Label label = new Label(message);
@@ -103,120 +104,82 @@ public class ActuatorControlView {
     contentBox.getChildren().add(label);
   }
 
+  /** 
+   * Rebuilds actuator rows when the server list changes. 
+   */
   private void buildUI(Map<String, Boolean> actuators) {
     contentBox.getChildren().clear();
-    onButtons.clear();
-    offButtons.clear();
+    actuatorRows.clear();
+    uiBuilt = false;
 
     for (Map.Entry<String, Boolean> entry : actuators.entrySet()) {
       String actuatorType = entry.getKey();
       boolean state = entry.getValue();
 
-      HBox row = createActuatorControl(actuatorType, state);
-      contentBox.getChildren().add(row);
+      ToggleActuatorRow row = new ToggleActuatorRow(state, desired -> sendCommand(actuatorType, desired));
+      actuatorRows.put(actuatorType, row);
+      updateActuatorLabel(actuatorType);
+      contentBox.getChildren().add(row.getRoot());
     }
   }
 
+  /**
+   *  Applies toggle updates to existing rows.
+   *  */
   private void updateButtonStates(Map<String, Boolean> actuators) {
     for (Map.Entry<String, Boolean> entry : actuators.entrySet()) {
       String actuatorType = entry.getKey();
       boolean state = entry.getValue();
-
-      RadioButton onButton = onButtons.get(actuatorType);
-      RadioButton offButton = offButtons.get(actuatorType);
-
-      if (onButton != null && offButton != null) {
-        // Temporarily remove listeners to avoid triggering commands
-        onButton.setOnAction(null);
-        offButton.setOnAction(null);
-
-        // Update selection
-        if (state) {
-          onButton.setSelected(true);
-        } else {
-          offButton.setSelected(true);
-        }
-
-        // Re-add listeners
-        onButton.setOnAction(e -> {
-          if (onButton.isSelected()) {
-            sendCommand(actuatorType, true);
-          }
-        });
-
-        offButton.setOnAction(e -> {
-          if (offButton.isSelected()) {
-            sendCommand(actuatorType, false);
-          }
-        });
+      ToggleActuatorRow row = actuatorRows.get(actuatorType);
+      if (row != null) {
+        row.applyServerState(state);
+        updateActuatorLabel(actuatorType);
       }
     }
   }
 
-  /**
-   * Creates a control row for an actuator.
-   *
-   * @param actuatorType the actuator type.
-   * @param currentState the current state (ON, OFF)
-   * @return HBox containing the actuator control
+  /** 
+   * Detects when the actuator set has changed.
    */
-  private HBox createActuatorControl(String actuatorType, boolean currentState) {
-    HBox row = new HBox(10);
-    row.setAlignment(Pos.CENTER_LEFT);
-
-    String icon = getActuatorIcon(actuatorType);
-    Label nameLabel = new Label(icon + " " + capitalize(actuatorType));
-    nameLabel.setPrefWidth(150);
-    nameLabel.setFont(Font.font(14));
-
-    ToggleGroup group = new ToggleGroup();
-    RadioButton onButton = new RadioButton("ON");
-    RadioButton offButton = new RadioButton("OFF");
-    onButton.setToggleGroup(group);
-    offButton.setToggleGroup(group);
-
-    // Store references
-    onButtons.put(actuatorType, onButton);
-    offButtons.put(actuatorType, offButton);
-
-    // Set current state
-    if (currentState) {
-      onButton.setSelected(true);
-    } else {
-      offButton.setSelected(true);
+  private boolean shouldRebuild(Map<String, Boolean> actuators) {
+    if (!uiBuilt) {
+      return true;
     }
-
-    // Add listeners
-    onButton.setOnAction(e -> {
-      if (onButton.isSelected()) {
-        sendCommand(actuatorType, true);
+    if (actuators.size() != actuatorRows.size()) {
+      return true;
+    }
+    for (String key : actuators.keySet()) {
+      if (!actuatorRows.containsKey(key)) {
+        return true;
       }
-    });
-
-    offButton.setOnAction(e -> {
-      if (offButton.isSelected()) {
-        sendCommand(actuatorType, false);
-      }
-    });
-
-    row.getChildren().addAll(nameLabel, onButton, offButton);
-    return row;
+    }
+    return false;
   }
 
-  /**
-   * Sends command to control an actuator
-   *
-   * @param actuatorType the actuator type.
-   * @param state the desired state
+  /** 
+   * Sends a toggle command for the given actuator key.
    */
   private void sendCommand(String actuatorType, boolean state) {
     try {
       lastCommandTime = System.currentTimeMillis(); // Record command time
-      controller.sendCommand(currentNodeId, actuatorType, state);
+      DevicePresentation presentation = DevicePresentation.fromRawKey(actuatorType);
+      String commandTarget = presentation.getDeviceId().isEmpty()
+          ? presentation.getBaseType()
+          : presentation.getDeviceId();
+      controller.sendCommand(currentNodeId, commandTarget, state);
+      controller.requestNodeRefresh(currentNodeId, RefreshTarget.ACTUATORS);
       LOGGER.info("Sent command via GUI: {} = {}", actuatorType, state);
+      ToggleActuatorRow row = actuatorRows.get(actuatorType);
+      if (row != null) {
+        row.markPending(state);
+      }
     } catch (Exception e) {
       LOGGER.error("Failed to send command via GUI", e);
-      showError("Command failed: " + e.getMessage());
+      ToggleActuatorRow row = actuatorRows.get(actuatorType);
+      if (row != null) {
+        row.clearPending();
+      }
+      UiAlerts.error("Actuator Control", "Command failed: " + e.getMessage());
     }
   }
 
@@ -239,7 +202,14 @@ public class ActuatorControlView {
     return view;
   }
 
-  //Helper methods
+  // Helper methods
+
+  /** 
+   * Maps base actuator types to emoji icons.
+   * 
+   * @param type the base actuator type
+   * @return the corresponding emoji icon, as String
+   */
   private String getActuatorIcon(String type) {
     return switch (type.toLowerCase()) {
       case "heater" -> "🔥";
@@ -252,19 +222,19 @@ public class ActuatorControlView {
     };
   }
 
-  private String capitalize(String str) {
-    if(str == null || str.isEmpty()) {
-      return str;
+  /** 
+   * Updates the text for a single actuator row.
+   */
+  private void updateActuatorLabel(String actuatorKey) {
+    ToggleActuatorRow row = actuatorRows.get(actuatorKey);
+    if (row == null) {
+      return;
     }
-    return str.substring(0, 1).toUpperCase()
-            + str.substring(1).replace("_"," ");
+    DevicePresentation presentation = DevicePresentation.fromRawKey(actuatorKey);
+    String displayName = presentation.formatDisplayName(
+        getActuatorIcon(presentation.getBaseType()));
+    row.setDisplayText(displayName);
   }
 
-  private void showError(String message) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle("Error");
-    alert.setHeaderText(null);
-    alert.setContentText(message);
-    alert.showAndWait();
-  }
+
 }
