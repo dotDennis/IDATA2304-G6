@@ -15,7 +15,7 @@ import javafx.scene.text.Font;
  * @author Dennis
  * @since 0.2.0
  */
-public class ToggleDeviceRow {
+public class ToggleActuatorRow {
 
   private final HBox root;
   private final Label nameLabel;
@@ -28,10 +28,10 @@ public class ToggleDeviceRow {
   /**
    * Creates a new toggle device row.
    * 
-   * @param initialState the initial state of the device
+   * @param initialState    the initial state of the device
    * @param commandCallback the callback to call when user toggles
    */
-  public ToggleDeviceRow(boolean initialState, Consumer<Boolean> commandCallback) {
+  public ToggleActuatorRow(boolean initialState, Consumer<Boolean> commandCallback) {
     this.root = new HBox(10);
     this.root.setAlignment(Pos.CENTER_LEFT);
 
