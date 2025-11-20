@@ -70,15 +70,12 @@ public class SensorDataView {
       String deviceId = extractDeviceId(entry.getKey());
       String icon = getSensorIcon(baseType);
       String unit = getSensorUnit(baseType);
-      String name = capitalize(baseType);
-      if (!deviceId.isEmpty()) {
-        name += " (" + deviceId + ")";
-      }
+      String labelName = deviceId.isEmpty() ? capitalize(baseType) : deviceId;
 
       long updatedAt = data.getSensorUpdatedAt(entry.getKey());
       String lastUpdateText = formatAgo(updatedAt);
 
-      Label sensorLabel = new Label(String.format("%s %s: %.2f %s (%s)", icon, name,
+      Label sensorLabel = new Label(String.format("%s %s: %.2f %s (%s)", icon, labelName,
               entry.getValue(), unit, lastUpdateText));
       sensorLabel.setFont(Font.font(14));
 
