@@ -121,6 +121,10 @@ public class SensorNode extends Node implements DeviceUpdateListener {
         }
 
         device.addUpdateListener(this);
+
+        if (type == DeviceType.SENSOR) {
+            applyActuatorEffects();
+        }
     }
 
     /**
@@ -312,7 +316,12 @@ public class SensorNode extends Node implements DeviceUpdateListener {
     private void applyActuatorEffects() {
         List<Actuator> actuatorList = actuators.snapshot();
         List<Sensor> sensorList = sensors.snapshot();
-        if (actuatorList.isEmpty() || sensorList.isEmpty()) {
+        if (sensorList.isEmpty()) {
+            return;
+        }
+
+        sensorList.forEach(Sensor::resetExternalInfluence);
+        if (actuatorList.isEmpty()) {
             return;
         }
 
@@ -345,6 +354,7 @@ public class SensorNode extends Node implements DeviceUpdateListener {
             }
         } else if (device instanceof Actuator) {
             updateTracker.recordActuatorUpdate(device.getDeviceId());
+            applyActuatorEffects();
             for (SensorNodeUpdateListener listener : updateListeners) {
                 listener.onActuatorsUpdated(this);
             }
