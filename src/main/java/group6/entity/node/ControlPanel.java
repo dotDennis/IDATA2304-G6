@@ -1,5 +1,6 @@
 package group6.entity.node;
 
+import group6.net.client.SensorNodeClient;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 import group6.protocol.RefreshTarget;

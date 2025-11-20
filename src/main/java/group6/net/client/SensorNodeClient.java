@@ -1,8 +1,9 @@
-package group6.entity.node;
+package group6.net.client;
 
 import java.io.EOFException;
 import java.io.IOException;
 
+import group6.entity.node.ControlPanel;
 import group6.net.Connection;
 import group6.net.TcpClient;
 import group6.protocol.Message;
