@@ -23,8 +23,8 @@ public class HeaterActuator extends Actuator {
         for (Sensor sensor : sensors) {
             SensorType type = sensor.getDeviceType();
             switch (type) {
-                case TEMPERATURE -> sensor.manualAdjust(0.4);
-                case HUMIDITY -> sensor.manualAdjust(-0.25);
+                case TEMPERATURE -> sensor.addExternalInfluence(0.4);
+                case HUMIDITY -> sensor.addExternalInfluence(-0.25);
                 default -> {
                 }
             }
