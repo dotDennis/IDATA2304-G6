@@ -1,138 +1,131 @@
-# 📦 Project Deliverables – IDATA2304 SMG Project
+# Smart Greenhouse Management System
 
-This document outlines all the **required deliverables** for the Student made gadgets project.
+A distributed network application for monitoring and controlling greenhouse environments.
 
----
+## 📋 Overview
 
-## 🧩 1. Protocol Design
+TCP-based system with **sensor nodes** (temperature, humidity, light, pH, wind, fertilizer) and **actuators** (heater, fan, window, valve, lock, light) communicating with **control panels** via a custom protocol.
 
-You must design and document your own **application-layer protocol** that defines how sensor, control, and server nodes communicate.
+**Course Project**: IDATA2304 - NTNU 2025
 
-### Deliverable
-- A file named **`protocol.md`** located in your repository root.
+## Features
 
-### The protocol documentation must include:
-- **Overview and purpose**  
-  Explain what the protocol does and why it’s needed.
-- **Terminology**  
-  Define key terms (sensor, actuator, control panel, message, etc.).
-- **Actors**  
-  Describe the communicating nodes (sensors, control panels, server if used).
-- **Transport type and port**  
-  Specify whether the protocol uses TCP or UDP and which port(s).
-- **Message flow & architecture**  
-  Include message diagrams, node interactions, and data flow.
-- **Protocol type**  
-  Connection-oriented/less, stateful/stateless, synchronous/asynchronous.
-- **Message format**  
-  Define syntax, message structure, constants, and marshalling/unmarshalling.
-- **Error handling & reliability**  
-  Explain how your system manages lost connections or malformed messages.
-- **Security**  
-  Describe any authentication, encryption, or access control mechanisms.
-- **Example scenario**  
-  Show a real example of message exchange between nodes.
+- 6 sensor types + 6 actuator types
+- TCP client-server architecture with custom protocol
+- JavaFX GUI with real-time updates
+- Dynamic device management
+- Auto-reconnect and data logging
 
----
+## Architecture
 
-## ⚙️ 2. Programming Requirements
+```
+Greenhouse → SensorNode (TCP Server) ⟷ ControlPanel (TCP Client) → GUI
+```
 
-You must implement a **complete distributed system** with:
-- **Sensor/Actuator Nodes**
-    - Unique IDs
-    - Simulated sensor data (e.g., temperature, humidity)
-    - Actuators that can be remotely controlled
-- **Control Panel Nodes**
-    - Lists connected sensors
-    - Displays sensor and actuator data
-    - Sends control commands
-- **Optional Server Node**
-    - Acts as a message broker or routing layer
+**Layers**: Entity → Logic → Network → Protocol → UI
 
-### Technical requirements
-- Multiple sensors and control panels can communicate simultaneously.
-- Supports **command sending** and **data reception**.
-- Handles **errors and disconnections** gracefully.
-- Code should be **modular, scalable**, and **cleanly structured**.
-- GUI or TUI interface is allowed, but not required.
+## Protocol
 
----
+**Format**: `TYPE|nodeId|data`
 
-## 🧱 3. Code Quality
+**Examples**:
+```
+DATA|sensor-01|temperature#temp-01:22.5
+COMMAND|sensor-01|heater:1
+SUCCESS|sensor-01|heater:1
+```
 
-Your code must:
-- Follow **clean code principles** (naming, structure, cohesion).
-- Include **comments** for AI-generated or adapted code.
-- Use **Git** throughout development — not just at the end.
-- Keep a **clear project structure** (no “v2-final-final” folders).
+**Message Types**: HELLO, WELCOME, DATA, COMMAND, SUCCESS, FAILURE, ERROR, KEEPALIVE
 
----
+See [`protocol.md`](protocol.md) for complete specification.
 
-## 🗂️ 4. Work Process Documentation
+## Getting Started
 
-You must document your **team’s workflow**, including:
-- Sprint planning and backlog
-- Task assignment and team roles
-- Sprint progress and retrospectives
-- Clear **Definition of Done** for tasks
+### Prerequisites
+- Java 21+
+- Maven 3.8+
 
-### Deliverable
-- Markdown files such as:
-    - `sprint1.md`, `sprint2.md`, `retrospective.md`, etc.
-- Alternatively, screenshots or exports from Jira, Trello, or similar.
+### Installation & Run
 
----
+```bash
+git clone <repository-url>
+cd IDATA2304-G6
+mvn clean package
+mvn javafx:run
+```
 
-## 🎥 5. Presentation Video
+### Quick Start
 
-A **10–15 minute** video presentation in **English** including:
-1. Introduction (problem & solution)
-2. Research and approach
-3. Work process (roles, sprints, tools)
-4. System architecture (nodes, data flow)
-5. Protocol summary
-6. Demonstration
-7. Extra features
-8. Improvements or future work
+1. Launch application
+2. Click "Add Control Node"
+3. Add sensor node (ID: `sensor-01`, host: `localhost`, port: `12345`)
+4. Add sensors and actuators
+5. Monitor and control devices in real-time
 
----
+## Usage
 
-## 💡 6. Optional Features (for higher grades)
+### Creating Embedded Sensor Nodes
 
-You can earn higher grades by implementing **advanced network features**, such as:
-- Connection resilience and reconnection logic
-- Secure data transfer or encryption
-- Automatic node ID/address assignment (DHCP-like)
-- Image or multimedia transmission
-- Command broadcast or multicast
-- Adjustable data frequency or precision
+Use the GUI or programmatically:
 
----
+```java
+EmbeddedSensorNodeManager manager = new EmbeddedSensorNodeManager();
+manager.createNode("sensor-01", "localhost", 12345, 5000);
+manager.addSensor("sensor-01", SensorType.TEMPERATURE, "temp-01", 5000);
+manager.addActuator("sensor-01", ActuatorType.HEATER, "heater-01");
+```
 
-## 📤 7. Final Submission (Inspera)
+### Sending Commands
 
-Submit the following before the deadline:
-- ✅ GitHub repository link
-- ✅ Candidate-to-GitHub username list
-- ✅ `protocol.md` file
-- ✅ Sprint documentation
-- ✅ Video presentation
+```java
+controller.sendCommand("sensor-01", "heater", true);  // Turn ON
+controller.requestNodeRefresh("sensor-01", RefreshTarget.ALL);
+```
 
----
+### Sensor History
 
-### 🗓️ Deadline
-**Opens:** 16 November 2025 – 09:00  
-**Closes:** 21 November 2025 – 12:00
+Data logged to CSV: `history/[timestamp]/[nodeId]/[sensor].csv`
 
----
+## Testing
 
-### ✅ Summary
-| Category | Deliverable | Format |
-|-----------|--------------|--------|
-| Protocol Design | `protocol.md` | Markdown |
-| System Code | Complete Java (Maven) project | Code |
-| Workflow | Sprint reports, retrospectives | Markdown / screenshots |
-| Video | Presentation and demo | Video file / YouTube link |
-| Submission | GitHub link + Inspera form | Link |
+```bash
+mvn test  # Run all tests
+```
 
+**Coverage**: 8 test classes, 200+ test methods covering entities, logic, and protocol layers.
+
+## 📂 Project Structure
+
+```
+src/main/java/group6/
+├── entity/          # Sensors, actuators, nodes
+├── logic/           # Factories, registries, history
+├── net/             # TCP client/server
+├── protocol/        # Messages, device keys
+└── ui/              # JavaFX controllers & views
+
+src/test/java/group6/
+├── entity/          # Entity tests
+├── logic/           # Factory tests
+└── protocol/        # Protocol tests
+```
+
+## Configuration
+
+Config saved to `resources/config.json`:
+- Control panels and sensor nodes
+- Device configurations
+- Update intervals
+
+## Contributors
+
+**Group 6 - IDATA2304**
+- **dotDennis**
+- **Fidjor**
+
+## 📚 Resources
+
+- [`protocol.md`](protocol.md) - Complete protocol specification
+- `entities.puml` - Entity model diagram
+- `physical2logical.puml` - Architecture diagram
 ---
