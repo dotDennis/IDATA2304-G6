@@ -49,20 +49,30 @@ public class ControlPanel extends Node {
     private final Map<String, Boolean> actuatorStates;
     private final Map<String, Long> sensorUpdatedAt;
     private final Map<String, Long> actuatorUpdatedAt;
+    private final Map<String, java.util.Deque<SensorSample>> sensorHistory;
     private long lastUpdate;
+    private static final long HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes (default value)
+    private final String nodeId;
 
-    public NodeData() {
+    public NodeData(String nodeId) {
+      this.nodeId = nodeId;
       this.sensorReadings = new ConcurrentHashMap<>();
       this.actuatorStates = new ConcurrentHashMap<>();
       this.sensorUpdatedAt = new ConcurrentHashMap<>();
       this.actuatorUpdatedAt = new ConcurrentHashMap<>();
+      this.sensorHistory = new ConcurrentHashMap<>();
       this.lastUpdate = System.currentTimeMillis();
     }
 
     public void updateSensor(String type, double value) {
       sensorReadings.put(type, value);
-      sensorUpdatedAt.put(type, System.currentTimeMillis());
-      lastUpdate = System.currentTimeMillis();
+      long now = System.currentTimeMillis();
+      sensorUpdatedAt.put(type, now);
+      java.util.Deque<SensorSample> history = sensorHistory.computeIfAbsent(type, k -> new java.util.concurrent.ConcurrentLinkedDeque<>());
+      history.addLast(new SensorSample(value, now));
+      pruneHistory(history, now);
+      lastUpdate = now;
+      SensorHistoryWriter.recordSample(nodeId, type, value, now);
     }
 
     public void updateActuator(String type, boolean state) {
@@ -87,6 +97,7 @@ public class ControlPanel extends Node {
       if (key != null) {
         sensorReadings.remove(key);
         sensorUpdatedAt.remove(key);
+        sensorHistory.remove(key);
       }
     }
 
@@ -108,6 +119,42 @@ public class ControlPanel extends Node {
     public long getActuatorUpdatedAt(String key) {
       return actuatorUpdatedAt.getOrDefault(key, 0L);
     }
+
+    public double getSensorAverage(String key, long windowMs) {
+      java.util.Deque<SensorSample> history = sensorHistory.get(key);
+      if (history == null || history.isEmpty()) {
+        return Double.NaN;
+      }
+      long cutoff = System.currentTimeMillis() - windowMs;
+      double sum = 0.0;
+      int count = 0;
+      for (SensorSample sample : history) {
+        if (sample.timestamp >= cutoff) {
+          sum += sample.value;
+          count++;
+        }
+      }
+      if (count == 0) {
+        return Double.NaN;
+      }
+      return sum / count;
+    }
+
+    private void pruneHistory(java.util.Deque<SensorSample> history, long now) {
+      while (!history.isEmpty() && now - history.peekFirst().timestamp > HISTORY_WINDOW_MS) {
+        history.pollFirst();
+      }
+    }
+
+    private static class SensorSample {
+      final double value;
+      final long timestamp;
+
+      SensorSample(double value, long timestamp) {
+        this.value = value;
+        this.timestamp = timestamp;
+      }
+    }
   }
 
   // --------- API ---------
@@ -128,7 +175,7 @@ public class ControlPanel extends Node {
 
     SensorNodeClient client = new SensorNodeClient(sensorNodeId, host, port, this);
     sensorClients.put(sensorNodeId, client);
-    dataCache.put(sensorNodeId, new NodeData());
+    dataCache.put(sensorNodeId, new NodeData(sensorNodeId));
     client.start();
 
     LOGGER.info("Connecting to sensor node {} at {}:{}", sensorNodeId, host, port);

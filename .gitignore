@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 .kotlin
 resources/
+history/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

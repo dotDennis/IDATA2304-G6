@@ -181,7 +181,6 @@ public final class ControlNodeConfig {
 
   public static class SensorEntry extends DeviceEntry {
     private long updateIntervalMs = 5000;
-
     public SensorEntry() {
     }
 
@@ -197,6 +196,7 @@ public final class ControlNodeConfig {
     public void setUpdateIntervalMs(long updateIntervalMs) {
       this.updateIntervalMs = updateIntervalMs;
     }
+
   }
 
   /**
