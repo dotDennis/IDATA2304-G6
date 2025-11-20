@@ -1,37 +1,93 @@
 .root {
   -fx-font-family: "Inter", "Segoe UI", "Helvetica Neue", sans-serif;
-  -fx-background-color: #f7f7f9;
+  -fx-background-color: linear-gradient(#edf1f5, #f8f9fb);
+}
+
+.card {
+  -fx-background-color: white;
+  -fx-background-radius: 12;
+  -fx-padding: 18;
+  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 18, 0.1, 0, 4);
+}
+
+.section-title {
+  -fx-font-size: 20px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #1f2937;
 }
 
 .tab-pane {
-  -fx-padding: 0 5 5 5;
+  -fx-padding: 0 8 8 8;
 }
 
 .tab {
-  -fx-background-color: linear-gradient(to bottom, #fafafa, #ebebeb);
-  -fx-background-radius: 8 8 0 0;
-  -fx-padding: 6 14;
+  -fx-background-color: linear-gradient(#f2f3f7, #e5e7f0);
+  -fx-background-radius: 10 10 0 0;
+  -fx-padding: 8 16;
+  -fx-text-fill: #4b5563;
 }
 
 .tab:selected {
   -fx-background-color: white;
+  -fx-text-fill: #111827;
 }
 
 .button {
-  -fx-background-radius: 6;
-  -fx-padding: 6 14;
+  -fx-background-radius: 8;
+  -fx-padding: 7 16;
+  -fx-background-insets: 0;
+  -fx-background-color: linear-gradient(#4f46e5, #4338ca);
+  -fx-text-fill: white;
+}
+
+.button:disabled {
+  -fx-opacity: 0.6;
+}
+
+.button-row {
+  -fx-padding: 12 0 0 0;
+  -fx-spacing: 12;
+}
+
+.combo-box {
+  -fx-background-radius: 8;
+  -fx-border-color: #e2e8f0;
+  -fx-border-radius: 8;
+  -fx-background-color: white;
+}
+
+.combo-box .list-cell {
+  -fx-padding: 6 10;
+}
+
+.combo-box .arrow-button {
+  -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+  -fx-background-color: #4f46e5;
 }
 
 .text-field {
-  -fx-background-radius: 6;
-  -fx-padding: 6 8;
+  -fx-background-radius: 8;
+  -fx-padding: 6 10;
+  -fx-background-color: white;
+  -fx-border-color: #e2e8f0;
+  -fx-border-radius: 8;
+}
+
+.input-row {
+  -fx-spacing: 10;
+  -fx-alignment: CENTER_LEFT;
 }
 
 .titled-pane > .title {
-  -fx-background-radius: 6 6 0 0;
+  -fx-background-radius: 10 10 0 0;
+  -fx-padding: 8 12;
 }
 
 .titled-pane > *.content {
-  -fx-background-radius: 0 0 6 6;
-  -fx-border-radius: 0 0 6 6;
+  -fx-background-radius: 0 0 10 10;
+  -fx-border-radius: 0 0 10 10;
+  -fx-border-color: #e5e7eb;
 }
