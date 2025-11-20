@@ -45,9 +45,9 @@ public final class SensorHistoryWriter {
     Object lock = LOCKS.computeIfAbsent(nodeId, k -> new Object());
     synchronized (lock) {
       try {
-        Path folder = HISTORY_DIR.resolve(RUN_FOLDER);
+        Path folder = HISTORY_DIR.resolve(RUN_FOLDER).resolve(nodeId);
         Files.createDirectories(folder);
-        Path file = folder.resolve(nodeId + ".csv");
+        Path file = folder.resolve(sensorKey + ".csv");
         boolean newFile = Files.notExists(file);
         try (BufferedWriter writer = Files.newBufferedWriter(file,
             StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
