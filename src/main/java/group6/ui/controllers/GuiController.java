@@ -1,7 +1,7 @@
 package group6.ui.controllers;
 
 import group6.entity.node.ControlPanel;
-import group6.entity.node.RefreshTarget;
+import group6.protocol.RefreshTarget;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

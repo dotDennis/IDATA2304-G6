@@ -1,7 +1,7 @@
 package group6.ui.views;
 
 import group6.entity.node.ControlPanel;
-import group6.entity.node.RefreshTarget;
+import group6.protocol.RefreshTarget;
 import group6.ui.controllers.GuiController;
 import group6.ui.helpers.DevicePresentation;
 import group6.ui.helpers.ToggleActuatorRow;

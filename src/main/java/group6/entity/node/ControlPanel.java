@@ -2,6 +2,7 @@ package group6.entity.node;
 
 import group6.protocol.Message;
 import group6.protocol.MessageType;
+import group6.protocol.RefreshTarget;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

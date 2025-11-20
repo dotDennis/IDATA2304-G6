@@ -7,6 +7,7 @@ import group6.net.Connection;
 import group6.net.TcpClient;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
+import group6.protocol.RefreshTarget;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
