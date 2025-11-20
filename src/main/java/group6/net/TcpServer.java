@@ -7,8 +7,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import group6.entity.node.ClientHandler;
 import group6.entity.node.SensorNode;
+import group6.net.server.ClientHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
