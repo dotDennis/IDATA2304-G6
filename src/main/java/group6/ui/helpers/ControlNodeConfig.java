@@ -182,7 +182,7 @@ public final class ControlNodeConfig {
   public static class SensorEntry extends DeviceEntry {
     private long updateIntervalMs = 5000;
     private Double lastValue;
-    private Long lastUpdated;
+    private String lastUpdated;
 
     public SensorEntry() {
     }
@@ -208,11 +208,11 @@ public final class ControlNodeConfig {
       this.lastValue = lastValue;
     }
 
-    public Long getLastUpdated() {
+    public String getLastUpdated() {
       return lastUpdated;
     }
 
-    public void setLastUpdated(Long lastUpdated) {
+    public void setLastUpdated(String lastUpdated) {
       this.lastUpdated = lastUpdated;
     }
   }
