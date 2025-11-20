@@ -24,9 +24,9 @@ public class WindowOpenerActuator extends Actuator {
         for (Sensor sensor : sensors) {
             SensorType type = sensor.getDeviceType();
             switch (type) {
-                case TEMPERATURE -> sensor.manualAdjust(-0.2);
-                case HUMIDITY -> sensor.manualAdjust(-0.3);
-                case WIND_SPEED -> sensor.manualAdjust(0.5);
+                case TEMPERATURE -> sensor.addExternalInfluence(-0.2);
+                case HUMIDITY -> sensor.addExternalInfluence(-0.3);
+                case WIND_SPEED -> sensor.addExternalInfluence(0.5);
                 default -> {
                 }
             }

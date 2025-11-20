@@ -4,9 +4,11 @@ import group6.entity.device.ActuatorType;
 import group6.entity.device.Device;
 import group6.entity.device.SensorType;
 import group6.entity.node.ControlPanel;
+import group6.entity.node.RefreshTarget;
 import group6.ui.controllers.GuiController;
+import group6.ui.controllers.NodeDeviceService;
 import group6.ui.helpers.DeviceDialogBuilder;
-import group6.ui.helpers.NodeDeviceService;
+
 import group6.ui.helpers.NodeTabLayoutBuilder;
 import group6.ui.helpers.RemovalDialogBuilder;
 import group6.ui.helpers.UiAlerts;
@@ -85,7 +87,7 @@ public class NodeTabView {
    * @return configured Tab
    */
   private Tab createTab() {
-    return new NodeTabLayoutBuilder(
+    Tab builtTab = new NodeTabLayoutBuilder(
         nodeId,
         lastUpdateLabel,
         sensorDataView.getView(),
@@ -100,6 +102,15 @@ public class NodeTabView {
           handleDisconnect();
         })
         .build();
+
+    builtTab.setOnSelectionChanged(event -> {
+      if (builtTab.isSelected()) {
+        refresh();
+        requestFullRefresh();
+      }
+    });
+
+    return builtTab;
   }
 
   /**
@@ -127,6 +138,14 @@ public class NodeTabView {
     sensorDataView.refresh();
     actuatorControlView.refresh();
     updateLastUpdateLabel();
+  }
+
+  private void requestFullRefresh() {
+    try {
+      controller.requestNodeRefresh(nodeId, RefreshTarget.ALL);
+    } catch (RuntimeException e) {
+      LOGGER.warn("Refresh request failed for {}: {}", nodeId, e.getMessage());
+    }
   }
 
   /**

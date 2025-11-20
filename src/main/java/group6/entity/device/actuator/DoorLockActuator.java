@@ -19,7 +19,6 @@ public class DoorLockActuator extends Actuator {
 
     @Override
     public void applyEffect(List<Sensor> sensors) {
-        // TODO:
-        // Probably no physical effect on temperature/humidity/etc.
+        // No physical effect on temperature/humidity/etc.
     }
 }

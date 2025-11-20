@@ -22,9 +22,9 @@ public class ValveActuator extends Actuator {
         for (Sensor sensor : sensors) {
             SensorType type = sensor.getDeviceType();
             switch (type) {
-                case HUMIDITY -> sensor.manualAdjust(0.6);
-                case FERTILIZER -> sensor.manualAdjust(3.0);
-                case PH -> sensor.manualAdjust(-0.02);
+                case HUMIDITY -> sensor.addExternalInfluence(0.6);
+                case FERTILIZER -> sensor.addExternalInfluence(3.0);
+                case PH -> sensor.addExternalInfluence(-0.02);
                 default -> {
                 }
             }

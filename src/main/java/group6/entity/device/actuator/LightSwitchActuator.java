@@ -22,7 +22,7 @@ public class LightSwitchActuator extends Actuator {
     public void applyEffect(List<Sensor> sensors) {
         for (Sensor sensor : sensors) {
             if (sensor.getDeviceType() == SensorType.LIGHT) {
-                sensor.manualAdjust(60.0);
+                sensor.addExternalInfluence(60.0);
             }
         }
     }

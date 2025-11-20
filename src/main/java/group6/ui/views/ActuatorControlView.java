@@ -231,9 +231,12 @@ public class ActuatorControlView {
       return;
     }
     DevicePresentation presentation = DevicePresentation.fromRawKey(actuatorKey);
-    String displayName = presentation.formatDisplayName(
-        getActuatorIcon(presentation.getBaseType()));
-    row.setDisplayText(displayName);
+    String deviceId = presentation.getDeviceId();
+    String label = deviceId.isEmpty()
+        ? presentation.getBaseType()
+        : deviceId;
+    String icon = getActuatorIcon(presentation.getBaseType());
+    row.setDisplayText(icon + " " + label);
   }
 
 

@@ -1,4 +1,4 @@
-package group6.ui.helpers;
+package group6.ui.controllers;
 
 import java.util.function.Consumer;
 
@@ -6,7 +6,8 @@ import group6.entity.device.ActuatorType;
 import group6.entity.device.SensorType;
 import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
-import group6.ui.controllers.GuiController;
+import group6.ui.helpers.ControlNodeConfig;
+import group6.ui.helpers.EmbeddedSensorNodeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public class EmbeddedNodeService {
 
       for (Sensor sensor : node.getSensorNode().getSensors()) {
         nodeEntry.getSensors().add(
-            new ControlNodeConfig.DeviceEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval()));
+            new ControlNodeConfig.SensorEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval()));
       }
       for (Actuator actuator : node.getSensorNode().getActuators()) {
         nodeEntry.getActuators().add(
@@ -133,7 +134,7 @@ public class EmbeddedNodeService {
    */
   private void loadDevices(ControlNodeConfig.SensorNodeEntry nodeEntry, String targetNodeId) {
     if (nodeEntry.getSensors() != null) {
-      for (ControlNodeConfig.DeviceEntry entry : nodeEntry.getSensors()) {
+      for (ControlNodeConfig.SensorEntry entry : nodeEntry.getSensors()) {
         try {
           SensorType type = SensorType.valueOf(entry.getType());
           manager.addSensor(targetNodeId, type, entry.getId(), entry.getUpdateIntervalMs());

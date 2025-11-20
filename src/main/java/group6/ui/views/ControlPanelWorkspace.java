@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import group6.entity.node.RefreshTarget;
+import group6.ui.controllers.EmbeddedNodeService;
 import group6.ui.controllers.GuiController;
+import group6.ui.controllers.NodeDeviceService;
 import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.EmbeddedNodeService;
 import group6.ui.helpers.EmbeddedSensorNodeManager;
-import group6.ui.helpers.NodeDeviceService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javafx.geometry.Insets;
@@ -154,6 +155,7 @@ public class ControlPanelWorkspace {
         () -> removeEmbeddedNodeTab(nodeId), configChangeListener);
     nodeTabs.put(nodeId, nodeTabView);
     tabPane.getTabs().add(nodeTabView.getTab());
+    nodeTabView.refresh();
     tabPane.getSelectionModel().select(nodeTabView.getTab());
   }
 
@@ -260,7 +262,8 @@ public class ControlPanelWorkspace {
   private ScrollPane createScrollPane(VBox content) {
     ScrollPane pane = new ScrollPane(content);
     pane.setFitToWidth(true);
-    pane.viewportBoundsProperty().addListener((obs, oldBounds, newBounds) -> content.setMinHeight(newBounds.getHeight()));
+    pane.viewportBoundsProperty()
+        .addListener((obs, oldBounds, newBounds) -> content.setMinHeight(newBounds.getHeight()));
     return pane;
   }
 
@@ -315,5 +318,6 @@ public class ControlPanelWorkspace {
     }
   }
 
-  private record NodeCreationRequest(String nodeId, String host, int port, long refreshMs) { }
+  private record NodeCreationRequest(String nodeId, String host, int port, long refreshMs) {
+  }
 }

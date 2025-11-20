@@ -23,9 +23,9 @@ public class FanActuator extends Actuator {
         for (Sensor sensor : sensors) {
             SensorType type = sensor.getDeviceType();
             switch (type) {
-                case TEMPERATURE -> sensor.manualAdjust(-0.3);
-                case HUMIDITY -> sensor.manualAdjust(-0.5);
-                case WIND_SPEED -> sensor.manualAdjust(0.4);
+                case TEMPERATURE -> sensor.addExternalInfluence(-0.3);
+                case HUMIDITY -> sensor.addExternalInfluence(-0.5);
+                case WIND_SPEED -> sensor.addExternalInfluence(0.4);
                 default -> {
                 }
             }

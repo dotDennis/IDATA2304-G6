@@ -36,7 +36,9 @@ public class ToggleActuatorRow {
     this.root.setAlignment(Pos.CENTER_LEFT);
 
     this.nameLabel = new Label();
-    nameLabel.setPrefWidth(150);
+    nameLabel.setWrapText(true);
+    nameLabel.setPrefWidth(230);
+    nameLabel.setMinWidth(200);
     nameLabel.setFont(Font.font(14));
 
     this.statusLabel = new Label();

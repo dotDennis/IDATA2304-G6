@@ -25,6 +25,7 @@ public abstract class Sensor extends Device<SensorType> {
   protected double currentValue;
   private LocalDateTime lastUpdated;
   private long updateIntervalMs = DEFAULT_INTERVAL_MS;
+  private double externalInfluence = 0.0;
 
   /**
    * Base constructor for all sensors.
@@ -70,7 +71,7 @@ public abstract class Sensor extends Device<SensorType> {
       currentValue = (minValue + maxValue) / 2.0;
     }
 
-    double delta = rnd.nextDouble(-step, step);
+    double delta = rnd.nextDouble(-step, step) + externalInfluence;
     return applyDelta(delta);
   }
 
@@ -139,5 +140,13 @@ public abstract class Sensor extends Device<SensorType> {
 
   public synchronized long getUpdateInterval() {
     return updateIntervalMs;
+  }
+
+  public synchronized void resetExternalInfluence() {
+    this.externalInfluence = 0.0;
+  }
+
+  public synchronized void addExternalInfluence(double delta) {
+    this.externalInfluence += delta;
   }
 }
