@@ -92,7 +92,7 @@ public final class ControlNodeConfig {
     private String host = "localhost";
     private int port;
     private long refreshInterval = 5000;
-    private List<DeviceEntry> sensors = new ArrayList<>();
+    private List<SensorEntry> sensors = new ArrayList<>();
     private List<DeviceEntry> actuators = new ArrayList<>();
 
     public String getId() {
@@ -127,14 +127,14 @@ public final class ControlNodeConfig {
       this.refreshInterval = refreshInterval;
     }
 
-    public List<DeviceEntry> getSensors() {
+    public List<SensorEntry> getSensors() {
       if (sensors == null) {
         sensors = new ArrayList<>();
       }
       return sensors;
     }
 
-    public void setSensors(List<DeviceEntry> sensors) {
+    public void setSensors(List<SensorEntry> sensors) {
       this.sensors = sensors;
     }
 
@@ -153,7 +153,6 @@ public final class ControlNodeConfig {
   public static class DeviceEntry {
     private String id;
     private String type;
-    private long updateIntervalMs = 5000;
 
     public DeviceEntry() {
     }
@@ -161,12 +160,6 @@ public final class ControlNodeConfig {
     public DeviceEntry(String id, String type) {
       this.id = id;
       this.type = type;
-    }
-
-    public DeviceEntry(String id, String type, long updateIntervalMs) {
-      this.id = id;
-      this.type = type;
-      this.updateIntervalMs = updateIntervalMs;
     }
 
     public String getId() {
@@ -183,6 +176,18 @@ public final class ControlNodeConfig {
 
     public void setType(String type) {
       this.type = type;
+    }
+  }
+
+  public static class SensorEntry extends DeviceEntry {
+    private long updateIntervalMs = 5000;
+
+    public SensorEntry() {
+    }
+
+    public SensorEntry(String id, String type, long updateIntervalMs) {
+      super(id, type);
+      this.updateIntervalMs = updateIntervalMs;
     }
 
     public long getUpdateIntervalMs() {

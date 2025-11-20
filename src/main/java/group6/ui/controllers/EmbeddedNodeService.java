@@ -118,7 +118,7 @@ public class EmbeddedNodeService {
 
       for (Sensor sensor : node.getSensorNode().getSensors()) {
         nodeEntry.getSensors().add(
-            new ControlNodeConfig.DeviceEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval()));
+            new ControlNodeConfig.SensorEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval()));
       }
       for (Actuator actuator : node.getSensorNode().getActuators()) {
         nodeEntry.getActuators().add(
@@ -134,7 +134,7 @@ public class EmbeddedNodeService {
    */
   private void loadDevices(ControlNodeConfig.SensorNodeEntry nodeEntry, String targetNodeId) {
     if (nodeEntry.getSensors() != null) {
-      for (ControlNodeConfig.DeviceEntry entry : nodeEntry.getSensors()) {
+      for (ControlNodeConfig.SensorEntry entry : nodeEntry.getSensors()) {
         try {
           SensorType type = SensorType.valueOf(entry.getType());
           manager.addSensor(targetNodeId, type, entry.getId(), entry.getUpdateIntervalMs());
