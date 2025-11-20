@@ -4,9 +4,6 @@ import group6.entity.device.SensorType;
 
 /**
  * pH sensor implementation.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class PhSensor extends Sensor {
 

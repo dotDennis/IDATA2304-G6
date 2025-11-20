@@ -10,9 +10,6 @@ import javafx.scene.text.Font;
 
 /**
  * Generic toggle row component for actuator-like devices.
- * 
- * @author Dennis
- * @since 0.2.0
  */
 public class ToggleActuatorRow {
 

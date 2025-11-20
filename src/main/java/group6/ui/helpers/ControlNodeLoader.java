@@ -16,9 +16,6 @@ import tools.jackson.databind.type.CollectionType;
  * 
  * <p>Reads a list of {@link ControlNodeConfig.Entry} objects from JSON and
  * converts them into a {@link ControlNodeConfig}.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class ControlNodeLoader {
 

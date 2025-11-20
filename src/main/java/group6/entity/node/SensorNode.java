@@ -19,9 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>A {@code SensorNode} is responsible for managing attached devices,
  * collecting readings, tracking update timestamps and notifying listeners
  * when sensors or actuators change.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public class SensorNode extends Node implements DeviceUpdateListener {
 

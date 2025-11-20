@@ -11,9 +11,6 @@ import group6.entity.device.sensor.WindSensor;
 
 /**
  * Factory helper for instantiating sensors by {@link SensorType}.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class SensorFactory {
 

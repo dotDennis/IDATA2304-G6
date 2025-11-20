@@ -11,9 +11,6 @@ import java.util.List;
  * <p>The configuration is loaded from JSON as a list of {@link Entry}
  * objects. Each entry is converted into a {@link ControlNode}, which couples
  * the configuration data with its {@link ControlPanel}.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class ControlNodeConfig {
 

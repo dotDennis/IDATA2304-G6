@@ -27,9 +27,6 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>Handles embedded sensor node creation, tab management, and
  * device operations via the {@link NodeDeviceService}.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class ControlPanelWorkspace {
 

@@ -5,9 +5,6 @@ import java.util.Objects;
 /**
  * Represents a protocol message that can be sent between nodes.
  * Handles parsing and building of protocol messages.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 
 public class Message {

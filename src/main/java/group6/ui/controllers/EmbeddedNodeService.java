@@ -20,9 +20,6 @@ import org.slf4j.LoggerFactory;
  * nodes
  * and have them automatically connected to the controller. It also provides
  * methods to remove nodes and restore them from configuration.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class EmbeddedNodeService {
 

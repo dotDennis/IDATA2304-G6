@@ -3,9 +3,6 @@ package group6.entity.device;
 /**
  * Defines all available actuator types that can be controlled by a SensorNode.
  * Each actuator type includes a display name for better readability.
- * 
- * @author dotDennis
- * @since 0.1.0
  */
 public enum ActuatorType {
   FAN("Fan"),

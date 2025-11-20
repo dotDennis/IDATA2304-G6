@@ -14,9 +14,6 @@ import javafx.scene.layout.VBox;
 
 /**
  * Builder responsible for composing the Node tab layout.
- * 
- * @author Dennis
- * @since 0.2.0
  */
 public final class NodeTabLayoutBuilder {
 

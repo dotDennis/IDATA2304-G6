@@ -11,9 +11,6 @@ import group6.entity.device.actuator.WindowOpenerActuator;
 
 /**
  * Factory helper for instantiating actuators by {@link ActuatorType}.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class ActuatorFactory {
 

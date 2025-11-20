@@ -24,9 +24,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Main view hosting multiple control panel workspaces.
- * 
- * @author Fidjor, dotDennis
- * @since 0.2.0
  */
 public class MainView {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainView.class);

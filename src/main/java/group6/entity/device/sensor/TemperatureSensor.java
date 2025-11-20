@@ -4,9 +4,6 @@ import group6.entity.device.SensorType;
 
 /**
  * Temperature sensor implementation.
- *
- * @author dotDennis
- * @since 0.2.0
  */
 public class TemperatureSensor extends Sensor {
 

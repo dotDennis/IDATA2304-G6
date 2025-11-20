@@ -10,9 +10,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * Holds common metadata + current value, min/max range and timestamp.
  *
  * <p>Unit is taken from SensorType.getDefaultUnit().
- *
- * @author dotDennis, Fidjor
- * @since 0.1.0
  */
 public abstract class Sensor extends Device<SensorType> {
 

@@ -17,9 +17,6 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>Provides methods to add, remove, and list sensors and actuators on nodes,
  * and triggers refresh requests to update the GUI accordingly.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class NodeDeviceService {
 

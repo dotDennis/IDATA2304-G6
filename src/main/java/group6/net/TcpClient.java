@@ -22,11 +22,7 @@ import org.slf4j.LoggerFactory;
  * 
  * Message response = client.receiveMessage();
  * </pre>
- * 
- * @author dotDennis
- * @since 0.1.0
  */
-
 public class TcpClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(TcpClient.class);
   private final String host;

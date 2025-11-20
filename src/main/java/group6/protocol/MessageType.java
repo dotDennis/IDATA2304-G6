@@ -9,9 +9,6 @@ package group6.protocol;
  * KEEPALIVE messages ensure connection is alive.
  * ERROR indicates a protocol error.
  * HELLO and WELCOME are used during connection.
- * 
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public enum MessageType {
   HELLO, // sent when a node connects

@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Handles communication with connected control panel.
  * Runs in its own thread.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 

@@ -27,9 +27,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents a single node tab containing sensor data and actuator controls.
  * Each tab corresponds to one connected sensor node.
- * 
- * @author fidjor, dotDennis
- * @since 0.2.0
  */
 public class NodeTabView {
 

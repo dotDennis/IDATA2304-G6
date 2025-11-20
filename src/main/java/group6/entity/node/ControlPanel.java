@@ -18,9 +18,6 @@ import org.slf4j.LoggerFactory;
  * - Manages connections to multiple SensorNodes via SensorNodeClient.
  * - Recives messages from SensorNodes and maintains a data cache.
  * - Exposes methods to display node data, and send commands to actuators.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public class ControlPanel extends Node {
 

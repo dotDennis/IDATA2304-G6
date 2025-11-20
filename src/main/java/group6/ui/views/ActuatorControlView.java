@@ -18,9 +18,6 @@ import org.slf4j.LoggerFactory;
 /**
  * View for actuator controls.
  * Allows user to control actuators
- * 
- * @author fidjor, dotDennis
- * @since 0.2.0
  */
 public class ActuatorControlView {
 

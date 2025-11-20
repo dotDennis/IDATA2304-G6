@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
  * - Uses TcpClient and Connection to talk to one SensorNode.
  * - Runs a receive loop in its own thread.
  * - Forwards parsed messages back to ControlPanel.
- * 
- * @author dotDennis
- * @since 0.1.0
  */
 public class SensorNodeClient implements Runnable {
 

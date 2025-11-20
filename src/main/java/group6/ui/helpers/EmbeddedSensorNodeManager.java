@@ -36,9 +36,6 @@ import org.slf4j.LoggerFactory;
  * that run within the same process as the GUI application.
  * This allows for easier testing and demonstration of the system
  * without needing separate processes for each sensor node.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class EmbeddedSensorNodeManager {
 

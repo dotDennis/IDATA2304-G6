@@ -10,9 +10,6 @@ import java.util.List;
  * 
  * <p>All actuators start in OFF state.
  * Concrete subclasses only define the actuator type, no custom state setup.
- *
- * @author dotDennis
- * @since 0.1.0
  */
 public abstract class Actuator extends Device<ActuatorType> {
 

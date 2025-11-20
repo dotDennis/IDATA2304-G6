@@ -9,9 +9,6 @@ import java.util.StringJoiner;
  * Presentation helper that formats device keys into human readable labels.
  * 
  * @see DeviceKey
- * 
- * @author Dennis
- * @since 0.2.0
  */
 public final class DevicePresentation {
 

@@ -4,9 +4,6 @@ import group6.entity.device.SensorType;
 
 /**
  * Wind sensor implementation.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class WindSensor extends Sensor {
 

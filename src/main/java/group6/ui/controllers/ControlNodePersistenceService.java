@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>Used by the UI layer to avoid dealing with file handling directly.
  * Delegates all serialization work to {@link ControlNodeLoader}.
- *
- * @author dotDennis
- * @since 0.2.0
  */
 public class ControlNodePersistenceService {
 

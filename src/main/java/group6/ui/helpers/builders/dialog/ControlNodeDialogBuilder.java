@@ -13,9 +13,6 @@ import javafx.scene.layout.VBox;
 
 /**
  * Utility to build the "Add Control Node" dialog.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class ControlNodeDialogBuilder {
 

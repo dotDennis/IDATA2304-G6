@@ -15,9 +15,6 @@ import org.slf4j.LoggerFactory;
 /**
  * TCP Server to handle incoming connections.
  * Wrapping them in Connection objects.
- *
- * @author dotDennis
- * @since 0.1.0
  */
 public class TcpServer {
 

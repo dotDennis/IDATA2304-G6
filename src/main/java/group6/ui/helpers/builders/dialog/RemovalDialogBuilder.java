@@ -11,9 +11,6 @@ import javafx.scene.layout.GridPane;
 
 /**
  * Utility for building dialog to remove device.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class RemovalDialogBuilder {
 
