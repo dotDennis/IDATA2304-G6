@@ -52,8 +52,10 @@ public class ControlPanel extends Node {
     private final Map<String, java.util.Deque<SensorSample>> sensorHistory;
     private long lastUpdate;
     private static final long HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes (default value)
+    private final String nodeId;
 
-    public NodeData() {
+    public NodeData(String nodeId) {
+      this.nodeId = nodeId;
       this.sensorReadings = new ConcurrentHashMap<>();
       this.actuatorStates = new ConcurrentHashMap<>();
       this.sensorUpdatedAt = new ConcurrentHashMap<>();
@@ -64,12 +66,13 @@ public class ControlPanel extends Node {
 
     public void updateSensor(String type, double value) {
       sensorReadings.put(type, value);
-      sensorUpdatedAt.put(type, System.currentTimeMillis());
       long now = System.currentTimeMillis();
+      sensorUpdatedAt.put(type, now);
       java.util.Deque<SensorSample> history = sensorHistory.computeIfAbsent(type, k -> new java.util.concurrent.ConcurrentLinkedDeque<>());
       history.addLast(new SensorSample(value, now));
       pruneHistory(history, now);
-      lastUpdate = System.currentTimeMillis();
+      lastUpdate = now;
+      SensorHistoryWriter.recordSample(nodeId, type, value, now);
     }
 
     public void updateActuator(String type, boolean state) {
@@ -172,7 +175,7 @@ public class ControlPanel extends Node {
 
     SensorNodeClient client = new SensorNodeClient(sensorNodeId, host, port, this);
     sensorClients.put(sensorNodeId, client);
-    dataCache.put(sensorNodeId, new NodeData());
+    dataCache.put(sensorNodeId, new NodeData(sensorNodeId));
     client.start();
 
     LOGGER.info("Connecting to sensor node {} at {}:{}", sensorNodeId, host, port);
