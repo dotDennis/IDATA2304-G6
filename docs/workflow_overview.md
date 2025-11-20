@@ -25,7 +25,7 @@ Since this ended up as a two-person project with a short timeline, we used a lig
 
 - **Sprint Rhythm:**  
   - Sprint 1 (Nov 9–14): core entities, TCP layer, and protocol design.  
-  - Sprint 2 (Nov 15–21): full integration, ControlPanel demo, documentation, and cleanup.
+  - Sprint 2 (Nov 16–21): full integration, ControlPanel demo, documentation, and cleanup.
 
 ## Tools Used
 
