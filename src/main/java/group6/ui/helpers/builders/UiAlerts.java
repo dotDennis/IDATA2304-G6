@@ -1,4 +1,4 @@
-package group6.ui.helpers;
+package group6.ui.helpers.builders;
 
 import javafx.scene.control.Alert;
 

@@ -1,4 +1,4 @@
-package group6.ui.helpers;
+package group6.ui.helpers.builders.dialog;
 
 import java.util.Optional;
 import java.util.function.Predicate;

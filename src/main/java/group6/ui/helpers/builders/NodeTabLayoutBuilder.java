@@ -1,4 +1,4 @@
-package group6.ui.helpers;
+package group6.ui.helpers.builders;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
