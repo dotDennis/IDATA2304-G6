@@ -8,7 +8,7 @@
 
   <!-- Accepted Levels: TRACE, DEBUG, INFO, WARN, ERROR, ALL, OFF  -->
   <!-- Production default: INFO, WARN, ERROR -->
-  <root level="ALL">
+  <root level="INFO">
     <appender-ref ref="CONSOLE" />
   </root>
 </configuration>
