@@ -1,7 +1,9 @@
-package group6.entity.node;
+package group6.logic.events;
+
+import group6.entity.node.SensorNode;
 
 /**
- * Observer for sensor node level updates.
+ * Observer for high-level sensor node updates.
  */
 public interface SensorNodeUpdateListener {
 
