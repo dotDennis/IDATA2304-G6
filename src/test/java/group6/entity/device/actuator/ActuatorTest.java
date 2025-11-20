@@ -1,10 +1,8 @@
 package group6.entity.device.actuator;
 
 import group6.entity.device.ActuatorType;
-import group6.entity.device.sensor.HumiditySensor;
+import group6.entity.device.SensorType;
 import group6.entity.device.sensor.Sensor;
-import group6.entity.device.sensor.TemperatureSensor;
-import group6.entity.device.sensor.WindSensor;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +17,32 @@ import static org.junit.jupiter.api.Assertions.*;
  * Essential unit tests for Actuator implementations.
  */
 class ActuatorTest {
+  /**
+   * Simple deterministic sensor used to verify actuator influence.
+   */
+  private static class StubSensor extends Sensor {
+
+    private double influenceTotal = 0.0;
+
+    StubSensor(String id, SensorType type) {
+      super(id, type, 0, 100);
+    }
+
+    @Override
+    public double readValue() {
+      return getCurrentValue();
+    }
+
+    @Override
+    public synchronized void addExternalInfluence(double delta) {
+      super.addExternalInfluence(delta);
+      influenceTotal += delta;
+    }
+
+    double getInfluenceTotal() {
+      return influenceTotal;
+    }
+  }
 
   @Nested
   @DisplayName("Actuator Creation")
@@ -129,73 +153,58 @@ class ActuatorTest {
   class EffectTests {
 
     @Test
-    @DisplayName("HeaterActuator increases temperature")
+    @DisplayName("Heater applies positive influence to temperature")
     void testHeaterIncreasesTemperature() {
       HeaterActuator heater = new HeaterActuator("heater-01");
-      TemperatureSensor tempSensor = new TemperatureSensor("temp-01");
-      List<Sensor> sensors = List.of(tempSensor);
+      StubSensor tempSensor = new StubSensor("temp-01", SensorType.TEMPERATURE);
 
-      double initialTemp = tempSensor.getCurrentValue();
-      heater.applyEffect(sensors);
-      double newTemp = tempSensor.getCurrentValue();
+      heater.applyEffect(List.of(tempSensor));
 
-      assertTrue(newTemp > initialTemp, "Heater should increase temperature");
+      assertTrue(tempSensor.getInfluenceTotal() > 0.0, "Heater should warm the air");
     }
 
     @Test
-    @DisplayName("HeaterActuator decreases humidity")
+    @DisplayName("Heater applies negative influence to humidity")
     void testHeaterDecreasesHumidity() {
       HeaterActuator heater = new HeaterActuator("heater-01");
-      HumiditySensor humiditySensor = new HumiditySensor("humid-01");
-      List<Sensor> sensors = List.of(humiditySensor);
+      StubSensor humiditySensor = new StubSensor("humid-01", SensorType.HUMIDITY);
 
-      double initialHumidity = humiditySensor.getCurrentValue();
-      heater.applyEffect(sensors);
-      double newHumidity = humiditySensor.getCurrentValue();
+      heater.applyEffect(List.of(humiditySensor));
 
-      assertTrue(newHumidity < initialHumidity, "Heater should decrease humidity");
+      assertTrue(humiditySensor.getInfluenceTotal() < 0.0, "Heater should dry the air");
     }
 
     @Test
-    @DisplayName("FanActuator decreases temperature")
+    @DisplayName("Fan cools air via negative temperature influence")
     void testFanDecreasesTemperature() {
       FanActuator fan = new FanActuator("fan-01");
-      TemperatureSensor tempSensor = new TemperatureSensor("temp-01");
-      List<Sensor> sensors = List.of(tempSensor);
+      StubSensor tempSensor = new StubSensor("temp-01", SensorType.TEMPERATURE);
 
-      double initialTemp = tempSensor.getCurrentValue();
-      fan.applyEffect(sensors);
-      double newTemp = tempSensor.getCurrentValue();
+      fan.applyEffect(List.of(tempSensor));
 
-      assertTrue(newTemp < initialTemp, "Fan should decrease temperature");
+      assertTrue(tempSensor.getInfluenceTotal() < 0.0, "Fan should cool the air");
     }
 
     @Test
-    @DisplayName("FanActuator decreases humidity")
+    @DisplayName("Fan reduces humidity through negative influence")
     void testFanDecreasesHumidity() {
       FanActuator fan = new FanActuator("fan-01");
-      HumiditySensor humiditySensor = new HumiditySensor("humid-01");
-      List<Sensor> sensors = List.of(humiditySensor);
+      StubSensor humiditySensor = new StubSensor("humid-01", SensorType.HUMIDITY);
 
-      double initialHumidity = humiditySensor.getCurrentValue();
-      fan.applyEffect(sensors);
-      double newHumidity = humiditySensor.getCurrentValue();
+      fan.applyEffect(List.of(humiditySensor));
 
-      assertTrue(newHumidity < initialHumidity, "Fan should decrease humidity");
+      assertTrue(humiditySensor.getInfluenceTotal() < 0.0, "Fan should lower humidity");
     }
 
     @Test
-    @DisplayName("FanActuator increases wind speed")
+    @DisplayName("Fan increases wind influence on wind sensors")
     void testFanIncreasesWindSpeed() {
       FanActuator fan = new FanActuator("fan-01");
-      WindSensor windSensor = new WindSensor("wind-01");
-      List<Sensor> sensors = List.of(windSensor);
+      StubSensor windSensor = new StubSensor("wind-01", SensorType.WIND_SPEED);
 
-      double initialWind = windSensor.getCurrentValue();
-      fan.applyEffect(sensors);
-      double newWind = windSensor.getCurrentValue();
+      fan.applyEffect(List.of(windSensor));
 
-      assertTrue(newWind > initialWind, "Fan should increase wind speed");
+      assertTrue(windSensor.getInfluenceTotal() > 0.0, "Fan should increase wind speed");
     }
 
     @Test
@@ -211,17 +220,13 @@ class ActuatorTest {
     @DisplayName("applyEffect() affects multiple sensors")
     void testApplyEffectWithMultipleSensors() {
       HeaterActuator heater = new HeaterActuator("heater-01");
-      TemperatureSensor tempSensor = new TemperatureSensor("temp-01");
-      HumiditySensor humiditySensor = new HumiditySensor("humid-01");
-      List<Sensor> sensors = List.of(tempSensor, humiditySensor);
+      StubSensor tempSensor = new StubSensor("temp-01", SensorType.TEMPERATURE);
+      StubSensor humiditySensor = new StubSensor("humid-01", SensorType.HUMIDITY);
 
-      double initialTemp = tempSensor.getCurrentValue();
-      double initialHumidity = humiditySensor.getCurrentValue();
+      heater.applyEffect(List.of(tempSensor, humiditySensor));
 
-      heater.applyEffect(sensors);
-
-      assertTrue(tempSensor.getCurrentValue() > initialTemp);
-      assertTrue(humiditySensor.getCurrentValue() < initialHumidity);
+      assertTrue(tempSensor.getInfluenceTotal() > 0.0);
+      assertTrue(humiditySensor.getInfluenceTotal() < 0.0);
     }
   }
 
