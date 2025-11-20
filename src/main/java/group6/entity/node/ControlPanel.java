@@ -187,7 +187,6 @@ public class ControlPanel extends Node {
     client.requestDataRefresh(target);
   }
 
-  // TODO: Refactor to UI class later
   /**
    * Displays the cached data from a sensor node.
    *
