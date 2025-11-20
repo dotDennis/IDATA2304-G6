@@ -1,12 +1,10 @@
 package group6.ui;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 
 import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.ControlNodeLoader;
+import group6.ui.helpers.ControlNodePersistenceService;
 import group6.ui.views.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -24,13 +22,15 @@ public class GreenhouseGuiApp extends Application {
   private static final Path CONFIG_FILE = Paths.get("resources/config.json");
 
   private MainView mainView;
+  private ControlNodePersistenceService persistenceService;
 
   @Override
   public void start(Stage primaryStage) {
     LOGGER.info("Starting Greenhouse Application");
 
-    ControlNodeConfig config = loadControlNodes();
-    mainView = new MainView(config);
+    persistenceService = new ControlNodePersistenceService(CONFIG_FILE);
+    ControlNodeConfig config = persistenceService.load();
+    mainView = new MainView(config, persistenceService::autoSave);
 
     Scene scene = mainView.getScene();
     scene.getStylesheets().add(GreenhouseGuiApp.class.getResource("/global.css").toExternalForm());
@@ -45,23 +45,10 @@ public class GreenhouseGuiApp extends Application {
     LOGGER.info("Greenhouse Application started successfully");
   }
 
-  private ControlNodeConfig loadControlNodes() {
-    try {
-      return ControlNodeLoader.load(CONFIG_FILE);
-    } catch (IOException e) {
-      LOGGER.warn("Failed to load control node config, starting fresh", e);
-      return ControlNodeConfig.fromEntries(Collections.emptyList());
-    }
-  }
-
   private void shutdown() {
     if (mainView != null) {
-      try {
-        ControlNodeConfig config = mainView.exportConfig();
-        ControlNodeLoader.save(CONFIG_FILE, config);
-      } catch (IOException e) {
-        LOGGER.warn("Failed to save configuration", e);
-      }
+      ControlNodeConfig config = mainView.exportConfig();
+      persistenceService.save(config);
       mainView.shutdown();
     }
     LOGGER.info("Application shutdown successfully");
