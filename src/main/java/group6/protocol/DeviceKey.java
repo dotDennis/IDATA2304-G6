@@ -4,7 +4,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Canonical representation of protocol keys of the form {@code type#id}.
+ * Representation of protocol keys of the form {@code type#id}.
+ * <p>
+ * Used for identifying devices effectively within the protocol.
+ * Instead of looping through all devices.
  */
 public final class DeviceKey {
 
@@ -16,10 +19,23 @@ public final class DeviceKey {
     this.id = id;
   }
 
+  /**
+   * Creates a DeviceKey from type and id.
+   * 
+   * @param type the device type
+   * @param id the device id
+   * @return the device key
+   */
   public static DeviceKey of(String type, String id) {
     return new DeviceKey(normalize(type), normalize(id));
   }
 
+  /**
+   * Parses a protocol key string into a DeviceKey.
+   * 
+   * @param rawKey the raw protocol key string
+   * @return the device key
+   */
   public static DeviceKey parse(String rawKey) {
     if (rawKey == null || rawKey.isBlank()) {
       return new DeviceKey("", "");
@@ -41,18 +57,40 @@ public final class DeviceKey {
     return text.trim().toLowerCase(Locale.ROOT);
   }
 
+  // ------- Getters -------
+
+  /**
+   * Gets the device type.
+   * 
+   * @return the device type
+   */
   public String getType() {
     return type;
   }
 
+  /**
+   * Gets the device id.
+   * 
+   * @return the device id
+   */
   public String getId() {
     return id;
   }
 
+  /**
+   * Converts to protocol key string.
+   * 
+   * @return the protocol key string
+   */
   public String toProtocolKey() {
     return id == null || id.isBlank() ? type : type + "#" + id.trim();
   }
 
+  // ------- Overrides -------
+
+  /**
+   * Checks equality with another object.
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -65,11 +103,17 @@ public final class DeviceKey {
     return type.equals(other.type) && Objects.equals(id, other.id);
   }
 
+  /**
+   * Generates hash code.
+   */
   @Override
   public int hashCode() {
     return Objects.hash(type, id);
   }
 
+  /**
+   * Converts to string representation.
+   */
   @Override
   public String toString() {
     return toProtocolKey();
