@@ -29,6 +29,7 @@ public final class SensorHistoryWriter {
   private static final DateTimeFormatter FOLDER_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm");
   private static final String RUN_FOLDER = LocalDateTime.now().format(FOLDER_FORMAT);
   private static final Map<String, Object> LOCKS = new ConcurrentHashMap<>();
+  private static final Map<String, SensorSample> LAST_WRITTEN = new ConcurrentHashMap<>();
 
   private SensorHistoryWriter() {
   }
@@ -45,6 +46,12 @@ public final class SensorHistoryWriter {
     Object lock = LOCKS.computeIfAbsent(nodeId, k -> new Object());
     synchronized (lock) {
       try {
+        String key = nodeId + "/" + sensorKey;
+        SensorSample previous = LAST_WRITTEN.get(key);
+        if (previous != null && (timestamp - previous.timestamp) < 900) { // 900 ms hardcoded limit
+          return;
+        }
+
         Path folder = HISTORY_DIR.resolve(RUN_FOLDER).resolve(nodeId);
         Files.createDirectories(folder);
         Path file = folder.resolve(sensorKey + ".csv");
@@ -58,10 +65,21 @@ public final class SensorHistoryWriter {
           LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
           writer.write(String.format("%s,%s,%s", time, sensorKey, value));
           writer.newLine();
+          LAST_WRITTEN.put(key, new SensorSample(value, timestamp));
         }
       } catch (IOException e) {
         LOGGER.warn("Failed to write sensor history for {}", nodeId, e);
       }
+    }
+  }
+
+  private static final class SensorSample {
+    final double value;
+    final long timestamp;
+
+    SensorSample(double value, long timestamp) {
+      this.value = value;
+      this.timestamp = timestamp;
     }
   }
 }
