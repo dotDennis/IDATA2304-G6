@@ -1,6 +1,7 @@
 package group6.ui.controllers;
 
 import group6.entity.node.ControlPanel;
+import group6.entity.node.RefreshTarget;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,22 @@ public class GuiController {
   }
 
   /**
+   * Requests an immediate refresh from a node so the UI updates instantly.
+   *
+   * @param nodeId the node ID
+   * @param target which data should be refreshed
+   */
+  public void requestNodeRefresh(String nodeId, RefreshTarget target) {
+    try {
+      controlPanel.requestNodeSnapshot(nodeId, target);
+      LOGGER.info("Requested {} refresh for {}", target, nodeId);
+    } catch (Exception e) {
+      LOGGER.error("Failed to request refresh for {}", nodeId, e);
+      throw new RuntimeException("Refresh request failed: " + e.getMessage(), e);
+    }
+  }
+
+  /**
    * Gets cached node data.
    *
    * @param nodeId the node ID.
@@ -93,6 +110,14 @@ public class GuiController {
    */
   public ControlPanel.NodeData getNodeData (String nodeId) {
     return controlPanel.getNodeData(nodeId);
+  }
+
+  public void clearSensorFromCache(String nodeId, String sensorKey) {
+    controlPanel.removeCachedSensor(nodeId, sensorKey);
+  }
+
+  public void clearActuatorFromCache(String nodeId, String actuatorKey) {
+    controlPanel.removeCachedActuator(nodeId, actuatorKey);
   }
 
   /**

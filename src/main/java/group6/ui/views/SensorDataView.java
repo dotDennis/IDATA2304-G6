@@ -66,12 +66,20 @@ public class SensorDataView {
 
     //Display each sensor reading
     for (Map.Entry<String, Double> entry : sensors.entrySet()) {
-      String icon = getSensorIcon(entry.getKey());
-      String unit = getSensorUnit(entry.getKey());
-      String name = capitalize(entry.getKey());
+      String baseType = extractBaseType(entry.getKey());
+      String deviceId = extractDeviceId(entry.getKey());
+      String icon = getSensorIcon(baseType);
+      String unit = getSensorUnit(baseType);
+      String name = capitalize(baseType);
+      if (!deviceId.isEmpty()) {
+        name += " (" + deviceId + ")";
+      }
 
-      Label sensorLabel = new Label(String.format("%s %s: %.2f %s", icon, name,
-              entry.getValue(), unit));
+      long updatedAt = data.getSensorUpdatedAt(entry.getKey());
+      String lastUpdateText = formatAgo(updatedAt);
+
+      Label sensorLabel = new Label(String.format("%s %s: %.2f %s (%s)", icon, name,
+              entry.getValue(), unit, lastUpdateText));
       sensorLabel.setFont(Font.font(14));
 
       contentBox.getChildren().add(sensorLabel);
@@ -127,5 +135,35 @@ public class SensorDataView {
     }
     return str.substring(0, 1).toUpperCase()
             + str.substring(1).replace("_", " ");
+  }
+
+  private String formatAgo(long timestamp) {
+    if (timestamp <= 0) {
+      return "never";
+    }
+    long seconds = Math.max(0, (System.currentTimeMillis() - timestamp) / 1000);
+    if (seconds < 1) {
+      return "just now";
+    }
+    return seconds + "s ago";
+  }
+
+  private String extractBaseType(String key){
+    if (key == null) {
+      return "";
+    }
+    int idx = key.indexOf('#');
+    return idx >= 0 ? key.substring(0, idx) : key;
+  }
+
+  private String extractDeviceId(String key){
+    if (key == null) {
+      return "";
+    }
+    int idx = key.indexOf('#');
+    if (idx >= 0 && idx < key.length() - 1) {
+      return key.substring(idx + 1);
+    }
+    return "";
   }
 }

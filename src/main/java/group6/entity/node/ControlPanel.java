@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import group6.protocol.DeviceKey;
+
 /**
  * Control panel node (domain model).
  * 
@@ -45,21 +47,27 @@ public class ControlPanel extends Node {
   public static class NodeData {
     private final Map<String, Double> sensorReadings;
     private final Map<String, Boolean> actuatorStates;
+    private final Map<String, Long> sensorUpdatedAt;
+    private final Map<String, Long> actuatorUpdatedAt;
     private long lastUpdate;
 
     public NodeData() {
       this.sensorReadings = new ConcurrentHashMap<>();
       this.actuatorStates = new ConcurrentHashMap<>();
+      this.sensorUpdatedAt = new ConcurrentHashMap<>();
+      this.actuatorUpdatedAt = new ConcurrentHashMap<>();
       this.lastUpdate = System.currentTimeMillis();
     }
 
     public void updateSensor(String type, double value) {
       sensorReadings.put(type, value);
+      sensorUpdatedAt.put(type, System.currentTimeMillis());
       lastUpdate = System.currentTimeMillis();
     }
 
     public void updateActuator(String type, boolean state) {
       actuatorStates.put(type, state);
+      actuatorUpdatedAt.put(type, System.currentTimeMillis());
       lastUpdate = System.currentTimeMillis();
     }
 
@@ -73,6 +81,32 @@ public class ControlPanel extends Node {
 
     public long getLastUpdate() {
       return lastUpdate;
+    }
+
+    public void removeSensor(String key) {
+      if (key != null) {
+        sensorReadings.remove(key);
+        sensorUpdatedAt.remove(key);
+      }
+    }
+
+    public void removeActuator(String key) {
+      if (key != null) {
+        actuatorStates.remove(key);
+        actuatorUpdatedAt.remove(key);
+      }
+    }
+
+    public void touch() {
+      lastUpdate = System.currentTimeMillis();
+    }
+
+    public long getSensorUpdatedAt(String key) {
+      return sensorUpdatedAt.getOrDefault(key, 0L);
+    }
+
+    public long getActuatorUpdatedAt(String key) {
+      return actuatorUpdatedAt.getOrDefault(key, 0L);
     }
   }
 
@@ -138,7 +172,21 @@ public class ControlPanel extends Node {
     client.sendCommand(actuatorType, state);
   }
 
-  // TODO: Refactor to UI class later
+  /**
+   * Requests an immediate data refresh from a sensor node.
+   *
+   * @param sensorNodeId the node to refresh
+   * @param target       sensors, actuators or both
+   */
+  public void requestNodeSnapshot(String sensorNodeId, RefreshTarget target) {
+    SensorNodeClient client = sensorClients.get(sensorNodeId);
+    if (client == null) {
+      LOGGER.warn("Cannot refresh. Not connected to sensor node {}", sensorNodeId);
+      return;
+    }
+    client.requestDataRefresh(target);
+  }
+
   /**
    * Displays the cached data from a sensor node.
    *
@@ -194,8 +242,17 @@ public class ControlPanel extends Node {
     MessageType type = msg.getMessageType();
     switch (type) {
       case DATA -> {
-        parseAndCacheData(sensorNodeId, msg.getData());
-        LOGGER.debug("Received data from {}: {}", sensorNodeId, msg.getData());
+        String payload = msg.getData();
+        if (payload == null) {
+          return;
+        }
+        boolean hasContent = !payload.isBlank();
+        parseAndCacheData(sensorNodeId, hasContent ? payload : null);
+        if (hasContent) {
+          LOGGER.debug("Received data from {}: {}", sensorNodeId, payload);
+        } else {
+          LOGGER.trace("Heartbeat from {}", sensorNodeId);
+        }
       }
       case SUCCESS ->
         LOGGER.info("Command successful from {}: {}", sensorNodeId, msg.getData());
@@ -216,12 +273,13 @@ public class ControlPanel extends Node {
    * @param data         the data string to parse.
    */
   private void parseAndCacheData(String sensorNodeId, String data) {
-    if (data == null || data.isEmpty()) {
+    NodeData nodeData = dataCache.get(sensorNodeId);
+    if (nodeData == null) {
       return;
     }
 
-    NodeData nodeData = dataCache.get(sensorNodeId);
-    if (nodeData == null) {
+    if (data == null || data.isEmpty()) {
+      nodeData.touch();
       return;
     }
 
@@ -233,7 +291,8 @@ public class ControlPanel extends Node {
         continue;
       }
 
-      String key = keyValue[0].trim().toLowerCase();
+      DeviceKey parsedKey = DeviceKey.parse(keyValue[0]);
+      String key = parsedKey.toProtocolKey();
       String value = keyValue[1].trim();
 
       // Check if it's an actuator (0 or 1) FIRST
@@ -263,6 +322,20 @@ public class ControlPanel extends Node {
     return dataCache.get(sensorNodeId);
   }
 
+  public void removeCachedSensor(String sensorNodeId, String sensorKey) {
+    NodeData data = dataCache.get(sensorNodeId);
+    if (data != null) {
+      data.removeSensor(sensorKey);
+    }
+  }
+
+  public void removeCachedActuator(String sensorNodeId, String actuatorKey) {
+    NodeData data = dataCache.get(sensorNodeId);
+    if (data != null) {
+      data.removeActuator(actuatorKey);
+    }
+  }
+
   /**
    * Shuts down the control panel
    * Closes all connections and stops all listener threads
@@ -290,5 +363,9 @@ public class ControlPanel extends Node {
    */
   public boolean isRunning() {
     return running;
+  }
+
+  public static String normalizeDeviceKey(String rawKey) {
+    return DeviceKey.parse(rawKey).toProtocolKey();
   }
 }

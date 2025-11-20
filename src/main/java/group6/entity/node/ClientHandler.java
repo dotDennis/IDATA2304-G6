@@ -5,6 +5,7 @@ import group6.protocol.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 import group6.entity.device.actuator.Actuator;
 import group6.net.Connection;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author Fidjor, dotDennis
  * @since 0.1.0
  */
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
   private final Socket socket;
@@ -45,6 +46,8 @@ public class ClientHandler implements Runnable {
       running = true;
 
       LOGGER.info("Control panel connected for node {}", sensorNode.getNodeId());
+
+      sensorNode.addUpdateListener(this);
 
       Thread sensorThread = new Thread(this::sendSensorDataPeriodically, "sensor-data-" + sensorNode.getNodeId());
       sensorThread.start();
@@ -83,24 +86,23 @@ public class ClientHandler implements Runnable {
   }
 
   /**
-   * Closes connection.
+   * Closes connection and stops handler. Used when the server shuts down.
    */
   public void stop() {
     running = false;
+    sensorNode.removeUpdateListener(this);
+    closeConnection();
   }
 
   /**
-   * Sends sensor data to control panel every 5 seconds.
+   * Sends sensor data to control panel according to the configured interval.
+   * Default is every 5 seconds.
    */
   private void sendSensorDataPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        String sensorData = sensorNode.getSensorDataString();
-
-        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), sensorData);
-        sendMessage(message);
-
-        Thread.sleep(5000);
+        sendHeartbeat();
+        Thread.sleep(sensorNode.getSensorNodeInterval());
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Sensor data thread interrupted for node {}", sensorNode.getNodeId(), e);
@@ -114,11 +116,7 @@ public class ClientHandler implements Runnable {
   private void sendActuatorStatusPeriodically() {
     try {
       while (running && connection.isOpen()) {
-        String actuatorStatus = sensorNode.getActuatorStatusString();
-
-        Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
-        sendMessage(message);
-
+        sendHeartbeat();
         Thread.sleep(10000);
       }
     } catch (InterruptedException e) {
@@ -149,6 +147,8 @@ public class ClientHandler implements Runnable {
           handleCommand(message.getData());
         }
       }
+    } catch (EOFException | SocketException e) {
+      LOGGER.info("Control panel disconnected from node {}", sensorNode.getNodeId());
     } catch (IOException e) {
       LOGGER.error("Error reading command for node {}", sensorNode.getNodeId(), e);
     } finally {
@@ -174,7 +174,15 @@ public class ClientHandler implements Runnable {
     String actuatorType = parts[0];
     String action = parts[1];
 
-    Actuator actuator = sensorNode.findActuatorByType(actuatorType);
+    if ("refresh".equalsIgnoreCase(action)) {
+      handleRefreshCommand(actuatorType);
+      return;
+    }
+
+    Actuator actuator = sensorNode.findActuatorByDeviceId(actuatorType);
+    if (actuator == null) {
+      actuator = sensorNode.findActuatorByType(actuatorType);
+    }
     if (actuator == null) {
       sendError("Unknown actuator: " + actuatorType);
       return;
@@ -197,18 +205,103 @@ public class ClientHandler implements Runnable {
 
     sendMessage(error);
   }
+ 
+  /**
+   * Handles refresh command from control panel.
+   * Used to request immediate data update.
+   * Often used after adding/removing sensors/actuators.
+   *
+   * @param action the refresh target (sensors, actuators, all)
+   */
+  private void handleRefreshCommand(String action) {
+    String normalized = action == null ? "" : action.trim().toLowerCase();
+    boolean refreshSensors = normalized.isEmpty() || "all".equals(normalized) || "sensors".equals(normalized);
+    boolean refreshActuators = normalized.isEmpty() || "all".equals(normalized) || "actuators".equals(normalized);
+
+    if (!refreshSensors && !refreshActuators) {
+      sendError("Unknown refresh target: " + action);
+      return;
+    }
+
+    if (refreshSensors) {
+      sendSensorSnapshot();
+    }
+    if (refreshActuators) {
+      sendActuatorSnapshot();
+    }
+
+    Message reply = new Message(MessageType.SUCCESS, sensorNode.getNodeId(),
+        "refresh:" + (normalized.isEmpty() ? "all" : normalized));
+    sendMessage(reply);
+  }
+
+  /**
+   * Sends a full snapshot of all sensor readings regardless of pending changes.
+   */
+  private void sendSensorSnapshot() {
+    String snapshot = sensorNode.getSensorSnapshot();
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), snapshot);
+    sendMessage(message);
+  }
+
+  /**
+   * Sends only sensors that have reported new readings since the last send (delta update).
+   */
+  private void sendSensorDelta() {
+    String updates = sensorNode.drainPendingSensorUpdates();
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), updates);
+    sendMessage(message);
+  }
+
+  /**
+   * Sends a full snapshot of actuator states.
+   */
+  private void sendActuatorSnapshot() {
+    String actuatorStatus = sensorNode.getActuatorSnapshot();
+    Message message = new Message(MessageType.DATA, sensorNode.getNodeId(), actuatorStatus);
+    sendMessage(message);
+  }
+
+  private void sendHeartbeat() {
+    Message heartbeat = new Message(MessageType.DATA, sensorNode.getNodeId(), "");
+    sendMessage(heartbeat);
+  }
 
   /**
    ** cleans up resources
    */
   private void cleanup() {
+    sensorNode.removeUpdateListener(this);
+    closeConnection();
+    LOGGER.info("Closed session for {}", sensorNode.getNodeId());
+  }
+
+  private void closeConnection() {
     try {
       if (connection != null) {
         connection.close();
+      } else if (socket != null && !socket.isClosed()) {
+        socket.close();
       }
     } catch (IOException e) {
-      LOGGER.warn("Error while closing connection for {}", sensorNode.getNodeId(), e);
+      LOGGER.debug("Error while closing connection for {}", sensorNode.getNodeId(), e);
     }
-    LOGGER.info("Closed session for {}", sensorNode.getNodeId());
+  }
+
+  @Override
+  public void onSensorsUpdated(SensorNode node) {
+    if (running && connection != null && connection.isOpen()) {
+      sendSensorDelta();
+    }
+  }
+
+  @Override
+  public void onActuatorsUpdated(SensorNode node) {
+    if (running && connection != null && connection.isOpen()) {
+      sendActuatorSnapshot();
+    }
   }
 }

@@ -17,11 +17,14 @@ import group6.entity.device.SensorType;
  */
 public abstract class Sensor extends Device<SensorType> {
 
+  private static final long DEFAULT_INTERVAL_MS = 5000;
+
   private final double minValue;
   private final double maxValue;
 
   protected double currentValue;
   private LocalDateTime lastUpdated;
+  private long updateIntervalMs = DEFAULT_INTERVAL_MS;
 
   /**
    * Base constructor for all sensors.
@@ -102,6 +105,7 @@ public abstract class Sensor extends Device<SensorType> {
 
     currentValue = next;
     lastUpdated = LocalDateTime.now();
+    notifyDeviceUpdated();
     return currentValue;
   }
 
@@ -114,11 +118,26 @@ public abstract class Sensor extends Device<SensorType> {
     return maxValue;
   }
 
-  public double getCurrentValue() {
+  public synchronized double getCurrentValue() {
+    if (Double.isNaN(currentValue)) {
+      currentValue = (minValue + maxValue) / 2.0;
+      lastUpdated = LocalDateTime.now();
+    }
     return currentValue;
   }
 
   public LocalDateTime getLastUpdated() {
     return lastUpdated;
+  }
+
+  public synchronized void setUpdateInterval(long intervalMs) {
+    if (intervalMs <= 0) {
+      intervalMs = DEFAULT_INTERVAL_MS;
+    }
+    this.updateIntervalMs = intervalMs;
+  }
+
+  public synchronized long getUpdateInterval() {
+    return updateIntervalMs;
   }
 }

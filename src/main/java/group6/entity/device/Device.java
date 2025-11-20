@@ -1,8 +1,12 @@
 package group6.entity.device;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public abstract class Device<Type extends Enum<Type>> {
     private final String deviceId;
     private final Type deviceType;
+    private final transient List<DeviceUpdateListener> updateListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs a Device with the specified ID and type.
@@ -43,5 +47,21 @@ public abstract class Device<Type extends Enum<Type>> {
 
     public String getDeviceTypeName() {
         return deviceType.name();
+    }
+
+    public void addUpdateListener(DeviceUpdateListener listener) {
+        if (listener != null) {
+            updateListeners.add(listener);
+        }
+    }
+
+    public void removeUpdateListener(DeviceUpdateListener listener) {
+        updateListeners.remove(listener);
+    }
+
+    protected void notifyDeviceUpdated() {
+        for (DeviceUpdateListener listener : updateListeners) {
+            listener.onDeviceUpdated(this);
+        }
     }
 }
