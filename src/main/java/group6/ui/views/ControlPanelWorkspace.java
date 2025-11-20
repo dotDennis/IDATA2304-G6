@@ -154,6 +154,7 @@ public class ControlPanelWorkspace {
         () -> removeEmbeddedNodeTab(nodeId), configChangeListener);
     nodeTabs.put(nodeId, nodeTabView);
     tabPane.getTabs().add(nodeTabView.getTab());
+    nodeTabView.refresh();
     tabPane.getSelectionModel().select(nodeTabView.getTab());
   }
 
