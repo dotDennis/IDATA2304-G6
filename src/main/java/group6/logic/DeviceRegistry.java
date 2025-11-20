@@ -1,30 +1,29 @@
 package group6.logic;
 
+import group6.entity.device.Device;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
-import group6.entity.device.Device;
-
 /**
  * Thread-safe registry for tracking devices associated with a SensorNode.
- * <p>
- * Uses CopyOnWriteArrayList for safe concurrent access.
+ * 
+ * <p>Uses CopyOnWriteArrayList for safe concurrent access.
  * Methods to add, remove, snapshot, and find devices are provided.
  * 
- * @param <Type> the device type
+ * @param <T> the device type
  */
-public final class DeviceRegistry<Type extends Device<?>> {
+public final class DeviceRegistry<T extends Device<?>> {
 
-  private final CopyOnWriteArrayList<Type> devices = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<T> devices = new CopyOnWriteArrayList<>();
 
   /**
    * Adds a device to the registry.
    * 
    * @param device the device to add
    */
-  public void add(Type device) {
+  public void add(T device) {
     devices.add(Objects.requireNonNull(device, "device"));
   }
 
@@ -34,7 +33,7 @@ public final class DeviceRegistry<Type extends Device<?>> {
    * @param device the device to remove
    * @return true if the device was removed, false if it was not
    */
-  public boolean remove(Type device) {
+  public boolean remove(T device) {
     return devices.remove(device);
   }
 
@@ -43,7 +42,7 @@ public final class DeviceRegistry<Type extends Device<?>> {
    * 
    * @return the list of devices
    */
-  public List<Type> snapshot() {
+  public List<T> snapshot() {
     return List.copyOf(devices);
   }
 
@@ -53,8 +52,8 @@ public final class DeviceRegistry<Type extends Device<?>> {
    * @param predicate the predicate to match
    * @return the first matching device, or null if none
    */
-  public Type findFirst(Predicate<? super Type> predicate) {
-    for (Type device : devices) {
+  public T findFirst(Predicate<? super T> predicate) {
+    for (T device : devices) {
       if (predicate.test(device)) {
         return device;
       }

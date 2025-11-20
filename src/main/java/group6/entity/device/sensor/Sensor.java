@@ -1,16 +1,15 @@
 package group6.entity.device.sensor;
 
-import java.time.LocalDateTime;
-import java.util.concurrent.ThreadLocalRandom;
-
 import group6.entity.device.Device;
 import group6.entity.device.SensorType;
+import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Base class for all sensors.
  * Holds common metadata + current value, min/max range and timestamp.
  *
- * Unit is taken from SensorType.getDefaultUnit().
+ * <p>Unit is taken from SensorType.getDefaultUnit().
  *
  * @author dotDennis, Fidjor
  * @since 0.1.0
@@ -99,10 +98,12 @@ public abstract class Sensor extends Device<SensorType> {
   private double applyDelta(double delta) {
     double next = currentValue + delta;
 
-    if (next < minValue)
+    if (next < minValue) {
       next = minValue;
-    if (next > maxValue)
+    }
+    if (next > maxValue) {
       next = maxValue;
+    }
 
     currentValue = next;
     lastUpdated = LocalDateTime.now();
@@ -119,6 +120,12 @@ public abstract class Sensor extends Device<SensorType> {
     return maxValue;
   }
 
+  /**
+   * Gets the current sensor value.
+   * If not yet initialized, sets it to the mid-point of min/max.
+   *  
+   * @return the current sensor value
+   */
   public synchronized double getCurrentValue() {
     if (Double.isNaN(currentValue)) {
       currentValue = (minValue + maxValue) / 2.0;
@@ -131,6 +138,11 @@ public abstract class Sensor extends Device<SensorType> {
     return lastUpdated;
   }
 
+  /**
+   * Sets the update interval for this sensor.
+   * 
+   * @param intervalMs the update interval in milliseconds
+   */
   public synchronized void setUpdateInterval(long intervalMs) {
     if (intervalMs <= 0) {
       intervalMs = DEFAULT_INTERVAL_MS;
@@ -142,10 +154,18 @@ public abstract class Sensor extends Device<SensorType> {
     return updateIntervalMs;
   }
 
+  /**
+   * Resets any external influence applied to this sensor.
+   */
   public synchronized void resetExternalInfluence() {
     this.externalInfluence = 0.0;
   }
 
+  /**
+   * Adds an external influence to this sensor's readings.
+   * 
+   * @param delta the amount to add to the sensor's value
+   */
   public synchronized void addExternalInfluence(double delta) {
     this.externalInfluence += delta;
   }

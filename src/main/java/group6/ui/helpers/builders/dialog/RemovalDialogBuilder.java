@@ -2,7 +2,6 @@ package group6.ui.helpers.builders.dialog;
 
 import java.util.List;
 import java.util.function.Consumer;
-
 import javafx.collections.FXCollections;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -18,18 +17,26 @@ import javafx.scene.layout.GridPane;
  */
 public class RemovalDialogBuilder {
 
-  public static <Type> void show(String title,
-      List<Type> options,
-      Consumer<Type> onRemove) {
+  /**
+   * Shows a dialog to remove a device from a list of options.
+   * 
+   * @param <T>    the device type
+   * @param title     the dialog title
+   * @param options   the available options
+   * @param onRemove  the removal handler
+   */
+  public static <T> void show(String title,
+      List<T> options,
+      Consumer<T> onRemove) {
     if (options.isEmpty()) {
       return;
     }
-    Dialog<Type> dialog = new Dialog<>();
+    Dialog<T> dialog = new Dialog<>();
     dialog.setTitle(title);
     dialog.setHeaderText(null);
     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-    ComboBox<Type> comboBox = new ComboBox<>(FXCollections.observableArrayList(options));
+    ComboBox<T> comboBox = new ComboBox<>(FXCollections.observableArrayList(options));
     comboBox.getSelectionModel().selectFirst();
 
     GridPane grid = new GridPane();

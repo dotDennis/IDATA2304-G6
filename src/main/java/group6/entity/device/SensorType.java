@@ -8,25 +8,25 @@ package group6.entity.device;
  * @since 0.1.0
  */
 public enum SensorType {
-    TEMPERATURE("°C"),
-    HUMIDITY("%"),
-    LIGHT("lux"),
-    PH("pH"),
-    WIND_SPEED("m/s"),
-    FERTILIZER("mg/L");
+  TEMPERATURE("°C"),
+  HUMIDITY("%"),
+  LIGHT("lux"),
+  PH("pH"),
+  WIND_SPEED("m/s"),
+  FERTILIZER("mg/L");
 
-    private final String defaultUnit;
+  private final String defaultUnit;
 
-    SensorType(String defaultUnit) {
-        this.defaultUnit = defaultUnit;
-    }
+  SensorType(String defaultUnit) {
+    this.defaultUnit = defaultUnit;
+  }
 
-    /**
-     * Gets the default measurement unit for this sensor type.
-     * 
-     * @return the default unit
-     */
-    public String getUnit() {
-        return defaultUnit;
-    }
+  /**
+   * Gets the default measurement unit for this sensor type.
+   * 
+   * @return the default unit
+   */
+  public String getUnit() {
+    return defaultUnit;
+  }
 }
