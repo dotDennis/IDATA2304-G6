@@ -181,6 +181,8 @@ public final class ControlNodeConfig {
 
   public static class SensorEntry extends DeviceEntry {
     private long updateIntervalMs = 5000;
+    private Double lastValue;
+    private Long lastUpdated;
 
     public SensorEntry() {
     }
@@ -196,6 +198,22 @@ public final class ControlNodeConfig {
 
     public void setUpdateIntervalMs(long updateIntervalMs) {
       this.updateIntervalMs = updateIntervalMs;
+    }
+
+    public Double getLastValue() {
+      return lastValue;
+    }
+
+    public void setLastValue(Double lastValue) {
+      this.lastValue = lastValue;
+    }
+
+    public Long getLastUpdated() {
+      return lastUpdated;
+    }
+
+    public void setLastUpdated(Long lastUpdated) {
+      this.lastUpdated = lastUpdated;
     }
   }
 
