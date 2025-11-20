@@ -51,7 +51,7 @@ public class ControlPanel extends Node {
     private final Map<String, Long> actuatorUpdatedAt;
     private final Map<String, java.util.Deque<SensorSample>> sensorHistory;
     private long lastUpdate;
-    private static final long HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+    private static final long HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes (default value)
 
     public NodeData() {
       this.sensorReadings = new ConcurrentHashMap<>();

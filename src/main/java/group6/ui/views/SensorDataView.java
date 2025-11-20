@@ -74,9 +74,11 @@ public class SensorDataView {
 
       long updatedAt = data.getSensorUpdatedAt(entry.getKey());
       String lastUpdateText = formatAgo(updatedAt);
+      double avg = data.getSensorAverage(entry.getKey(), 5 * 60 * 1000L); // 5 minutes average
+      String avgText = Double.isNaN(avg) ? "" : String.format(" • avg %.2f %s", avg, unit);
 
-      Label sensorLabel = new Label(String.format("%s %s: %.2f %s (%s)", icon, labelName,
-              entry.getValue(), unit, lastUpdateText));
+      Label sensorLabel = new Label(String.format("%s %s: %.2f %s%s (%s)", icon, labelName,
+              entry.getValue(), unit, avgText, lastUpdateText));
       sensorLabel.setFont(Font.font(14));
 
       contentBox.getChildren().add(sensorLabel);
