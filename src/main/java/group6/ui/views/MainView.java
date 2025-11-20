@@ -1,164 +1,191 @@
 package group6.ui.views;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
+import group6.entity.node.ControlPanel;
 import group6.ui.controllers.GuiController;
+import group6.ui.helpers.ControlNodeConfig;
+import group6.ui.helpers.ControlNodeDialogBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 
 /**
- * MainView for the GUI
- * Acts as the root, holding all subviews.
+ * Main view hosting multiple control panel workspaces.
+ * 
+ * @author Fidjor, dotDennis
+ * @since 0.2.0
  */
 public class MainView {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MainView.class);
 
-  private final GuiController controller;
   private final BorderPane root;
-  private final Label statusLabel;
-  private final TabPane tabPane;
-  private final Map<String, NodeTabView> nodeTabs;
-  private final ScrollPane scrollPane;
-  private final VBox centerContent;
-
-  private ConnectionView connectionView;
+  private final TabPane controlTabs;
+  private final Map<String, ControlContext> contexts;
+  private final Consumer<ControlNodeConfig> autoSaveHandler;
 
   /**
-   * Creates the main view.
-   *
-   * @param controller the GUI controller
+   * Constructs the main view and optionally restores from config.
    */
-  public MainView(GuiController controller) {
-    this.controller = controller;
+  public MainView(ControlNodeConfig config, Consumer<ControlNodeConfig> autoSaveHandler) {
+    this.autoSaveHandler = autoSaveHandler;
     this.root = new BorderPane();
-    this.statusLabel = new Label("Ready");
-    this.tabPane = new TabPane();
-    this.nodeTabs = new HashMap<>();
-    this.centerContent = new VBox(15);
-    this.centerContent.setPadding(new Insets(10));
-    this.centerContent.setFillWidth(true);
-    this.scrollPane = new ScrollPane(centerContent);
-    this.scrollPane.setFitToWidth(true);
-    this.scrollPane.setFitToHeight(true);
+    this.controlTabs = new TabPane();
+    this.controlTabs.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+    this.contexts = new LinkedHashMap<>();
 
-    setupLayout();
-  }
+    setupHeader();
+    root.setPadding(new Insets(10));
+    root.setCenter(controlTabs);
 
-  /**
-   * Sets up the initial layout.
-   */
-  private void setupLayout() {
-    root.setPadding(new Insets(15));
-
-    //Title
-    Label title = new Label("🏠 Smart Greenhouse Control Panel");
-    title.setFont(Font.font("System", FontWeight.BOLD, 24));
-    BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
-    root.setTop(title);
-
-    //Connection section
-    connectionView = new ConnectionView(controller);
-    connectionView.setStatusLabel(statusLabel);
-
-   // Set callback for when a node is connected
-    connectionView.setOnNodeConnected(this::addNodeTab);
-
-    //TabPane for multiple nodes
-    tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
-
-    refreshCenterContent();
-    root.setCenter(scrollPane);
-
-    //Status bar
-    statusLabel.setStyle("-fx-background-color: white; -fx-padding: 5;" );
-    root.setBottom(statusLabel);
-  }
-
-  /**
-   * Adds a new tab for a connected ndoe.
-   *
-   * @param nodeId the ID of the node
-   */
-  public void addNodeTab(String nodeId) {
-    if(nodeTabs.containsKey(nodeId)) {
-      statusLabel.setText("Node " + nodeId + " is already connected.");
-      return;
-    }
-
-    //Create a new tab
-    NodeTabView nodeTabView = new NodeTabView(nodeId, controller, () -> removeNodeTab(nodeId));
-    nodeTabs.put(nodeId, nodeTabView);
-    tabPane.getTabs().add(nodeTabView.getTab());
-
-    //Select new tab
-    tabPane.getSelectionModel().select(nodeTabView.getTab());
-
-    refreshCenterContent();
-    statusLabel.setText("Connected to " + nodeId);
-  }
-
-  /**
-   * Removes a tab for a disconnected node.
-   *
-   * @param nodeId the ID od the disconnected node
-   */
-  public void removeNodeTab(String nodeId) {
-    NodeTabView nodeTabView = nodeTabs.remove(nodeId);
-    if (nodeTabView != null) {
-      tabPane.getTabs().remove(nodeTabView.getTab());
-      statusLabel.setText("Disconnected from " + nodeId);
-      refreshCenterContent();
+    if (config != null) {
+      for (ControlNodeConfig.Entry entry : config.getEntries()) {
+        addControlNode(entry);
+      }
     }
   }
 
   /**
-   * Refreshes all node tabs.
-   * Called by auto refresh timer
+   * Builds the header bar containing the title and add button.
    */
-  public void refreshAllTabs() {
-    for (NodeTabView nodeTabView : nodeTabs.values()) {
-      nodeTabView.refresh();
+  private void setupHeader() {
+    Label title = new Label("🏠 Smart Greenhouse Control Panels");
+    title.getStyleClass().add("section-title");
+
+    Button addButton = new Button("Add Control Node");
+    addButton.setOnAction(e -> openAddControlDialog());
+
+    Region spacer = new Region();
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+    HBox header = new HBox(10, title, spacer, addButton);
+    header.setPadding(new Insets(15));
+    root.setTop(header);
+  }
+
+  /**
+   * Opens the add-control dialog and creates the node on success.
+   */
+  private void openAddControlDialog() {
+    ControlNodeDialogBuilder.show(contexts::containsKey)
+        .ifPresent(result -> {
+          ControlNodeConfig.Entry entry = new ControlNodeConfig.Entry();
+          entry.setId(result.id());
+          entry.setDisplayName(result.displayName());
+          entry.setRefreshInterval(result.refreshInterval());
+          addControlNode(entry);
+          notifyConfigChanged();
+        });
+  }
+
+  /**
+   * Adds a new tab/workspace for the given entry.
+   */
+  private void addControlNode(ControlNodeConfig.Entry entry) {
+    ControlContext context = createControlContext(entry);
+    controlTabs.getTabs().add(context.tab());
+    context.workspace().restore(entry);
+    contexts.put(entry.getId(), context);
+    controlTabs.getSelectionModel().select(context.tab());
+  }
+
+  /**
+   * Creates the controller/workspace/tab bundle for an entry.
+   */
+  private ControlContext createControlContext(ControlNodeConfig.Entry entry) {
+    if (entry.getDisplayName() == null || entry.getDisplayName().isBlank()) {
+      entry.setDisplayName(entry.getId());
+    }
+    GuiController controller = new GuiController(new ControlPanel(entry.getId()));
+    ControlPanelWorkspace workspace = new ControlPanelWorkspace(controller, entry.getRefreshInterval(), this::notifyConfigChanged);
+    controller.startAutoRefresh(workspace::refreshAllTabs, entry.getRefreshInterval());
+
+    Tab tab = new Tab(entry.getDisplayName());
+    tab.setContent(workspace.getRoot());
+    tab.setClosable(true);
+    tab.setOnCloseRequest(e -> removeControlNode(entry.getId()));
+    return new ControlContext(entry, controller, workspace, tab);
+  }
+
+  /**
+   * Removes a control node tab and shuts it down.
+   */
+  private void removeControlNode(String id) {
+    ControlContext context = contexts.remove(id);
+    if (context != null) {
+      context.workspace().shutdown();
+      controlTabs.getTabs().remove(context.tab());
+      notifyConfigChanged();
     }
   }
 
   /**
-   * Gets the scene for this view.
-   *
-   * @return the scene
+   * @return the root scene for the application.
    */
   public Scene getScene() {
-    return new Scene(root, 800, 600);
+    return new Scene(root, 1000, 700);
   }
 
   /**
-   * Refreshes the center content inside the scroll pane.
-   * Shows tabs when available, otherwise displays placeholder text.
+   * Shuts down all workspaces and clears state.
    */
-  private void refreshCenterContent() {
-    centerContent.getChildren().clear();
-    centerContent.getChildren().add(connectionView.getView());
+  public void shutdown() {
+    for (ControlContext context : contexts.values()) {
+      context.workspace().shutdown();
+    }
+    contexts.clear();
+  }
 
-    if (nodeTabs.isEmpty()) {
-      centerContent.getChildren().add(createPlaceholderLabel());
-    } else {
-      centerContent.getChildren().add(tabPane);
+  /**
+   * @return true if at least one control node exists.
+   */
+  public boolean hasControlNodes() {
+    return !contexts.isEmpty();
+  }
+
+  /**
+   * Serializes current state back to a config object.
+   */
+  public ControlNodeConfig exportConfig() {
+    List<ControlNodeConfig.Entry> entries = new ArrayList<>();
+    for (ControlContext context : contexts.values()) {
+      ControlNodeConfig.Entry entry = context.workspace()
+          .toConfigEntry(context.entry().getId(), context.entry().getDisplayName());
+      entries.add(entry);
+    }
+    return ControlNodeConfig.fromEntries(entries);
+  }
+
+  /**
+   * Persists config via the auto-save handler, if present.
+   */
+  private void notifyConfigChanged() {
+    if (autoSaveHandler != null) {
+      try {
+        autoSaveHandler.accept(exportConfig());
+      } catch (Exception e) {
+        LOGGER.warn("Auto-save handler failed", e);
+      }
     }
   }
 
-  private Label createPlaceholderLabel() {
-    Label placeholder = new Label("Connect to a sensornode to get started");
-    placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px;");
-    placeholder.setPadding(new Insets(20));
-    placeholder.setWrapText(true);
-    return placeholder;
+  private record ControlContext(ControlNodeConfig.Entry entry,
+                                GuiController controller,
+                                ControlPanelWorkspace workspace,
+                                Tab tab) {
   }
 }
