@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,14 +21,13 @@ import org.slf4j.LoggerFactory;
  * <p>
  * CSV files are stored in the "history" directory, named by node ID.
  * Each file contains timestamped sensor readings for all sensors of that node.
- *
- * //TODO: Sort by date.
- * 
  */
 public final class SensorHistoryWriter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SensorHistoryWriter.class);
   private static final Path HISTORY_DIR = Paths.get("history");
+  private static final DateTimeFormatter FOLDER_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm");
+  private static final String RUN_FOLDER = LocalDateTime.now().format(FOLDER_FORMAT);
   private static final Map<String, Object> LOCKS = new ConcurrentHashMap<>();
 
   private SensorHistoryWriter() {
@@ -45,8 +45,9 @@ public final class SensorHistoryWriter {
     Object lock = LOCKS.computeIfAbsent(nodeId, k -> new Object());
     synchronized (lock) {
       try {
-        Files.createDirectories(HISTORY_DIR);
-        Path file = HISTORY_DIR.resolve(nodeId + ".csv");
+        Path folder = HISTORY_DIR.resolve(RUN_FOLDER);
+        Files.createDirectories(folder);
+        Path file = folder.resolve(nodeId + ".csv");
         boolean newFile = Files.notExists(file);
         try (BufferedWriter writer = Files.newBufferedWriter(file,
             StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
