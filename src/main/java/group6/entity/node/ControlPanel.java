@@ -288,7 +288,7 @@ public class ControlPanel extends Node {
    * @param sensorNodeId the ID of the sensornode
    * @param msg          the recieved message
    */
-  void handleIncomingMessage(String sensorNodeId, Message msg) {
+  public void handleIncomingMessage(String sensorNodeId, Message msg) {
     MessageType type = msg.getMessageType();
     switch (type) {
       case DATA -> {
