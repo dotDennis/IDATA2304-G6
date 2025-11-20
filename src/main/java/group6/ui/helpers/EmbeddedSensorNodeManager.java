@@ -1,16 +1,7 @@
 package group6.ui.helpers;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
-import group6.entity.device.Device;
 import group6.entity.device.ActuatorType;
+import group6.entity.device.Device;
 import group6.entity.device.SensorType;
 import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
@@ -21,25 +12,30 @@ import group6.entity.node.SensorNode;
 import group6.logic.factory.ActuatorFactory;
 import group6.logic.factory.SensorFactory;
 import group6.net.TcpServer;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Manages embedded {@link SensorNode} instances hosted inside the GUI process.
- * <p>
- * Provides lifecycle helpers for nodes plus utility methods for adding/removing
+ * 
+ * <p>Provides lifecycle helpers for nodes plus utility methods for adding/removing
  * sensors and actuators. Ensures device IDs remain unique across all nodes.
- * <p>
- * Parts of code generated with help of AI.
+ * 
+ * <p>Parts of code generated with help of AI.
  * And modified to fit our understanding, extra research was necessary.
- * <p>
- * The function of this class is meant to let us create sensor nodes
+ * 
+ * <p>The function of this class is meant to let us create sensor nodes
  * that run within the same process as the GUI application.
  * This allows for easier testing and demonstration of the system
  * without needing separate processes for each sensor node.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class EmbeddedSensorNodeManager {
 
@@ -157,10 +153,9 @@ public class EmbeddedSensorNodeManager {
    * @param port              the port number
    * @param refreshIntervalMs the sensor node refresh interval in milliseconds
    * 
+   * @return the created embedded node
    * @throws IOException              if server fails to start
    * @throws IllegalArgumentException if node ID already exists or port is in use
-   * 
-   * @return the created embedded node
    */
   public synchronized EmbeddedNode createNode(String nodeId,
       String host,
@@ -279,7 +274,8 @@ public class EmbeddedSensorNodeManager {
       sensor.setUpdateInterval(updateIntervalMs);
       node.sensorNode.addSensor(sensor);
       startSensorAutoUpdate(nodeId, sensor);
-      LOGGER.info("Added sensor {} ({}) to {} with interval {} ms", deviceId, type, nodeId, sensor.getUpdateInterval());
+      LOGGER.info("Added sensor {} ({}) to {} with interval {} ms",
+           deviceId, type, nodeId, sensor.getUpdateInterval());
       return sensor;
     } catch (RuntimeException e) {
       sensorIdRegistry.unregister(nodeId, normalized);
@@ -446,7 +442,8 @@ public class EmbeddedSensorNodeManager {
     validatePort(port);
     for (EmbeddedNode node : GLOBAL_NODES.values()) {
       if (node.getPort() == port) {
-        throw new IllegalArgumentException("Port " + port + " is already in use by node " + node.getNodeId());
+        throw new IllegalArgumentException("Port " + port 
+        + " is already in use by node " + node.getNodeId());
       }
     }
   }
@@ -528,7 +525,11 @@ public class EmbeddedSensorNodeManager {
     private final Map<String, String> localOwners = new ConcurrentHashMap<>();
     private final String label;
 
-    /** @param globalIds shared map to enforce cross-node uniqueness */
+    /** 
+     * Creates a new device ID registry.
+     * 
+     * @param globalIds shared map to enforce cross-node uniqueness 
+     */
     DeviceIdRegistry(Map<String, String> globalIds, String label) {
       this.globalIds = globalIds;
       this.label = label;

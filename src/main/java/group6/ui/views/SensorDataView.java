@@ -2,13 +2,12 @@ package group6.ui.views;
 
 import group6.entity.node.ControlPanel;
 import group6.ui.controllers.GuiController;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
-import java.util.Map;
 
 /**
  * View for displaying sensor data.
@@ -48,7 +47,7 @@ public class SensorDataView {
 
     contentBox.getChildren().clear();
 
-    if(data == null) {
+    if (data == null) {
       Label noData = new Label("No data available. Connect to a node first");
       noData.setStyle("-fx-text-fill: gray");
       contentBox.getChildren().add(noData);
@@ -57,14 +56,14 @@ public class SensorDataView {
 
     Map<String, Double> sensors = data.getSensorReadings();
 
-    if(sensors.isEmpty()) {
+    if (sensors.isEmpty()) {
       Label waiting = new Label("Waiting for sensor data...");
       waiting.setStyle("-fx-text-fill: gray");
       contentBox.getChildren().add(waiting);
       return;
     }
 
-    //Display each sensor reading
+    // Display each sensor reading
     for (Map.Entry<String, Double> entry : sensors.entrySet()) {
       String baseType = extractBaseType(entry.getKey());
       String deviceId = extractDeviceId(entry.getKey());
@@ -78,7 +77,7 @@ public class SensorDataView {
       String avgText = Double.isNaN(avg) ? "" : String.format(" • avg %.2f %s", avg, unit);
 
       Label sensorLabel = new Label(String.format("%s %s: %.2f %s%s (%s)", icon, labelName,
-              entry.getValue(), unit, avgText, lastUpdateText));
+          entry.getValue(), unit, avgText, lastUpdateText));
       sensorLabel.setFont(Font.font(14));
 
       contentBox.getChildren().add(sensorLabel);
@@ -104,8 +103,8 @@ public class SensorDataView {
     return view;
   }
 
-  //Helper methods
-  private String getSensorIcon(String type){
+  // Helper methods
+  private String getSensorIcon(String type) {
     return switch (type.toLowerCase()) {
       case "temperature" -> "🌡️";
       case "humidity" -> "💧";
@@ -117,8 +116,8 @@ public class SensorDataView {
     };
   }
 
-  private String getSensorUnit(String type){
-    return switch (type.toLowerCase()){
+  private String getSensorUnit(String type) {
+    return switch (type.toLowerCase()) {
       case "temperature" -> "°C";
       case "humidity" -> "%";
       case "light" -> "lux";
@@ -128,12 +127,13 @@ public class SensorDataView {
       default -> "";
     };
   }
+
   private String capitalize(String str) {
     if (str == null || str.isEmpty()) {
       return str;
     }
     return str.substring(0, 1).toUpperCase()
-            + str.substring(1).replace("_", " ");
+        + str.substring(1).replace("_", " ");
   }
 
   private String formatAgo(long timestamp) {
@@ -147,7 +147,7 @@ public class SensorDataView {
     return seconds + "s ago";
   }
 
-  private String extractBaseType(String key){
+  private String extractBaseType(String key) {
     if (key == null) {
       return "";
     }
@@ -155,7 +155,7 @@ public class SensorDataView {
     return idx >= 0 ? key.substring(0, idx) : key;
   }
 
-  private String extractDeviceId(String key){
+  private String extractDeviceId(String key) {
     if (key == null) {
       return "";
     }

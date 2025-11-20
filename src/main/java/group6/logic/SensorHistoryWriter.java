@@ -12,16 +12,26 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility for writing sensor history to files.
+ *
+ * <p>Each sensor's data is stored in a separate CSV file under a directory
+ * named with the current date and time when the application started.
+ */
 public final class SensorHistoryWriter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SensorHistoryWriter.class);
   private static final Path HISTORY_DIR = Paths.get("history");
-  private static final DateTimeFormatter FOLDER_FORMAT = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm");
-  private static final String RUN_FOLDER = LocalDateTime.now().format(FOLDER_FORMAT);
+  
+  private static final DateTimeFormatter FOLDER_FORMAT =
+      DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm");
+
+  private static final String RUN_FOLDER =
+      LocalDateTime.now().format(FOLDER_FORMAT);
+
   private static final Map<String, Object> LOCKS = new ConcurrentHashMap<>();
   private static final Map<String, SensorSample> LAST_WRITTEN = new ConcurrentHashMap<>();
 
@@ -30,8 +40,8 @@ public final class SensorHistoryWriter {
 
   /**
    * Records a sensor sample to history.
-   * <p>
-   * If a sample for the same sensor was recorded less than 900 ms ago, it is skipped
+   * 
+   * <p>If a sample for the same sensor was recorded less than 900 ms ago, it is skipped
    * to avoid excessive writes.
    * 
    * @param nodeId the sensor node id
@@ -59,7 +69,9 @@ public final class SensorHistoryWriter {
             writer.write("timestamp,sensor,value");
             writer.newLine();
           }
-          LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+          LocalDateTime time = 
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
+
           writer.write(String.format("%s,%s,%s", time, sensorKey, value));
           writer.newLine();
           LAST_WRITTEN.put(cacheKey, new SensorSample(value, timestamp));

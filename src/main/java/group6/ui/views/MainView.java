@@ -1,19 +1,14 @@
 package group6.ui.views;
 
+import group6.entity.node.ControlPanel;
+import group6.ui.controllers.GuiController;
+import group6.ui.helpers.ControlNodeConfig;
+import group6.ui.helpers.builders.dialog.ControlNodeDialogBuilder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import group6.entity.node.ControlPanel;
-import group6.ui.controllers.GuiController;
-import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.builders.dialog.ControlNodeDialogBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -24,12 +19,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main view hosting multiple control panel workspaces.
- * 
- * @author Fidjor, dotDennis
- * @since 0.2.0
  */
 public class MainView {
   private static final Logger LOGGER = LoggerFactory.getLogger(MainView.class);
@@ -112,7 +106,8 @@ public class MainView {
       entry.setDisplayName(entry.getId());
     }
     GuiController controller = new GuiController(new ControlPanel(entry.getId()));
-    ControlPanelWorkspace workspace = new ControlPanelWorkspace(controller, entry.getRefreshInterval(), this::notifyConfigChanged);
+    ControlPanelWorkspace workspace = new ControlPanelWorkspace(controller,
+        entry.getRefreshInterval(), this::notifyConfigChanged);
     controller.startAutoRefresh(workspace::refreshAllTabs, entry.getRefreshInterval());
 
     Tab tab = new Tab(entry.getDisplayName());
@@ -135,6 +130,8 @@ public class MainView {
   }
 
   /**
+   * Gets the root scene for the application.
+   * 
    * @return the root scene for the application.
    */
   public Scene getScene() {
@@ -152,6 +149,8 @@ public class MainView {
   }
 
   /**
+   * Gets whether any control nodes exist.
+   * 
    * @return true if at least one control node exists.
    */
   public boolean hasControlNodes() {
@@ -185,8 +184,8 @@ public class MainView {
   }
 
   private record ControlContext(ControlNodeConfig.Entry entry,
-                                GuiController controller,
-                                ControlPanelWorkspace workspace,
-                                Tab tab) {
+      GuiController controller,
+      ControlPanelWorkspace workspace,
+      Tab tab) {
   }
 }

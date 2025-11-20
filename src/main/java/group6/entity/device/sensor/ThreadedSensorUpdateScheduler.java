@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +27,12 @@ public class ThreadedSensorUpdateScheduler implements SensorUpdateScheduler {
   // https://stackoverflow.com/questions/16918237/multiple-thread-writing-to-the-same-boolean
   private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
+  /**
+   * Creates a new ThreadedSensorUpdateScheduler with a shared executor.
+   * The executor uses a thread pool sized to the number of available processors.
+   * 
+   * @see #createExecutor()
+   */
   public ThreadedSensorUpdateScheduler() {
     this(createExecutor());
   }
@@ -82,7 +87,8 @@ public class ThreadedSensorUpdateScheduler implements SensorUpdateScheduler {
     }
 
     private void start() {
-      future = executor.scheduleAtFixedRate(this, 0, sensor.getUpdateInterval(), TimeUnit.MILLISECONDS);
+      future = 
+          executor.scheduleAtFixedRate(this, 0, sensor.getUpdateInterval(), TimeUnit.MILLISECONDS);
     }
 
     @Override

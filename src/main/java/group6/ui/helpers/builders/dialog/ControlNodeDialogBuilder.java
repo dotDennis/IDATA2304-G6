@@ -2,7 +2,6 @@ package group6.ui.helpers.builders.dialog;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -14,9 +13,6 @@ import javafx.scene.layout.VBox;
 
 /**
  * Utility to build the "Add Control Node" dialog.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public final class ControlNodeDialogBuilder {
 

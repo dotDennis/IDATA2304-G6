@@ -3,8 +3,8 @@ package group6.protocol;
 /**
  * Value object representing a sensor reading consisting of a
  * {@link DeviceKey} and a numerical value.
- * <p>
- * Used for sending and receiving sensor data within the protocol.
+ * 
+ * <p>Used for sending and receiving sensor data within the protocol.
  */
 public final class SensorReading {
   private final DeviceKey deviceKey;
@@ -20,8 +20,8 @@ public final class SensorReading {
 
   /**
    * Creates a sensor reading.
-   * <p>
-   * The device key identifies the sensor, and the value is the reading.
+   * 
+   * <p>The device key identifies the sensor, and the value is the reading.
    * 
    * @param key the device key
    * @param value the sensor value
@@ -33,8 +33,8 @@ public final class SensorReading {
 
   /**
    * Parses a sensor reading from a protocol string.
-   * <p>
-   * The expected format is {@code type#id:value}.
+   * 
+   * <p>The expected format is {@code type#id:value}.
    * 
    * @param entry the protocol string
    * @return the sensor reading
@@ -74,8 +74,8 @@ public final class SensorReading {
 
   /**
    * Converts to protocol string.
-   * <p>
-   * Format is {@code type#id:value}.
+   * 
+   * <p>Format is {@code type#id:value}.
    * 
    * @return the protocol string
    */

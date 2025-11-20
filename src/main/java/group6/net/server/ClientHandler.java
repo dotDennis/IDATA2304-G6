@@ -6,21 +6,16 @@ import group6.logic.events.SensorNodeUpdateListener;
 import group6.net.Connection;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Handles communication with connected control panel.
  * Runs in its own thread.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 
@@ -52,7 +47,8 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 
       sensorNode.addUpdateListener(this);
 
-      Thread sensorThread = new Thread(this::sendSensorDataPeriodically, "sensor-data-" + sensorNode.getNodeId());
+      Thread sensorThread = new Thread(this::sendSensorDataPeriodically,
+           "sensor-data-" + sensorNode.getNodeId());
       sensorThread.start();
 
       Thread actuatorThread = new Thread(this::sendActuatorStatusPeriodically,
@@ -70,10 +66,9 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
-   * Sends a message to the control panel
+   * Sends a message to the control panel.
    *
    * @param message the message to send
-   *
    */
   public void sendMessage(Message message) {
     if (connection == null || !connection.isOpen()) {
@@ -208,7 +203,7 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
 
     sendMessage(error);
   }
- 
+
   /**
    * Handles refresh command from control panel.
    * Used to request immediate data update.
@@ -218,8 +213,12 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
    */
   private void handleRefreshCommand(String action) {
     String normalized = action == null ? "" : action.trim().toLowerCase();
-    boolean refreshSensors = normalized.isEmpty() || "all".equals(normalized) || "sensors".equals(normalized);
-    boolean refreshActuators = normalized.isEmpty() || "all".equals(normalized) || "actuators".equals(normalized);
+
+    boolean refreshSensors = normalized.isEmpty() 
+        || "all".equals(normalized) || "sensors".equals(normalized);
+
+    boolean refreshActuators = normalized.isEmpty() 
+        || "all".equals(normalized) || "actuators".equals(normalized);
 
     if (!refreshSensors && !refreshActuators) {
       sendError("Unknown refresh target: " + action);
@@ -248,7 +247,8 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
-   * Sends only sensors that have reported new readings since the last send (delta update).
+   * Sends only sensors that have reported new readings since the last send (delta
+   * update).
    */
   private void sendSensorDelta() {
     String updates = sensorNode.drainPendingSensorUpdates();
@@ -274,7 +274,7 @@ public class ClientHandler implements Runnable, SensorNodeUpdateListener {
   }
 
   /**
-   ** cleans up resources
+   ** cleans up resources.
    */
   private void cleanup() {
     sensorNode.removeUpdateListener(this);

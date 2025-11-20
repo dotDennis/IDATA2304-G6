@@ -14,9 +14,6 @@ import javafx.scene.layout.VBox;
 
 /**
  * Builder responsible for composing the Node tab layout.
- * 
- * @author Dennis
- * @since 0.2.0
  */
 public final class NodeTabLayoutBuilder {
 
@@ -97,7 +94,6 @@ public final class NodeTabLayoutBuilder {
    * Builds and returns the configured Tab. 
    */
   public Tab build() {
-    Tab tab = new Tab(nodeId);
 
     BorderPane content = new BorderPane();
     content.setPadding(new Insets(10));
@@ -155,6 +151,8 @@ public final class NodeTabLayoutBuilder {
     scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
     scrollPane.setStyle("-fx-background-color: transparent;");
+
+    Tab tab = new Tab(nodeId);
 
     tab.setContent(scrollPane);
     tab.setOnCloseRequest(e -> run(onCloseRequest));

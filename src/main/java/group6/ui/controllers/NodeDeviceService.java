@@ -1,26 +1,22 @@
 package group6.ui.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import group6.entity.device.ActuatorType;
 import group6.entity.device.SensorType;
 import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
 import group6.protocol.RefreshTarget;
 import group6.ui.helpers.EmbeddedSensorNodeManager;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-  * Service for managing devices on sensornodes within the GUI.
-  * <p>
-  * Provides methods to add, remove, and list sensors and actuators on nodes,
-  * and triggers refresh requests to update the GUI accordingly.
-  * 
-  * @author dotDennis
-  * @since 0.2.0
+ * Service for managing devices on sensornodes within the GUI.
+ * 
+ * <p>Provides methods to add, remove, and list sensors and actuators on nodes,
+ * and triggers refresh requests to update the GUI accordingly.
  */
 public class NodeDeviceService {
 
@@ -33,7 +29,7 @@ public class NodeDeviceService {
    * Creates a new {@code NodeDeviceService} instance.
    *
    * @param controller the GUI controller
-   * @param manager the node manager
+   * @param manager    the node manager
    */
   public NodeDeviceService(GuiController controller, EmbeddedSensorNodeManager manager) {
     this.controller = controller;
@@ -43,14 +39,15 @@ public class NodeDeviceService {
   /**
    * Adds a sensor to the specified node and triggers a sensor refresh request.
    *
-   * @param nodeId the ID of the target node
-   * @param type the sensor type to create
-   * @param deviceId the unique device identifier
+   * @param nodeId     the ID of the target node
+   * @param type       the sensor type to create
+   * @param deviceId   the unique device identifier
    * @param intervalMs the sensor update interval in milliseconds
    *
    * @return an empty optional on success, or an error message on failure
    */
-  public Optional<String> addSensor(String nodeId, SensorType type, String deviceId, long intervalMs) {
+  public Optional<String> addSensor(String nodeId, SensorType type,
+       String deviceId, long intervalMs) {
     try {
       manager.addSensor(nodeId, type, deviceId, intervalMs);
       requestRefresh(nodeId, RefreshTarget.SENSORS);
@@ -64,8 +61,8 @@ public class NodeDeviceService {
   /**
    * Adds an actuator to the specified node and triggers an actuator refresh.
    *
-   * @param nodeId the ID of the target node
-   * @param type the actuator type to create
+   * @param nodeId   the ID of the target node
+   * @param type     the actuator type to create
    * @param deviceId the unique device identifier
    *
    * @return an empty on success, or an error message on failure
@@ -84,7 +81,7 @@ public class NodeDeviceService {
   /**
    * Removes a sensor from a node and triggers a sensor refresh if successful.
    *
-   * @param nodeId the ID of the target node
+   * @param nodeId   the ID of the target node
    * @param deviceId the ID of the sensor to remove
    *
    * @return true if the sensor was removed, or false otherwise
@@ -98,9 +95,10 @@ public class NodeDeviceService {
   }
 
   /**
-   * Removes an actuator from a node and triggers an actuator refresh if successful.
+   * Removes an actuator from a node and triggers an actuator refresh if
+   * successful.
    * 
-   * @param nodeId the ID of the target node
+   * @param nodeId   the ID of the target node
    * @param deviceId the ID of the actuator to remove
    *
    * @return true if the actuator was removed, or false otherwise

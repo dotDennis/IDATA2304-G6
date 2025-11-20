@@ -1,29 +1,23 @@
 package group6.entity.node;
 
+import group6.logic.SensorHistoryWriter;
 import group6.net.client.SensorNodeClient;
+import group6.protocol.DeviceKey;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 import group6.protocol.RefreshTarget;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import group6.logic.SensorHistoryWriter;
-import group6.protocol.DeviceKey;
 
 /**
  * Control panel node (domain model).
  * 
- * Responsibilities:
+ * <p>Responsibilities:
  * - Manages connections to multiple SensorNodes via SensorNodeClient.
  * - Recives messages from SensorNodes and maintains a data cache.
  * - Exposes methods to display node data, and send commands to actuators.
- *
- * @author Fidjor, dotDennis
- * @since 0.1.0
  */
 public class ControlPanel extends Node {
 
@@ -45,7 +39,7 @@ public class ControlPanel extends Node {
   }
 
   /**
-   * Helper class to cache data from node
+   * Helper class to cache data from node.
    */
   public static class NodeData {
     private final Map<String, Double> sensorReadings;
@@ -57,6 +51,11 @@ public class ControlPanel extends Node {
     private static final long HISTORY_WINDOW_MS = 5 * 60 * 1000; // 5 minutes (default value)
     private final String nodeId;
 
+    /**
+     * Creates a new NodeData cache for the specified node.
+     * 
+     * @param nodeId the ID of the node
+     */
     public NodeData(String nodeId) {
       this.nodeId = nodeId;
       this.sensorReadings = new ConcurrentHashMap<>();
@@ -67,17 +66,30 @@ public class ControlPanel extends Node {
       this.lastUpdate = System.currentTimeMillis();
     }
 
+    /**
+     * Updates a sensor reading.
+     * 
+     * @param type  the sensor type
+     * @param value the new sensor value
+     */
     public void updateSensor(String type, double value) {
       sensorReadings.put(type, value);
       long now = System.currentTimeMillis();
       sensorUpdatedAt.put(type, now);
-      java.util.Deque<SensorSample> history = sensorHistory.computeIfAbsent(type, k -> new java.util.concurrent.ConcurrentLinkedDeque<>());
+      java.util.Deque<SensorSample> history = sensorHistory.computeIfAbsent(type,
+          k -> new java.util.concurrent.ConcurrentLinkedDeque<>());
       history.addLast(new SensorSample(value, now));
       pruneHistory(history, now);
       lastUpdate = now;
       SensorHistoryWriter.recordSample(nodeId, type, value, now);
     }
 
+    /**
+     * Updates an actuator state.
+     * 
+     * @param type  the actuator type
+     * @param state the new actuator state
+     */
     public void updateActuator(String type, boolean state) {
       actuatorStates.put(type, state);
       actuatorUpdatedAt.put(type, System.currentTimeMillis());
@@ -96,6 +108,11 @@ public class ControlPanel extends Node {
       return lastUpdate;
     }
 
+    /**
+     * Removes cached data for a sensor.
+     * 
+     * @param key the sensor key
+     */
     public void removeSensor(String key) {
       if (key != null) {
         sensorReadings.remove(key);
@@ -104,6 +121,11 @@ public class ControlPanel extends Node {
       }
     }
 
+    /**
+     * Removes cached data for an actuator.
+     * 
+     * @param key the actuator key
+     */
     public void removeActuator(String key) {
       if (key != null) {
         actuatorStates.remove(key);
@@ -111,18 +133,40 @@ public class ControlPanel extends Node {
       }
     }
 
+    /**
+     * Updates the last update timestamp to now.
+     */
     public void touch() {
       lastUpdate = System.currentTimeMillis();
     }
 
+    /**
+     * Gets the last updated timestamp for a sensor.
+     * 
+     * @param key the sensor key
+     * @return the last updated timestamp in milliseconds
+     */
     public long getSensorUpdatedAt(String key) {
       return sensorUpdatedAt.getOrDefault(key, 0L);
     }
 
+    /**
+     * Gets the last updated timestamp for an actuator.
+     * 
+     * @param key the actuator key
+     * @return the last updated timestamp in milliseconds
+     */
     public long getActuatorUpdatedAt(String key) {
       return actuatorUpdatedAt.getOrDefault(key, 0L);
     }
 
+    /**
+     * Calculates the average value of a sensor over a time window.
+     * 
+     * @param key      the sensor key
+     * @param windowMs the time window in milliseconds
+     * @return the average value, or Double.NaN if no data
+     */
     public double getSensorAverage(String key, long windowMs) {
       java.util.Deque<SensorSample> history = sensorHistory.get(key);
       if (history == null || history.isEmpty()) {
@@ -305,12 +349,12 @@ public class ControlPanel extends Node {
         }
       }
       case SUCCESS ->
-        LOGGER.info("Command successful from {}: {}", sensorNodeId, msg.getData());
+          LOGGER.info("Command successful from {}: {}", sensorNodeId, msg.getData());
       case FAILURE ->
-        LOGGER.warn("Command failed from {}: {}", sensorNodeId, msg.getData());
+          LOGGER.warn("Command failed from {}: {}", sensorNodeId, msg.getData());
       case ERROR -> LOGGER.error("Error reported from {}: {}", sensorNodeId, msg.getData());
       default ->
-        LOGGER.info("{} from {}, payload: {}", type, sensorNodeId, msg.getData());
+          LOGGER.info("{} from {}, payload: {}", type, sensorNodeId, msg.getData());
     }
   }
 
@@ -372,6 +416,12 @@ public class ControlPanel extends Node {
     return dataCache.get(sensorNodeId);
   }
 
+  /**
+   * Removes cached sensor data for a given sensor node.
+   * 
+   * @param sensorNodeId the ID of the sensor node
+   * @param sensorKey   the sensor key
+   */
   public void removeCachedSensor(String sensorNodeId, String sensorKey) {
     NodeData data = dataCache.get(sensorNodeId);
     if (data != null) {
@@ -379,6 +429,12 @@ public class ControlPanel extends Node {
     }
   }
 
+  /**
+   * Removes cached actuator data for a given sensor node.
+   * 
+   * @param sensorNodeId the ID of the sensor node
+   * @param actuatorKey the actuator key
+   */
   public void removeCachedActuator(String sensorNodeId, String actuatorKey) {
     NodeData data = dataCache.get(sensorNodeId);
     if (data != null) {
@@ -387,7 +443,7 @@ public class ControlPanel extends Node {
   }
 
   /**
-   * Shuts down the control panel
+   * Shuts down the control panel.
    * Closes all connections and stops all listener threads
    */
   public void shutdown() {
@@ -415,6 +471,12 @@ public class ControlPanel extends Node {
     return running;
   }
 
+  /**
+   * Normalizes a raw device key string to protocol format.
+   * 
+   * @param rawKey the raw device key
+   * @return the normalized protocol key
+   */
   public static String normalizeDeviceKey(String rawKey) {
     return DeviceKey.parse(rawKey).toProtocolKey();
   }

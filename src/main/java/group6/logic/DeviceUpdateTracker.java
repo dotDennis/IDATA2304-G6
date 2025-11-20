@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tracks the last update timestamp for devices and pending sensor updates.
- * <p>
- * Used to monitor device activity and ensure sensor updates are processed.
+ * 
+ * <p>Used to monitor device activity and ensure sensor updates are processed.
  * Methods to record updates, retrieve timestamps, and manage pending sensors
  * are provided.
  */

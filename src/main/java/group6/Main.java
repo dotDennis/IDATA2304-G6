@@ -7,6 +7,12 @@ import group6.ui.GreenhouseGuiApp;
  * Launches JavaFX GUI application
  */
 public class Main {
+
+  /**
+   * Main method to launch the GUI application.
+   * 
+   * @param args command-line arguments
+   */
   public static void main(String[] args) {
     try {
       GreenhouseGuiApp.main(args);

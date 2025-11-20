@@ -4,19 +4,14 @@ import group6.entity.device.ActuatorType;
 import group6.entity.device.Device;
 import group6.entity.device.SensorType;
 import group6.entity.node.ControlPanel;
+import group6.protocol.DeviceKey;
+import group6.protocol.RefreshTarget;
 import group6.ui.controllers.GuiController;
 import group6.ui.controllers.NodeDeviceService;
 import group6.ui.helpers.builders.NodeTabLayoutBuilder;
 import group6.ui.helpers.builders.UiAlerts;
 import group6.ui.helpers.builders.dialog.DeviceDialogBuilder;
 import group6.ui.helpers.builders.dialog.RemovalDialogBuilder;
-import group6.protocol.DeviceKey;
-import group6.protocol.RefreshTarget;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -24,13 +19,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a single node tab containing sensor data and actuator controls.
  * Each tab corresponds to one connected sensor node.
- * 
- * @author fidjor, dotDennis
- * @since 0.2.0
  */
 public class NodeTabView {
 
@@ -49,15 +45,15 @@ public class NodeTabView {
   /**
    * Creates a new node tab view.
    *
-   * @param nodeId         the ID of the sensor node
-   * @param controller     the GUI controller
+   * @param nodeId          the ID of the sensor node
+   * @param controller      the GUI controller
    * @param onCloseCallback callback to invoke when tab is closed
    */
   public NodeTabView(String nodeId,
-                     GuiController controller,
-                     NodeDeviceService deviceService,
-                     Runnable onCloseCallback,
-                     Runnable onConfigChanged) {
+      GuiController controller,
+      NodeDeviceService deviceService,
+      Runnable onCloseCallback,
+      Runnable onConfigChanged) {
     this.nodeId = nodeId;
     this.controller = controller;
     this.deviceService = deviceService;
@@ -165,8 +161,8 @@ public class NodeTabView {
     return nodeId;
   }
 
-  /** 
-   * Opens the add-sensor dialog and processes the result. 
+  /**
+   * Opens the add-sensor dialog and processes the result.
    */
   private void handleAddSensor() {
     DeviceDialogBuilder.showDeviceDialogWithInterval(
@@ -179,8 +175,8 @@ public class NodeTabView {
         5000);
   }
 
-  /** 
-   * Opens the add-actuator dialog and processes the result. 
+  /**
+   * Opens the add-actuator dialog and processes the result.
    */
   private void handleAddActuator() {
     DeviceDialogBuilder.showDeviceDialog(
@@ -197,7 +193,7 @@ public class NodeTabView {
    * propagates any validation error from the dialog.
    */
   private Optional<String> runDeviceAddition(Supplier<Optional<String>> additionAction,
-                                             Runnable onSuccess) {
+      Runnable onSuccess) {
     Optional<String> error = additionAction.get();
     if (error.isPresent()) {
       return error;
@@ -207,8 +203,8 @@ public class NodeTabView {
     return Optional.empty();
   }
 
-  /** 
-   * Launches the removal dialog for sensors. 
+  /**
+   * Launches the removal dialog for sensors.
    */
   private void handleRemoveSensor() {
     List<DeviceOption> options = buildDeviceOptions(deviceService.listSensors(nodeId));
@@ -222,8 +218,8 @@ public class NodeTabView {
         "Could not remove sensor: ");
   }
 
-  /** 
-   * Launches the removal dialog for actuators. 
+  /**
+   * Launches the removal dialog for actuators.
    */
   private void handleRemoveActuator() {
     List<DeviceOption> options = buildDeviceOptions(deviceService.listActuators(nodeId));
@@ -237,16 +233,16 @@ public class NodeTabView {
         "Could not remove actuator: ");
   }
 
-  /** 
-   * Shared helper that runs the removal flow for sensors or actuators. 
+  /**
+   * Shared helper that runs the removal flow for sensors or actuators.
    */
   private void handleDeviceRemoval(String title,
-                                   String emptyMessage,
-                                   List<DeviceOption> options,
-                                   Function<DeviceOption, Boolean> removalAction,
-                                   Runnable refreshAction,
-                                   Consumer<DeviceOption> cacheClearAction,
-                                   String failurePrefix) {
+      String emptyMessage,
+      List<DeviceOption> options,
+      Function<DeviceOption, Boolean> removalAction,
+      Runnable refreshAction,
+      Consumer<DeviceOption> cacheClearAction,
+      String failurePrefix) {
 
     showDeviceRemovalDialog(title, emptyMessage, options, option -> {
       boolean removed = removalAction.apply(option);
@@ -262,13 +258,13 @@ public class NodeTabView {
     });
   }
 
-  /** 
-   * Shows the selection dialog for removing a device. 
+  /**
+   * Shows the selection dialog for removing a device.
    */
   private void showDeviceRemovalDialog(String title,
-                                       String emptyMessage,
-                                       List<DeviceOption> options,
-                                       Consumer<DeviceOption> removalHandler) {
+      String emptyMessage,
+      List<DeviceOption> options,
+      Consumer<DeviceOption> removalHandler) {
     if (options.isEmpty()) {
       UiAlerts.info("Device Management", emptyMessage);
       return;
@@ -276,21 +272,21 @@ public class NodeTabView {
     RemovalDialogBuilder.show(title, options, option -> removalHandler.accept(option));
   }
 
-  /** 
-   * Suggests a sequential sensor ID for the given type. 
+  /**
+   * Suggests a sequential sensor ID for the given type.
    */
   private String suggestSensorId(SensorType type) {
     return suggestDeviceId(deviceService.listSensors(nodeId), type);
   }
 
-  /** 
+  /**
    * Suggests a sequential actuator ID for the given type.
    */
   private String suggestActuatorId(ActuatorType type) {
     return suggestDeviceId(deviceService.listActuators(nodeId), type);
   }
 
-  /** 
+  /**
    * Counts existing devices of the same type to build the next ID.
    */
   private String suggestDeviceId(List<? extends Device<?>> devices, Enum<?> type) {
@@ -300,9 +296,9 @@ public class NodeTabView {
     return type.name().toLowerCase(Locale.ROOT) + "-" + (count + 1);
   }
 
-  /** 
+  /**
    * Simple record to represent device options in removal dialog.
-  */
+   */
   private record DeviceOption(String id, String label, String typeKey) {
     @Override
     public String toString() {
@@ -310,9 +306,9 @@ public class NodeTabView {
     }
   }
 
-  /** 
-   * Converts domain devices into dialog options. 
-  */
+  /**
+   * Converts domain devices into dialog options.
+   */
   private List<DeviceOption> buildDeviceOptions(List<? extends Device<?>> devices) {
     List<DeviceOption> options = new ArrayList<>();
     for (Device<?> device : devices) {
@@ -323,8 +319,8 @@ public class NodeTabView {
     return options;
   }
 
-  /** 
-   * Notifies listeners that the node/device configuration changed. 
+  /**
+   * Notifies listeners that the node/device configuration changed.
    */
   private void notifyConfigChanged() {
     if (onConfigChanged != null) {
@@ -332,7 +328,7 @@ public class NodeTabView {
     }
   }
 
-  /** 
+  /**
    * Updates the status label with the latest refresh timestamp.
    */
   private void updateLastUpdateLabel() {

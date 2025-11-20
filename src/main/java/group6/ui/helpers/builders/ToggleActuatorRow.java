@@ -1,7 +1,6 @@
 package group6.ui.helpers.builders;
 
 import java.util.function.Consumer;
-
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -11,9 +10,6 @@ import javafx.scene.text.Font;
 
 /**
  * Generic toggle row component for actuator-like devices.
- * 
- * @author Dennis
- * @since 0.2.0
  */
 public class ToggleActuatorRow {
 
@@ -130,6 +126,7 @@ public class ToggleActuatorRow {
     onButton.setDisable(pending);
     offButton.setDisable(pending);
     statusLabel.setText(pending ? "Updating..." : "");
-    statusLabel.setStyle(pending ? "-fx-text-fill: #c08400;" : "-fx-text-fill: -fx-text-base-color;");
+    statusLabel.setStyle(pending 
+        ? "-fx-text-fill: #c08400;" : "-fx-text-fill: -fx-text-base-color;");
   }
 }

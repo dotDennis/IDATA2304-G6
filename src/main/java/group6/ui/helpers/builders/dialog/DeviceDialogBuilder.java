@@ -2,7 +2,6 @@ package group6.ui.helpers.builders.dialog;
 
 import java.util.Optional;
 import java.util.function.Function;
-
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -15,22 +14,28 @@ import javafx.scene.layout.VBox;
 
 /**
  * Helper for building dialogs to add new devices with common validation.
- * 
- * @author dotDennis
- * @since 0.2.0
  */
 public class DeviceDialogBuilder {
 
-  public static <Type extends Enum<Type>> void showDeviceDialog(String title,
-      Type[] types,
-      Function<Type, String> idSupplier,
-      DeviceDialogHandler<Type> handler) {
+  /**
+   * Shows a dialog to add a new device.
+   * 
+   * @param <T>       the device type enum
+   * @param title        the dialog title
+   * @param types        the available device types
+   * @param idSupplier   function to supply default device ID for a given type
+   * @param handler      the handler to process the input
+   */
+  public static <T extends Enum<T>> void showDeviceDialog(String title,
+      T[] types,
+      Function<T, String> idSupplier,
+      DeviceDialogHandler<T> handler) {
     Dialog<Void> dialog = new Dialog<>();
     dialog.setTitle(title);
     dialog.setHeaderText(null);
     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-    ComboBox<Type> typeCombo = new ComboBox<>(FXCollections.observableArrayList(types));
+    ComboBox<T> typeCombo = new ComboBox<>(FXCollections.observableArrayList(types));
     typeCombo.getSelectionModel().selectFirst();
 
     TextField idField = new TextField();
@@ -61,7 +66,7 @@ public class DeviceDialogBuilder {
 
     Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
     okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-      Type type = typeCombo.getValue();
+      T type = typeCombo.getValue();
       String deviceId = idField.getText().trim();
       if (type == null || deviceId.isEmpty()) {
         errorLabel.setText("Type and Device ID are required.");
@@ -78,17 +83,27 @@ public class DeviceDialogBuilder {
     dialog.showAndWait();
   }
 
-  public static <Type extends Enum<Type>> void showDeviceDialogWithInterval(String title,
-      Type[] types,
-      Function<Type, String> idSupplier,
-      DeviceDialogWithIntervalHandler<Type> handler,
+  /**
+   * Shows a dialog to add a new device with update interval.
+   * 
+   * @param <T>           the device type enum
+   * @param title            the dialog title
+   * @param types            the available device types
+   * @param idSupplier       function to supply default device ID for a given type
+   * @param handler          the handler to process the input
+   * @param defaultIntervalMs the default update interval in milliseconds
+   */
+  public static <T extends Enum<T>> void showDeviceDialogWithInterval(String title,
+      T[] types,
+      Function<T, String> idSupplier,
+      DeviceDialogWithIntervalHandler<T> handler,
       long defaultIntervalMs) {
     Dialog<Void> dialog = new Dialog<>();
     dialog.setTitle(title);
     dialog.setHeaderText(null);
     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-    ComboBox<Type> typeCombo = new ComboBox<>(FXCollections.observableArrayList(types));
+    ComboBox<T> typeCombo = new ComboBox<>(FXCollections.observableArrayList(types));
     typeCombo.getSelectionModel().selectFirst();
 
     TextField idField = new TextField();
@@ -123,7 +138,7 @@ public class DeviceDialogBuilder {
 
     Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
     okButton.addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
-      Type type = typeCombo.getValue();
+      T type = typeCombo.getValue();
       String deviceId = idField.getText().trim();
       if (type == null || deviceId.isEmpty()) {
         errorLabel.setText("Type and Device ID are required.");
@@ -153,11 +168,29 @@ public class DeviceDialogBuilder {
     dialog.showAndWait();
   }
 
-  public interface DeviceDialogHandler<Type extends Enum<Type>> {
-    Optional<String> handle(Type type, String deviceId);
+  /**
+   * Handler interface for device dialog processing.
+   * 
+   * @param <T> the device type enum
+   */
+  public interface DeviceDialogHandler<T extends Enum<T>> {
+
+    /**
+     * Handles the input from the device dialog.
+     */
+    Optional<String> handle(T type, String deviceId);
   }
 
-  public interface DeviceDialogWithIntervalHandler<Type extends Enum<Type>> {
-    Optional<String> handle(Type type, String deviceId, long intervalMs);
+  /**
+   * Handler interface for device dialog with interval processing.
+   * 
+   * @param <T> the device type enum
+   */
+  public interface DeviceDialogWithIntervalHandler<T extends Enum<T>> {
+    
+    /**
+     * Handles the input from the device dialog with interval.
+     */
+    Optional<String> handle(T type, String deviceId, long intervalMs);
   }
 }
