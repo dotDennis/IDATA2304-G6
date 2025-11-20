@@ -1,16 +1,14 @@
 package group6.ui.helpers;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import group6.entity.node.ControlPanel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import group6.entity.node.ControlPanel;
-
 /**
  * Configuration for multiple {@link ControlPanel} instances.
- * <p>
- * The configuration is loaded from JSON as a list of {@link Entry}
+ * 
+ * <p>The configuration is loaded from JSON as a list of {@link Entry}
  * objects. Each entry is converted into a {@link ControlNode}, which couples
  * the configuration data with its {@link ControlPanel}.
  * 
@@ -21,8 +19,8 @@ public final class ControlNodeConfig {
 
   /**
    * A simple data entry representing a configured control node in JSON.
-   * <p>
-   * These values are deserialized directly from JSON.
+   * 
+   * <p>These values are deserialized directly from JSON.
    */
   public static class Entry {
     private String id;
@@ -108,10 +106,10 @@ public final class ControlNodeConfig {
 
   /**
    * Nested class for sensor node entries.
-   * <p>
-   * Represents a configured sensor node within a control node.
    * 
-   * https://stackoverflow.com/questions/19272830/order-of-json-objects-using-jacksons-objectmapper
+   * <p>Represents a configured sensor node within a control node.
+   * 
+   * <p>https://stackoverflow.com/questions/19272830/order-of-json-objects-using-jacksons-objectmapper
    */
   @JsonPropertyOrder({ "id", "host", "port", "refreshInterval", "sensors", "actuators" })
   public static class SensorNodeEntry {
@@ -135,7 +133,8 @@ public final class ControlNodeConfig {
 
     /**
      * Sets the sensor node ID.
-     * @param id
+     * 
+     * @param id the node ID to set
      */
     public void setId(String id) {
       this.id = id;
@@ -242,8 +241,8 @@ public final class ControlNodeConfig {
 
   /**
    * Nested class for device entries.
-   * <p>
-   * Represents a configured device (sensor or actuator) within a sensor node.
+   * 
+   * <p>Represents a configured device (sensor or actuator) within a sensor node.
    */
   public static class DeviceEntry {
     private String id;
@@ -251,8 +250,8 @@ public final class ControlNodeConfig {
 
     /**
      * Default constructor.
-     * <p>
-     * Needed for JSON deserialization.
+     * 
+     * <p>Needed for JSON deserialization.
      */
     public DeviceEntry() {
     }
@@ -260,7 +259,7 @@ public final class ControlNodeConfig {
     /**
      * Parameterized constructor.
      * 
-     * @param id the device id
+     * @param id   the device id
      * @param type the device type
      */
     public DeviceEntry(String id, String type) {
@@ -307,16 +306,16 @@ public final class ControlNodeConfig {
 
   /**
    * Nested class for sensor entries.
-   * <p>
-   * Represents a configured sensor within a sensor node.
+   * 
+   * <p>Represents a configured sensor within a sensor node.
    */
   public static class SensorEntry extends DeviceEntry {
     private long updateIntervalMs = 5000;
 
     /**
      * Default constructor.
-     * <p>
-     * Needed for JSON deserialization.
+     * 
+     * <p>Needed for JSON deserialization.
      */
     public SensorEntry() {
     }
@@ -324,8 +323,8 @@ public final class ControlNodeConfig {
     /**
      * Parameterized constructor.
      * 
-     * @param id the sensor id
-     * @param type the sensor type
+     * @param id               the sensor id
+     * @param type             the sensor type
      * @param updateIntervalMs the update interval in milliseconds
      */
     public SensorEntry(String id, String type, long updateIntervalMs) {
@@ -355,8 +354,8 @@ public final class ControlNodeConfig {
 
   /**
    * A configured control node instance.
-   * <p>
-   * Couples a configuration {@link Entry} with its associated
+   * 
+   * <p>Couples a configuration {@link Entry} with its associated
    * {@link ControlPanel}.
    */
   public static class ControlNode {

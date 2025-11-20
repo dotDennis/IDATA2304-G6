@@ -3,7 +3,7 @@ package group6.protocol;
 /**
  * Protocol message types.
  * 
- * Sensors send DATA periodically.
+ * <p>Sensors send DATA periodically.
  * Controls send COMMAND.
  * Sensors respond with SUCCESS or FAILURE.
  * KEEPALIVE messages ensure connection is alive.

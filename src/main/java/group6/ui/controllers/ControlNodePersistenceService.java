@@ -1,18 +1,17 @@
 package group6.ui.controllers;
 
+import group6.ui.helpers.ControlNodeConfig;
+import group6.ui.helpers.ControlNodeLoader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
-
-import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.ControlNodeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Persistence wrapper for loading and saving {@link ControlNodeConfig}.
- * <p>
- * Used by the UI layer to avoid dealing with file handling directly.
+ * 
+ * <p>Used by the UI layer to avoid dealing with file handling directly.
  * Delegates all serialization work to {@link ControlNodeLoader}.
  *
  * @author dotDennis

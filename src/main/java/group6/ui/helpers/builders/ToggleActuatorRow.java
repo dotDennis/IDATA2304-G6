@@ -1,7 +1,6 @@
 package group6.ui.helpers.builders;
 
 import java.util.function.Consumer;
-
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -130,6 +129,7 @@ public class ToggleActuatorRow {
     onButton.setDisable(pending);
     offButton.setDisable(pending);
     statusLabel.setText(pending ? "Updating..." : "");
-    statusLabel.setStyle(pending ? "-fx-text-fill: #c08400;" : "-fx-text-fill: -fx-text-base-color;");
+    statusLabel.setStyle(pending 
+        ? "-fx-text-fill: #c08400;" : "-fx-text-fill: -fx-text-base-color;");
   }
 }

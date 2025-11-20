@@ -6,13 +6,12 @@ import group6.ui.controllers.GuiController;
 import group6.ui.helpers.DevicePresentation;
 import group6.ui.helpers.builders.ToggleActuatorRow;
 import group6.ui.helpers.builders.UiAlerts;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ public class ActuatorControlView {
   private static final long COMMAND_COOLDOWN = 400; // to avoid rapid toggles and UI flicker
 
   /**
-   * Creates the actuator control view
+   * Creates the actuator control view.
    *
    * @param controller the GUI controller
    */
@@ -73,7 +72,7 @@ public class ActuatorControlView {
     }
 
     if (shouldRebuild(actuators)) {
-      buildUI(actuators);
+      buildUi(actuators);
       uiBuilt = true;
     } else {
       long timeSinceCommand = System.currentTimeMillis() - lastCommandTime;
@@ -87,8 +86,8 @@ public class ActuatorControlView {
    * Displays a placeholder label when no actuator data exists. 
    * */
   private void showPlaceholder(String message) {
-    if (contentBox.getChildren().size() == 1 &&
-        contentBox.getChildren().get(0) instanceof Label) {
+    if (contentBox.getChildren().size() == 1 
+        && contentBox.getChildren().get(0) instanceof Label) {
       Label existing = (Label) contentBox.getChildren().get(0);
       if (existing.getText().equals(message)) {
         return;
@@ -107,7 +106,7 @@ public class ActuatorControlView {
   /** 
    * Rebuilds actuator rows when the server list changes. 
    */
-  private void buildUI(Map<String, Boolean> actuators) {
+  private void buildUi(Map<String, Boolean> actuators) {
     contentBox.getChildren().clear();
     actuatorRows.clear();
     uiBuilt = false;
@@ -116,7 +115,8 @@ public class ActuatorControlView {
       String actuatorType = entry.getKey();
       boolean state = entry.getValue();
 
-      ToggleActuatorRow row = new ToggleActuatorRow(state, desired -> sendCommand(actuatorType, desired));
+      ToggleActuatorRow row = new ToggleActuatorRow(state, desired 
+          -> sendCommand(actuatorType, desired));
       actuatorRows.put(actuatorType, row);
       updateActuatorLabel(actuatorType);
       contentBox.getChildren().add(row.getRoot());
@@ -238,6 +238,5 @@ public class ActuatorControlView {
     String icon = getActuatorIcon(presentation.getBaseType());
     row.setDisplayText(icon + " " + label);
   }
-
 
 }

@@ -1,11 +1,10 @@
 package group6.ui;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import group6.ui.controllers.ControlNodePersistenceService;
 import group6.ui.helpers.ControlNodeConfig;
 import group6.ui.views.MainView;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -54,6 +53,11 @@ public class GreenhouseGuiApp extends Application {
     LOGGER.info("Application shutdown successfully");
   }
 
+  /**
+   * Application entry point.
+   * 
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
     launch(args);
   }

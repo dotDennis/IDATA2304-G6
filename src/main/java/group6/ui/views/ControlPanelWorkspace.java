@@ -1,17 +1,13 @@
 package group6.ui.views;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import group6.protocol.RefreshTarget;
 import group6.ui.controllers.EmbeddedNodeService;
 import group6.ui.controllers.GuiController;
 import group6.ui.controllers.NodeDeviceService;
 import group6.ui.helpers.ControlNodeConfig;
 import group6.ui.helpers.EmbeddedSensorNodeManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,11 +19,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates the UI controls for a single control panel node.
- * <p>
- * Handles embedded sensor node creation, tab management, and
+ * 
+ * <p>Handles embedded sensor node creation, tab management, and
  * device operations via the {@link NodeDeviceService}.
  * 
  * @author dotDennis
@@ -72,7 +70,8 @@ public class ControlPanelWorkspace {
   /**
    * Creates a workspace with optional config-change listener.
    */
-  public ControlPanelWorkspace(GuiController controller, long refreshInterval, Runnable configChangeListener) {
+  public ControlPanelWorkspace(GuiController controller,
+       long refreshInterval, Runnable configChangeListener) {
     this.controller = controller;
     this.nodeService = new EmbeddedNodeService(controller);
     this.sensorNodeManager = nodeService.getManager();
@@ -182,6 +181,8 @@ public class ControlPanelWorkspace {
   }
 
   /**
+   * Gets the root node of this workspace.
+   * 
    * @return the root node to attach in the scene graph.
    */
   public Node getRoot() {

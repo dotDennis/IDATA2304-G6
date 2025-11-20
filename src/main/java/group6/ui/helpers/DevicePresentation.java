@@ -1,10 +1,9 @@
 package group6.ui.helpers;
 
+import group6.protocol.DeviceKey;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.StringJoiner;
-
-import group6.protocol.DeviceKey;
 
 /**
  * Presentation helper that formats device keys into human readable labels.
@@ -34,6 +33,7 @@ public final class DevicePresentation {
 
   /**
    * Gets the base TYPE part of the key.
+   * 
    * @return the base TYPE as string
    */
   public String getBaseType() {
@@ -42,7 +42,8 @@ public final class DevicePresentation {
 
   /**
    * Gets the device ID part of the key.
-   * @return
+   * 
+   * @return the device ID as string
    */
   public String getDeviceId() {
     return key.getId();
@@ -83,6 +84,7 @@ public final class DevicePresentation {
     if (part.isEmpty()) {
       return part;
     }
-    return part.substring(0, 1).toUpperCase(Locale.ROOT) + part.substring(1).toLowerCase(Locale.ROOT);
+    return part.substring(0, 1).toUpperCase(Locale.ROOT) 
+        + part.substring(1).toLowerCase(Locale.ROOT);
   }
 }

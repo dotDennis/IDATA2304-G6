@@ -49,7 +49,7 @@ public class Message {
   /**
    * Parses a protocol string into a Message object.
    * 
-   * Expected format: TYPE|nodeId|data (data is optional, but not null)
+   * <p>Expected format: TYPE|nodeId|data (data is optional, but not null)
    * example: SENSOR|sensor-01|temperature:18.5,humidity:60.0
    *
    * @param protocolString the string to parse

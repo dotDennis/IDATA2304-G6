@@ -2,7 +2,6 @@ package group6.ui.helpers.builders.dialog;
 
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;

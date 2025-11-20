@@ -2,15 +2,14 @@ package group6.ui.controllers;
 
 import group6.entity.node.ControlPanel;
 import group6.protocol.RefreshTarget;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 /**
- * Controller for the GUI application
+ * Controller for the GUI application.
  * Coordinates between backend and GUI views
  */
 public class GuiController {
@@ -21,7 +20,7 @@ public class GuiController {
   private Timer refreshTimer;
 
   /**
-   * Creates a new GUI controller
+   * Creates a new GUI controller.
    *
    * @param controlPanel the backend control panel.
    * @throws IllegalArgumentException if controlPanel is null.
@@ -35,7 +34,7 @@ public class GuiController {
   }
 
   /**
-   * Connects to a sensor node
+   * Connects to a sensor node.
    *
    * @param nodeId the node ID.
    * @param host   the host address
@@ -166,7 +165,7 @@ public class GuiController {
   }
 
   /**
-   * Shuts down the controller and control panel
+   * Shuts down the controller and control panel.
    */
   public void shutdown() {
     stopAutoRefresh();

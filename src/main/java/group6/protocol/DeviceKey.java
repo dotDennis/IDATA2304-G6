@@ -5,8 +5,8 @@ import java.util.Objects;
 
 /**
  * Representation of protocol keys of the form {@code type#id}.
- * <p>
- * Used for identifying devices effectively within the protocol.
+ * 
+ * <p>Used for identifying devices effectively within the protocol.
  * Instead of looping through all devices.
  */
 public final class DeviceKey {
@@ -23,7 +23,7 @@ public final class DeviceKey {
    * Creates a DeviceKey from type and id.
    * 
    * @param type the device type
-   * @param id the device id
+   * @param id   the device id
    * @return the device key
    */
   public static DeviceKey of(String type, String id) {
