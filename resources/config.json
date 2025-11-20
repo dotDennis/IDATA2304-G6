@@ -1,0 +1,158 @@
+[
+  {
+    "displayName": "Research Greenhouse",
+    "id": "control-greenhouse",
+    "refreshInterval": 1000,
+    "sensorNodes": [
+      {
+        "id": "south-aisle-node",
+        "host": "localhost",
+        "port": 6002,
+        "refreshInterval": 4500,
+        "sensors": [
+          {
+            "id": "temp-south",
+            "type": "TEMPERATURE",
+            "updateIntervalMs": 3200
+          },
+          {
+            "id": "light-south",
+            "type": "LIGHT",
+            "updateIntervalMs": 2800
+          }
+        ],
+        "actuators": [
+          {
+            "id": "heater-south",
+            "type": "HEATER",
+            "updateIntervalMs": 5000
+          },
+          {
+            "id": "valve-south",
+            "type": "VALVE",
+            "updateIntervalMs": 5000
+          }
+        ]
+      },
+      {
+        "id": "north-aisle-node",
+        "host": "localhost",
+        "port": 6001,
+        "refreshInterval": 4000,
+        "sensors": [
+          {
+            "id": "temp-north",
+            "type": "TEMPERATURE",
+            "updateIntervalMs": 3000
+          },
+          {
+            "id": "humidity-north",
+            "type": "HUMIDITY",
+            "updateIntervalMs": 4500
+          },
+          {
+            "id": "fertilizer-bed-a",
+            "type": "FERTILIZER",
+            "updateIntervalMs": 6000
+          }
+        ],
+        "actuators": [
+          {
+            "id": "fan-north",
+            "type": "FAN",
+            "updateIntervalMs": 5000
+          },
+          {
+            "id": "vent-north",
+            "type": "WINDOW_OPENER",
+            "updateIntervalMs": 5000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "displayName": "Urban Rooftop Farm",
+    "id": "control-rooftop",
+    "refreshInterval": 1500,
+    "sensorNodes": [
+      {
+        "id": "rooftop-east-node",
+        "host": "localhost",
+        "port": 6003,
+        "refreshInterval": 5000,
+        "sensors": [
+          {
+            "id": "ambient-east",
+            "type": "TEMPERATURE",
+            "updateIntervalMs": 3500
+          },
+          {
+            "id": "wind-east",
+            "type": "WIND_SPEED",
+            "updateIntervalMs": 4200
+          },
+          {
+            "id": "light-east",
+            "type": "LIGHT",
+            "updateIntervalMs": 2500
+          }
+        ],
+        "actuators": [
+          {
+            "id": "door-access-east",
+            "type": "DOOR_LOCK",
+            "updateIntervalMs": 5000
+          },
+          {
+            "id": "fan-east",
+            "type": "FAN",
+            "updateIntervalMs": 5000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "displayName": "Aquaponics Lab",
+    "id": "control-aquaponics",
+    "refreshInterval": 900,
+    "sensorNodes": [
+      {
+        "id": "tank-node",
+        "host": "localhost",
+        "port": 6004,
+        "refreshInterval": 3500,
+        "sensors": [
+          {
+            "id": "water-temp",
+            "type": "TEMPERATURE",
+            "updateIntervalMs": 2200
+          },
+          {
+            "id": "ph-tank",
+            "type": "PH",
+            "updateIntervalMs": 4000
+          },
+          {
+            "id": "fertilizer-loop",
+            "type": "FERTILIZER",
+            "updateIntervalMs": 5200
+          }
+        ],
+        "actuators": [
+          {
+            "id": "grow-light-tank",
+            "type": "LIGHT_SWITCH",
+            "updateIntervalMs": 5000
+          },
+          {
+            "id": "water-valve-loop",
+            "type": "VALVE",
+            "updateIntervalMs": 5000
+          }
+        ]
+      }
+    ]
+  }
+]
