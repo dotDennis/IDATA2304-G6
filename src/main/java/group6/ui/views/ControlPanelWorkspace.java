@@ -3,7 +3,7 @@ package group6.ui.views;
 import java.util.HashMap;
 import java.util.Map;
 
-import group6.entity.node.RefreshTarget;
+import group6.protocol.RefreshTarget;
 import group6.ui.controllers.EmbeddedNodeService;
 import group6.ui.controllers.GuiController;
 import group6.ui.controllers.NodeDeviceService;

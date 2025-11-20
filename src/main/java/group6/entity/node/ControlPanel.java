@@ -1,7 +1,9 @@
 package group6.entity.node;
 
+import group6.net.client.SensorNodeClient;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
+import group6.protocol.RefreshTarget;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import group6.logic.SensorHistoryWriter;
 import group6.protocol.DeviceKey;
 
 /**
@@ -285,7 +288,7 @@ public class ControlPanel extends Node {
    * @param sensorNodeId the ID of the sensornode
    * @param msg          the recieved message
    */
-  void handleIncomingMessage(String sensorNodeId, Message msg) {
+  public void handleIncomingMessage(String sensorNodeId, Message msg) {
     MessageType type = msg.getMessageType();
     switch (type) {
       case DATA -> {

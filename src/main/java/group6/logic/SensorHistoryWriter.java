@@ -1,4 +1,4 @@
-package group6.entity.node;
+package group6.logic;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,12 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Persists sensor readings to CSV files per node in cases of network outage.
- * <p>
- * CSV files are stored in the "history" directory, named by node ID.
- * Each file contains timestamped sensor readings for all sensors of that node.
- */
 public final class SensorHistoryWriter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SensorHistoryWriter.class);
@@ -35,20 +29,23 @@ public final class SensorHistoryWriter {
   }
 
   /**
-   * Records a sensor sample to file for the given node.
+   * Records a sensor sample to history.
+   * <p>
+   * If a sample for the same sensor was recorded less than 900 ms ago, it is skipped
+   * to avoid excessive writes.
    * 
-   * @param nodeId    the node id
+   * @param nodeId the sensor node id
    * @param sensorKey the sensor key
-   * @param value     the sensor value
-   * @param timestamp the timestamp of the sample
+   * @param value   the sensor value
+   * @param timestamp the sample timestamp
    */
   public static void recordSample(String nodeId, String sensorKey, double value, long timestamp) {
     Object lock = LOCKS.computeIfAbsent(nodeId, k -> new Object());
     synchronized (lock) {
       try {
-        String key = nodeId + "/" + sensorKey;
-        SensorSample previous = LAST_WRITTEN.get(key);
-        if (previous != null && (timestamp - previous.timestamp) < 900) { // 900 ms hardcoded limit
+        String cacheKey = nodeId + "/" + sensorKey;
+        SensorSample previous = LAST_WRITTEN.get(cacheKey);
+        if (previous != null && (timestamp - previous.timestamp) < 900) {
           return;
         }
 
@@ -65,7 +62,7 @@ public final class SensorHistoryWriter {
           LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
           writer.write(String.format("%s,%s,%s", time, sensorKey, value));
           writer.newLine();
-          LAST_WRITTEN.put(key, new SensorSample(value, timestamp));
+          LAST_WRITTEN.put(cacheKey, new SensorSample(value, timestamp));
         }
       } catch (IOException e) {
         LOGGER.warn("Failed to write sensor history for {}", nodeId, e);
@@ -73,6 +70,11 @@ public final class SensorHistoryWriter {
     }
   }
 
+  // ------- Helper class -------
+
+  /**
+   * Represents a sensor sample with value and timestamp.
+   */
   private static final class SensorSample {
     final double value;
     final long timestamp;

@@ -1,11 +1,11 @@
 package group6.ui.views;
 
 import group6.entity.node.ControlPanel;
-import group6.entity.node.RefreshTarget;
+import group6.protocol.RefreshTarget;
 import group6.ui.controllers.GuiController;
 import group6.ui.helpers.DevicePresentation;
-import group6.ui.helpers.ToggleActuatorRow;
-import group6.ui.helpers.UiAlerts;
+import group6.ui.helpers.builders.ToggleActuatorRow;
+import group6.ui.helpers.builders.UiAlerts;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;

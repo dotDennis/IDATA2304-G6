@@ -21,6 +21,11 @@ public enum SensorType {
         this.defaultUnit = defaultUnit;
     }
 
+    /**
+     * Gets the default measurement unit for this sensor type.
+     * 
+     * @return the default unit
+     */
     public String getUnit() {
         return defaultUnit;
     }

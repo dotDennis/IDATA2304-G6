@@ -8,6 +8,9 @@ import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
 import group6.entity.device.Device;
 import group6.entity.device.DeviceUpdateListener;
+import group6.logic.DeviceRegistry;
+import group6.logic.DeviceUpdateTracker;
+import group6.logic.events.SensorNodeUpdateListener;
 import group6.protocol.DeviceKey;
 import group6.protocol.SensorReading;
 

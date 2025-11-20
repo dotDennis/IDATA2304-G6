@@ -66,14 +66,29 @@ public final class ControlNodeConfig {
       this.displayName = displayName;
     }
 
+    /**
+     * Gets the refresh interval for this control node.
+     * 
+     * @return the refresh interval in milliseconds
+     */
     public long getRefreshInterval() {
       return refreshInterval <= 0 ? 1000 : refreshInterval;
     }
 
+    /**
+     * Sets the refresh interval for this control node.
+     * 
+     * @param refreshInterval the refresh interval in milliseconds
+     */
     public void setRefreshInterval(long refreshInterval) {
       this.refreshInterval = refreshInterval;
     }
 
+    /**
+     * Gets the list of sensor node entries for this control node.
+     * 
+     * @return the sensor node entries
+     */
     public List<SensorNodeEntry> getSensorNodes() {
       if (sensorNodes == null) {
         sensorNodes = new ArrayList<>();
@@ -81,11 +96,23 @@ public final class ControlNodeConfig {
       return sensorNodes;
     }
 
+    /**
+     * Sets the list of sensor node entries for this control node.
+     * 
+     * @param sensorNodes the sensor node entries to set
+     */
     public void setSensorNodes(List<SensorNodeEntry> sensorNodes) {
       this.sensorNodes = sensorNodes;
     }
   }
 
+  /**
+   * Nested class for sensor node entries.
+   * <p>
+   * Represents a configured sensor node within a control node.
+   * 
+   * https://stackoverflow.com/questions/19272830/order-of-json-objects-using-jacksons-objectmapper
+   */
   @JsonPropertyOrder({ "id", "host", "port", "refreshInterval", "sensors", "actuators" })
   public static class SensorNodeEntry {
     private String id;
@@ -95,38 +122,84 @@ public final class ControlNodeConfig {
     private List<SensorEntry> sensors = new ArrayList<>();
     private List<DeviceEntry> actuators = new ArrayList<>();
 
+    // ------- Getters and Setters -------
+
+    /**
+     * Gets the sensor node ID.
+     * 
+     * @return the node ID
+     */
     public String getId() {
       return id;
     }
 
+    /**
+     * Sets the sensor node ID.
+     * @param id
+     */
     public void setId(String id) {
       this.id = id;
     }
 
+    /**
+     * Gets the host address.
+     * 
+     * @return the host address
+     */
     public String getHost() {
       return host;
     }
 
+    /**
+     * Sets the host address.
+     * 
+     * @param host the host address to set
+     */
     public void setHost(String host) {
       this.host = host;
     }
 
+    /**
+     * Gets the port number.
+     * 
+     * @return the port number
+     */
     public int getPort() {
       return port;
     }
 
+    /**
+     * Sets the port number.
+     * 
+     * @param port the port number to set
+     */
     public void setPort(int port) {
       this.port = port;
     }
 
+    /**
+     * Gets the refresh interval.
+     * 
+     * @return the refresh interval in milliseconds
+     */
     public long getRefreshInterval() {
       return refreshInterval <= 0 ? 5000 : refreshInterval;
     }
 
+    /**
+     * Sets the refresh interval.
+     * 
+     * @param refreshInterval the refresh interval in milliseconds
+     */
     public void setRefreshInterval(long refreshInterval) {
       this.refreshInterval = refreshInterval;
     }
 
+    /**
+     * Gets the list of configured sensors.
+     * 
+     * @return the list of sensors
+     */
     public List<SensorEntry> getSensors() {
       if (sensors == null) {
         sensors = new ArrayList<>();
@@ -134,10 +207,20 @@ public final class ControlNodeConfig {
       return sensors;
     }
 
+    /**
+     * Sets the list of configured sensors.
+     * 
+     * @param sensors the list of sensors to set
+     */
     public void setSensors(List<SensorEntry> sensors) {
       this.sensors = sensors;
     }
 
+    /**
+     * Gets the list of configured actuators.
+     * 
+     * @return the list of actuators
+     */
     public List<DeviceEntry> getActuators() {
       if (actuators == null) {
         actuators = new ArrayList<>();
@@ -145,54 +228,125 @@ public final class ControlNodeConfig {
       return actuators;
     }
 
+    /**
+     * Sets the list of configured actuators.
+     * 
+     * @param actuators the list of actuators to set
+     */
     public void setActuators(List<DeviceEntry> actuators) {
       this.actuators = actuators;
     }
   }
 
+  // ------- Helper Classes -------
+
+  /**
+   * Nested class for device entries.
+   * <p>
+   * Represents a configured device (sensor or actuator) within a sensor node.
+   */
   public static class DeviceEntry {
     private String id;
     private String type;
 
+    /**
+     * Default constructor.
+     * <p>
+     * Needed for JSON deserialization.
+     */
     public DeviceEntry() {
     }
 
+    /**
+     * Parameterized constructor.
+     * 
+     * @param id the device id
+     * @param type the device type
+     */
     public DeviceEntry(String id, String type) {
       this.id = id;
       this.type = type;
     }
 
+    /**
+     * Gets the device id.
+     * 
+     * @return the device id
+     */
     public String getId() {
       return id;
     }
 
+    /**
+     * Sets the device id.
+     * 
+     * @param id the device id to set
+     */
     public void setId(String id) {
       this.id = id;
     }
 
+    /**
+     * Gets the device type.
+     * 
+     * @return the device type
+     */
     public String getType() {
       return type;
     }
 
+    /**
+     * Sets the device type.
+     * 
+     * @param type the device type to set
+     */
     public void setType(String type) {
       this.type = type;
     }
   }
 
+  /**
+   * Nested class for sensor entries.
+   * <p>
+   * Represents a configured sensor within a sensor node.
+   */
   public static class SensorEntry extends DeviceEntry {
     private long updateIntervalMs = 5000;
+
+    /**
+     * Default constructor.
+     * <p>
+     * Needed for JSON deserialization.
+     */
     public SensorEntry() {
     }
 
+    /**
+     * Parameterized constructor.
+     * 
+     * @param id the sensor id
+     * @param type the sensor type
+     * @param updateIntervalMs the update interval in milliseconds
+     */
     public SensorEntry(String id, String type, long updateIntervalMs) {
       super(id, type);
       this.updateIntervalMs = updateIntervalMs;
     }
 
+    /**
+     * Gets the update interval in milliseconds.
+     * 
+     * @return the update interval in milliseconds
+     */
     public long getUpdateIntervalMs() {
       return updateIntervalMs <= 0 ? 5000 : updateIntervalMs;
     }
 
+    /**
+     * Sets the update interval in milliseconds.
+     * 
+     * @param updateIntervalMs the update interval in milliseconds
+     */
     public void setUpdateIntervalMs(long updateIntervalMs) {
       this.updateIntervalMs = updateIntervalMs;
     }
@@ -200,8 +354,10 @@ public final class ControlNodeConfig {
   }
 
   /**
-   * Wraps a configuration {@link Entry} with a {@link ControlPanel}
-   * created from an entry.
+   * A configured control node instance.
+   * <p>
+   * Couples a configuration {@link Entry} with its associated
+   * {@link ControlPanel}.
    */
   public static class ControlNode {
 
