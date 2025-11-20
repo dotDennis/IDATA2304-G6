@@ -3,8 +3,8 @@ package group6.ui;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import group6.ui.controllers.ControlNodePersistenceService;
 import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.ControlNodePersistenceService;
 import group6.ui.views.MainView;
 import javafx.application.Application;
 import javafx.scene.Scene;

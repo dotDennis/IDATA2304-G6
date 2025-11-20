@@ -1,9 +1,11 @@
-package group6.ui.helpers;
+package group6.ui.controllers;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 
+import group6.ui.helpers.ControlNodeConfig;
+import group6.ui.helpers.ControlNodeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package group6.ui.helpers;
+package group6.ui.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import group6.entity.device.SensorType;
 import group6.entity.device.actuator.Actuator;
 import group6.entity.device.sensor.Sensor;
 import group6.entity.node.RefreshTarget;
-import group6.ui.controllers.GuiController;
+import group6.ui.helpers.EmbeddedSensorNodeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

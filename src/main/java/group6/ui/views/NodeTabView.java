@@ -6,8 +6,9 @@ import group6.entity.device.SensorType;
 import group6.entity.node.ControlPanel;
 import group6.entity.node.RefreshTarget;
 import group6.ui.controllers.GuiController;
+import group6.ui.controllers.NodeDeviceService;
 import group6.ui.helpers.DeviceDialogBuilder;
-import group6.ui.helpers.NodeDeviceService;
+
 import group6.ui.helpers.NodeTabLayoutBuilder;
 import group6.ui.helpers.RemovalDialogBuilder;
 import group6.ui.helpers.UiAlerts;
