@@ -117,8 +117,13 @@ public class EmbeddedNodeService {
       nodeEntry.setRefreshInterval(node.getSensorNode().getSensorNodeInterval());
 
       for (Sensor sensor : node.getSensorNode().getSensors()) {
-        nodeEntry.getSensors().add(
-            new ControlNodeConfig.SensorEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval()));
+        ControlNodeConfig.SensorEntry sensorEntry =
+            new ControlNodeConfig.SensorEntry(sensor.getDeviceId(), sensor.getDeviceType().name(), sensor.getUpdateInterval());
+        sensorEntry.setLastValue(sensor.getCurrentValue());
+        if (sensor.getLastUpdated() != null) {
+          sensorEntry.setLastUpdated(sensor.getLastUpdated().toString());
+        }
+        nodeEntry.getSensors().add(sensorEntry);
       }
       for (Actuator actuator : node.getSensorNode().getActuators()) {
         nodeEntry.getActuators().add(
