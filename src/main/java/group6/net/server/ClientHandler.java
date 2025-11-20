@@ -1,14 +1,17 @@
-package group6.entity.node;
+package group6.net.server;
 
+import group6.entity.device.actuator.Actuator;
+import group6.entity.node.SensorNode;
+import group6.logic.events.SensorNodeUpdateListener;
+import group6.net.Connection;
 import group6.protocol.Message;
 import group6.protocol.MessageType;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
-import group6.entity.device.actuator.Actuator;
-import group6.net.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

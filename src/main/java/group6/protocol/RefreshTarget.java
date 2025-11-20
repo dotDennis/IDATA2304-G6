@@ -1,4 +1,4 @@
-package group6.entity.node;
+package group6.protocol;
 
 /**
  * RefreshTarget enum represents the target of a refresh command

@@ -9,7 +9,8 @@ import java.util.function.Consumer;
 import group6.entity.node.ControlPanel;
 import group6.ui.controllers.GuiController;
 import group6.ui.helpers.ControlNodeConfig;
-import group6.ui.helpers.ControlNodeDialogBuilder;
+import group6.ui.helpers.builders.dialog.ControlNodeDialogBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
