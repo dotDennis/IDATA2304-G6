@@ -14,7 +14,8 @@ TCP-based system with **sensor nodes** (temperature, humidity, light, pH, wind, 
 - TCP client-server architecture with custom protocol
 - JavaFX GUI with real-time updates
 - Dynamic device management
-- Auto-reconnect and data logging
+- Data logging to CSV
+- Saving and Loading configuration from JSON
 
 ## Architecture
 
@@ -126,6 +127,6 @@ Config saved to `resources/config.json`:
 ## 📚 Resources
 
 - [`protocol.md`](protocol.md) - Complete protocol specification
-- `entities.puml` - Entity model diagram
-- `physical2logical.puml` - Architecture diagram
+- [`entities.puml`](entities.puml)`entities.puml` - Entity model diagram
+- [`physical2logical.puml`](physical2logical.puml)
 ---
