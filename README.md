@@ -130,7 +130,7 @@ Config saved to `resources/config.json`:
 - [`entities.puml`](docs/entities.puml)`entities.puml` - Entity model diagram
 - [`physical2logical.puml`](docs/physical2logical.puml) - Demonstration of devices
 - [`workflow_overview.md`](docs/workflow_overview.md) - Explanation of our workflow together
-- [`sprint_1.md`](docs/definition_of_done.md) - Qualifications for task being done.
+- [`definition_of_done.md`](docs/definition_of_done.md) - Qualifications for task being done.
 - [`sprint_1.md`](docs/sprint_1.md) - Sprint 1
 - [`sprint_2.md`](docs/sprint_2.md) - Sprint 2
 ---
