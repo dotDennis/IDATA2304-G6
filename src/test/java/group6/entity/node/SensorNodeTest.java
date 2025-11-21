@@ -14,13 +14,32 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Essential unit tests for SensorNode.
+ *
+ *Tests verify:
+ *SensorNode creation and initialization
+ *Device management (adding and removing sensors, actuators)
+ *Protocol string generation for sensors and actuators
+ *Search methods for finding actuators by type or device ID
+ *Update interval configuration
+ *Integration of actuator effects on sensors
  */
 class SensorNodeTest {
 
+  /**
+   * Tests for SensorNode creation and initialization.
+   */
   @Nested
   @DisplayName("SensorNode Creation")
   class CreationTests {
 
+    /**
+     * Verifies SensorNode can be created with a valid ID.
+     *
+     *Checks that:
+     * Node ID is correctly set
+     * Node type is SENSOR
+     * Initial sensor and actuator lists are empty
+     */
     @Test
     @DisplayName("Create SensorNode with valid ID")
     void testCreateSensorNode() {
@@ -32,6 +51,9 @@ class SensorNodeTest {
       assertTrue(node.getActuators().isEmpty());
     }
 
+    /**
+     * Verifies the default update interval is 5000 milliseconds.
+     */
     @Test
     @DisplayName("Default interval is 5000ms")
     void testDefaultInterval() {
@@ -41,17 +63,26 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Tests for adding devices to the SensorNode.
+   */
   @Nested
   @DisplayName("Device Management - Add")
   class AddDeviceTests {
 
     private SensorNode node;
 
+    /**
+     * Initializes a fresh SensorNode before each test.
+     */
     @BeforeEach
     void setUp() {
       node = new SensorNode("node-01");
     }
 
+    /**
+     * Verifies addSensor() successfully adds a sensor to the node.
+     */
     @Test
     @DisplayName("addSensor() adds sensor to node")
     void testAddSensor() {
@@ -63,6 +94,9 @@ class SensorNodeTest {
       assertTrue(node.getSensors().contains(sensor));
     }
 
+    /**
+     * Verifies addActuator() successfully adds an actuator to the node.
+     */
     @Test
     @DisplayName("addActuator() adds actuator to node")
     void testAddActuator() {
@@ -74,6 +108,9 @@ class SensorNodeTest {
       assertTrue(node.getActuators().contains(heater));
     }
 
+    /**
+     * Verifies addSensor() throws IllegalArgumentException for null sensor.
+     */
     @Test
     @DisplayName("addSensor() throws exception for null sensor")
     void testAddNullSensor() {
@@ -82,6 +119,9 @@ class SensorNodeTest {
       });
     }
 
+    /**
+     * Verifies addActuator() throws IllegalArgumentException for null actuator.
+     */
     @Test
     @DisplayName("addActuator() throws exception for null actuator")
     void testAddNullActuator() {
@@ -90,6 +130,9 @@ class SensorNodeTest {
       });
     }
 
+    /**
+     * Verifies multiple sensors can be added to the same node.
+     */
     @Test
     @DisplayName("Add multiple sensors")
     void testAddMultipleSensors() {
@@ -102,6 +145,9 @@ class SensorNodeTest {
       assertEquals(2, node.getSensors().size());
     }
 
+    /**
+     * Verifies multiple actuators can be added to the same node.
+     */
     @Test
     @DisplayName("Add multiple actuators")
     void testAddMultipleActuators() {
@@ -115,6 +161,9 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Tests for removing devices from the SensorNode.
+   */
   @Nested
   @DisplayName("Device Management - Remove")
   class RemoveDeviceTests {
@@ -123,6 +172,9 @@ class SensorNodeTest {
     private TemperatureSensor sensor;
     private HeaterActuator actuator;
 
+    /**
+     * Initializes a SensorNode with one sensor and one actuator before each test.
+     */
     @BeforeEach
     void setUp() {
       node = new SensorNode("node-01");
@@ -132,6 +184,9 @@ class SensorNodeTest {
       node.addActuator(actuator);
     }
 
+    /**
+     * Verifies removeSensor() successfully removes a sensor from the node.
+     */
     @Test
     @DisplayName("removeSensor() removes sensor from node")
     void testRemoveSensor() {
@@ -141,6 +196,9 @@ class SensorNodeTest {
       assertEquals(0, node.getSensors().size());
     }
 
+    /**
+     * Verifies removeActuator() successfully removes an actuator from the node.
+     */
     @Test
     @DisplayName("removeActuator() removes actuator from node")
     void testRemoveActuator() {
@@ -150,6 +208,9 @@ class SensorNodeTest {
       assertEquals(0, node.getActuators().size());
     }
 
+    /**
+     * Verifies removeSensor() returns false when attempting to remove a non-existent sensor.
+     */
     @Test
     @DisplayName("removeSensor() returns false for non-existent sensor")
     void testRemoveNonExistentSensor() {
@@ -161,6 +222,9 @@ class SensorNodeTest {
       assertEquals(1, node.getSensors().size());
     }
 
+    /**
+     * Verifies removeActuator() returns false when attempting to remove a non-existent actuator.
+     */
     @Test
     @DisplayName("removeActuator() returns false for non-existent actuator")
     void testRemoveNonExistentActuator() {
@@ -172,6 +236,9 @@ class SensorNodeTest {
       assertEquals(1, node.getActuators().size());
     }
 
+    /**
+     * Verifies removeSensor() throws IllegalArgumentException for null input.
+     */
     @Test
     @DisplayName("removeSensor() throws exception for null")
     void testRemoveNullSensor() {
@@ -180,6 +247,9 @@ class SensorNodeTest {
       });
     }
 
+    /**
+     * Verifies removeActuator() throws IllegalArgumentException for null input.
+     */
     @Test
     @DisplayName("removeActuator() throws exception for null")
     void testRemoveNullActuator() {
@@ -189,17 +259,26 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Tests for protocol string generation.
+   */
   @Nested
   @DisplayName("Protocol String Building")
   class ProtocolStringTests {
 
     private SensorNode node;
 
+    /**
+     * Initializes a fresh SensorNode before each test.
+     */
     @BeforeEach
     void setUp() {
       node = new SensorNode("node-01");
     }
 
+    /**
+     * Verifies getSensorSnapshot() returns empty string when no sensors are present.
+     */
     @Test
     @DisplayName("getSensorSnapshot() with no sensors returns empty string")
     void testGetSensorSnapshotEmpty() {
@@ -208,6 +287,10 @@ class SensorNodeTest {
       assertEquals("", snapshot);
     }
 
+   /**
+    * Verifies getSensorSnapshot() formats a single sensor correctly.
+    *Expected format: "type#id:value"
+    */
     @Test
     @DisplayName("getSensorSnapshot() with one sensor")
     void testGetSensorSnapshotOneSensor() {
@@ -220,6 +303,10 @@ class SensorNodeTest {
       assertTrue(snapshot.contains(":"));
     }
 
+    /**
+     * Verifies getSensorSnapshot() formats multiple sensors with comma separation.
+     * Expected format: "type1#id1:value1,type2#id2:value2"
+     */
     @Test
     @DisplayName("getSensorSnapshot() with multiple sensors")
     void testGetSensorSnapshotMultipleSensors() {
@@ -235,6 +322,9 @@ class SensorNodeTest {
       assertTrue(snapshot.contains(","));
     }
 
+    /**
+     * Verifies getActuatorSnapshot() returns empty string when no actuators are present.
+     */
     @Test
     @DisplayName("getActuatorSnapshot() with no actuators returns empty string")
     void testGetActuatorSnapshotEmpty() {
@@ -243,6 +333,10 @@ class SensorNodeTest {
       assertEquals("", snapshot);
     }
 
+    /**
+     * Verifies getActuatorSnapshot() formats an OFF actuator correctly.
+     * OFF state is represented as ":0"
+     */
     @Test
     @DisplayName("getActuatorSnapshot() with one actuator OFF")
     void testGetActuatorSnapshotOneActuatorOff() {
@@ -254,6 +348,11 @@ class SensorNodeTest {
       assertEquals("heater#heater-01:0", snapshot);
     }
 
+    /**
+     * Verifies getActuatorSnapshot() formats an ON actuator correctly.
+     *
+     * ON state is represented as ":1"
+     */
     @Test
     @DisplayName("getActuatorSnapshot() with one actuator ON")
     void testGetActuatorSnapshotOneActuatorOn() {
@@ -266,6 +365,9 @@ class SensorNodeTest {
       assertEquals("heater#heater-01:1", snapshot);
     }
 
+    /**
+     * Verifies getActuatorSnapshot() formats multiple actuators with comma separation.
+     */
     @Test
     @DisplayName("getActuatorSnapshot() with multiple actuators")
     void testGetActuatorSnapshotMultipleActuators() {
@@ -284,6 +386,9 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Tests for actuator search methods.
+   */
   @Nested
   @DisplayName("Search Methods")
   class SearchTests {
@@ -292,6 +397,9 @@ class SensorNodeTest {
     private HeaterActuator heater;
     private FanActuator fan;
 
+    /**
+     * Initializes a SensorNode with two actuators before each test.
+     */
     @BeforeEach
     void setUp() {
       node = new SensorNode("node-01");
@@ -301,6 +409,9 @@ class SensorNodeTest {
       node.addActuator(fan);
     }
 
+    /**
+     * Verifies findActuatorByType() performs case-insensitive search.
+     */
     @Test
     @DisplayName("findActuatorByType() finds actuator case-insensitive")
     void testFindActuatorByType() {
@@ -310,6 +421,9 @@ class SensorNodeTest {
       assertEquals(heater, found);
     }
 
+    /**
+     * Verifies findActuatorByType() works with lowercase input.
+     */
     @Test
     @DisplayName("findActuatorByType() with lowercase")
     void testFindActuatorByTypeLowercase() {
@@ -319,6 +433,9 @@ class SensorNodeTest {
       assertEquals(heater, found);
     }
 
+    /**
+     * Verifies findActuatorByType() returns null when actuator type is not found.
+     */
     @Test
     @DisplayName("findActuatorByType() returns null for non-existent type")
     void testFindActuatorByTypeNotFound() {
@@ -327,6 +444,9 @@ class SensorNodeTest {
       assertNull(found);
     }
 
+    /**
+     * Verifies findActuatorByType() returns null for null input.
+     */
     @Test
     @DisplayName("findActuatorByType() returns null for null input")
     void testFindActuatorByTypeNull() {
