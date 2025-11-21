@@ -127,6 +127,6 @@ Config saved to `resources/config.json`:
 ## 📚 Resources
 
 - [`protocol.md`](protocol.md) - Complete protocol specification
-- [`entities.puml`](entities.puml)`entities.puml` - Entity model diagram
-- [`physical2logical.puml`](physical2logical.puml)
+- [`entities.puml`](docs/entities.puml)`entities.puml` - Entity model diagram
+- [`physical2logical.puml`](docs/physical2logical.puml) - Demonstration of devices
 ---
