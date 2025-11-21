@@ -21,7 +21,7 @@ Since this ended up as a two-person project with a short timeline, we used a lig
   Each major feature was implemented on its own branch (e.g., `sensor-node- implement`, `implement-net`, `tui-implement`), then merged into `main` when complete and reviewed by the other person. Sometimes we may have pushed directly to main without a PR, but since we were two on the project, communication was clear between us whenever that happened by accident. Meaning we did not have to rollback and PR push it instead.
 
 - **Communication:**  
-  We coordinated continuously on Discord, often sending code snippets and asking for opinions. Throughout this project we reached out to eachother regarding code or proccess atleast once per day. Meaning we had a 
+  We coordinated continuously on Discord, often sending code snippets and asking for opinions. Throughout this project we reached out to eachother regarding code or proccess atleast once per day. Meaning we had consistent communication.
 
 - **Sprint Rhythm:**  
   - Sprint 1 (Nov 9–14): core entities, TCP layer, and protocol design.  
