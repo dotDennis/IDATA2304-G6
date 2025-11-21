@@ -455,6 +455,9 @@ class SensorNodeTest {
       assertNull(found);
     }
 
+    /**
+     * Verifies findActuatorByDeviceId() performs case-insensitive search.
+     */
     @Test
     @DisplayName("findActuatorByDeviceId() finds actuator case-insensitive")
     void testFindActuatorByDeviceId() {
@@ -464,6 +467,9 @@ class SensorNodeTest {
       assertEquals(heater, found);
     }
 
+    /**
+     * Verifies findActuatorByDeviceId() works with lowercase input.
+     */
     @Test
     @DisplayName("findActuatorByDeviceId() with lowercase")
     void testFindActuatorByDeviceIdLowercase() {
@@ -473,6 +479,9 @@ class SensorNodeTest {
       assertEquals(heater, found);
     }
 
+    /**
+     * Verifies findActuatorByDeviceId() returns null when device ID is not found.
+     */
     @Test
     @DisplayName("findActuatorByDeviceId() returns null for non-existent id")
     void testFindActuatorByDeviceIdNotFound() {
@@ -481,6 +490,9 @@ class SensorNodeTest {
       assertNull(found);
     }
 
+    /**
+     * Verifies findActuatorByDeviceId() returns null for null input.
+     */
     @Test
     @DisplayName("findActuatorByDeviceId() returns null for null input")
     void testFindActuatorByDeviceIdNull() {
@@ -490,17 +502,26 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Tests for update interval configuration.
+   */
   @Nested
   @DisplayName("Interval Management")
   class IntervalTests {
 
     private SensorNode node;
 
+    /**
+     * Initializes a fresh SensorNode before each test.
+     */
     @BeforeEach
     void setUp() {
       node = new SensorNode("node-01");
     }
 
+    /**
+     * Verifies setSensorNodeInterval() accepts valid positive intervals.
+     */
     @Test
     @DisplayName("setSensorNodeInterval() sets valid interval")
     void testSetValidInterval() {
@@ -509,6 +530,9 @@ class SensorNodeTest {
       assertEquals(10000L, node.getSensorNodeInterval());
     }
 
+    /**
+     * Verifies setSensorNodeInterval() throws IllegalArgumentException for zero.
+     */
     @Test
     @DisplayName("setSensorNodeInterval() throws exception for zero")
     void testSetIntervalZero() {
@@ -517,6 +541,9 @@ class SensorNodeTest {
       });
     }
 
+    /**
+     * Verifies setSensorNodeInterval() throws IllegalArgumentException for negative values.
+     */
     @Test
     @DisplayName("setSensorNodeInterval() throws exception for negative")
     void testSetIntervalNegative() {
@@ -526,10 +553,20 @@ class SensorNodeTest {
     }
   }
 
+  /**
+   * Integration tests for actuator effects on sensors.
+   */
   @Nested
   @DisplayName("Actuator Effects Integration")
   class ActuatorEffectTests {
 
+
+    /**
+     * Verifies getSensorSnapshot() applies actuator effects when actuators are ON.
+     *
+     * When a heater is ON, calling getSensorSnapshot() should trigger
+     * the heater's effect, causing the temperature to increase.
+     */
     @Test
     @DisplayName("getSensorSnapshot() applies actuator effects when ON")
     void testSensorSnapshotAppliesEffects() {
@@ -543,7 +580,7 @@ class SensorNodeTest {
 
       double initialTemp = sensor.getCurrentValue();
       node.getSensorSnapshot();
-      sensor.readValue(); // Update sensor value after snapshot
+      sensor.readValue();
 
       double finalTemp = sensor.getCurrentValue();
 
@@ -551,6 +588,12 @@ class SensorNodeTest {
           "Heater should increase temperature during snapshot");
     }
 
+    /**
+     * Verifies getSensorSnapshot() does not apply significant effects when actuators are OFF.
+     *
+     * When a heater is OFF, temperature should remain stable within an acceptable
+     * drift threshold caused by random walk simulation.
+     */
     @Test
     @DisplayName("getSensorSnapshot() does not apply effects when actuator OFF")
     void testSensorSnapshotNoEffectsWhenOff() {
@@ -564,11 +607,11 @@ class SensorNodeTest {
 
       double initialTemp = sensor.getCurrentValue();
       node.getSensorSnapshot();
-      sensor.readValue(); // Update sensor value after snapshot
+      sensor.readValue();
       double finalTemp = sensor.getCurrentValue();
 
       double delta = Math.abs(finalTemp - initialTemp);
-      double driftThreshold = 0.3; // Acceptable drift due to random walk
+      double driftThreshold = 0.3;
 
       assertTrue(delta <= driftThreshold,
           "Temperature should be within acceptable drift when heater is OFF");
