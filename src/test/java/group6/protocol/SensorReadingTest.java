@@ -7,13 +7,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Comprehensive unit tests for the SensorReading class.
+ * SensorReading represents a sensor measurement in the protocol using the format
+ * {@code type#id:value} or {@code type:value}.
+ * Tests verify:
+ * Factory method {@code of()} with DeviceKey and value
+ * Parse method {@code parse()} from protocol strings
+ * Serialization to protocol format via {@code toProtocolString()}
+ * Round-trip serialization/deserialization
+ * Edge cases (negative values, scientific notation, precision)
+ * Validation (null/empty/blank input, invalid format)
  */
 class SensorReadingTest {
 
+  /**
+   * Tests for the factory method {@code of()}.
+   */
   @Nested
   @DisplayName("Factory Method - of()")
   class FactoryMethodTests {
 
+    /**
+     * Verifies SensorReading can be created with valid DeviceKey and value.
+     */
     @Test
     @DisplayName("Create SensorReading with valid DeviceKey and value")
     void testOfWithValidInputs() {
@@ -24,6 +39,9 @@ class SensorReadingTest {
       assertEquals(22.5, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies SensorReading can be created with zero value.
+     */
     @Test
     @DisplayName("Create SensorReading with zero value")
     void testOfWithZeroValue() {
@@ -33,6 +51,9 @@ class SensorReadingTest {
       assertEquals(0.0, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies SensorReading can be created with negative value.
+     */
     @Test
     @DisplayName("Create SensorReading with negative value")
     void testOfWithNegativeValue() {
@@ -42,6 +63,9 @@ class SensorReadingTest {
       assertEquals(-5.2, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies SensorReading can be created with large value.
+     */
     @Test
     @DisplayName("Create SensorReading with large value")
     void testOfWithLargeValue() {
@@ -60,6 +84,9 @@ class SensorReadingTest {
       assertEquals(0.0001, reading.getValue(), 0.00001);
     }
 
+    /**
+     * Verifies SensorReading can be created with DeviceKey without id.
+     */
     @Test
     @DisplayName("Create SensorReading with DeviceKey without id")
     void testOfWithDeviceKeyWithoutId() {
@@ -71,10 +98,17 @@ class SensorReadingTest {
     }
   }
 
+  /**
+   * Tests for the parse method {@code parse()}.
+   */
   @Nested
   @DisplayName("Parse Method - parse()")
   class ParseMethodTests {
 
+    /**
+     * Verifies parsing of valid entry with type and id.
+     * Expected format: {@code type#id:value}
+     */
     @Test
     @DisplayName("Parse valid entry with type and id")
     void testParseWithTypeAndId() {
@@ -85,6 +119,10 @@ class SensorReadingTest {
       assertEquals(22.5, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies parsing of valid entry with type only (no id).
+     * Expected format: {@code type:value}
+     */
     @Test
     @DisplayName("Parse valid entry with type only")
     void testParseWithTypeOnly() {
@@ -95,6 +133,9 @@ class SensorReadingTest {
       assertEquals(22.5, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies parsing of entry with negative value.
+     */
     @Test
     @DisplayName("Parse entry with negative value")
     void testParseWithNegativeValue() {
@@ -103,6 +144,9 @@ class SensorReadingTest {
       assertEquals(-5.2, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies parsing of entry with zero value.
+     */
     @Test
     @DisplayName("Parse entry with zero value")
     void testParseWithZeroValue() {
@@ -111,6 +155,9 @@ class SensorReadingTest {
       assertEquals(0.0, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies parsing of entry with integer value (converted to double).
+     */
     @Test
     @DisplayName("Parse entry with integer value")
     void testParseWithIntegerValue() {
@@ -119,6 +166,9 @@ class SensorReadingTest {
       assertEquals(65.0, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies whitespace around value is trimmed during parsing.
+     */
     @Test
     @DisplayName("Parse entry with whitespace around value")
     void testParseWithWhitespaceAroundValue() {
@@ -127,6 +177,9 @@ class SensorReadingTest {
       assertEquals(22.5, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies parsing of value in scientific notation.
+     */
     @Test
     @DisplayName("Parse entry with scientific notation")
     void testParseWithScientificNotation() {
@@ -135,6 +188,9 @@ class SensorReadingTest {
       assertEquals(150.0, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies null entry throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for null entry")
     void testParseWithNull() {
@@ -144,6 +200,9 @@ class SensorReadingTest {
       assertTrue(exception.getMessage().contains("blank"));
     }
 
+    /**
+     * Verifies empty string throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for empty string")
     void testParseWithEmptyString() {
@@ -152,6 +211,9 @@ class SensorReadingTest {
       });
     }
 
+    /**
+     * Verifies blank string throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for blank string")
     void testParseWithBlankString() {
@@ -160,6 +222,9 @@ class SensorReadingTest {
       });
     }
 
+    /**
+     * Verifies missing colon throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for missing colon")
     void testParseWithMissingColon() {
@@ -169,6 +234,9 @@ class SensorReadingTest {
       assertTrue(exception.getMessage().contains("Invalid"));
     }
 
+    /**
+     * Verifies missing value after colon throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for missing value")
     void testParseWithMissingValue() {
@@ -177,6 +245,9 @@ class SensorReadingTest {
       });
     }
 
+    /**
+     * Verifies invalid numeric value throws NumberFormatException.
+     */
     @Test
     @DisplayName("Throws exception for invalid numeric value")
     void testParseWithInvalidValue() {
@@ -185,6 +256,9 @@ class SensorReadingTest {
       });
     }
 
+    /**
+     * Verifies multiple colons throw IllegalArgumentException.
+     */
     @Test
     @DisplayName("Throws exception for multiple colons")
     void testParseWithMultipleColons() {
@@ -193,6 +267,9 @@ class SensorReadingTest {
       });
     }
 
+    /**
+     * Verifies whitespace in key part is handled correctly.
+     */
     @Test
     @DisplayName("Parse handles whitespace in key part")
     void testParseWithWhitespaceInKey() {
@@ -204,10 +281,17 @@ class SensorReadingTest {
     }
   }
 
+  /**
+   * Tests for serialization to protocol format.
+   */
   @Nested
   @DisplayName("Serialization - toProtocolString()")
   class SerializationTests {
 
+    /**
+     * Verifies serialization of reading with type and id.
+     * Expected format: {@code type#id:value}
+     */
     @Test
     @DisplayName("Serialize reading with type and id")
     void testToProtocolStringWithTypeAndId() {
@@ -217,6 +301,10 @@ class SensorReadingTest {
       assertEquals("temperature#sensor-01:22.5", reading.toProtocolString());
     }
 
+    /**
+     * Verifies serialization of reading with type only (no id).
+     * Expected format: {@code type:value}
+     */
     @Test
     @DisplayName("Serialize reading with type only")
     void testToProtocolStringWithTypeOnly() {
@@ -226,6 +314,9 @@ class SensorReadingTest {
       assertEquals("temperature:22.5", reading.toProtocolString());
     }
 
+    /**
+     * Verifies serialization of reading with negative value.
+     */
     @Test
     @DisplayName("Serialize reading with negative value")
     void testToProtocolStringWithNegativeValue() {
@@ -235,6 +326,9 @@ class SensorReadingTest {
       assertEquals("temperature#sensor-01:-5.2", reading.toProtocolString());
     }
 
+    /**
+     * Verifies serialization of reading with zero value.
+     */
     @Test
     @DisplayName("Serialize reading with zero value")
     void testToProtocolStringWithZeroValue() {
@@ -244,6 +338,9 @@ class SensorReadingTest {
       assertEquals("light#sensor-01:0.0", reading.toProtocolString());
     }
 
+    /**
+     * Verifies serialization of reading with large value.
+     */
     @Test
     @DisplayName("Serialize reading with large value")
     void testToProtocolStringWithLargeValue() {
@@ -253,6 +350,9 @@ class SensorReadingTest {
       assertEquals("fertilizer#sensor-01:12345.6789", reading.toProtocolString());
     }
 
+    /**
+     * Verifies serialization of reading with integer-like value includes decimal point.
+     */
     @Test
     @DisplayName("Serialize reading with integer-like value")
     void testToProtocolStringWithIntegerValue() {
@@ -263,10 +363,16 @@ class SensorReadingTest {
     }
   }
 
+  /**
+   * Tests for round-trip serialization and deserialization.
+   */
   @Nested
   @DisplayName("Round-trip Tests")
   class RoundTripTests {
 
+    /**
+     * Verifies round-trip: parse() → toProtocolString() matches original.
+     */
     @Test
     @DisplayName("Round-trip with type and id")
     void testRoundTripWithTypeAndId() {
@@ -277,6 +383,9 @@ class SensorReadingTest {
       assertEquals(original, result);
     }
 
+    /**
+     * Verifies round-trip with type only (no id).
+     */
     @Test
     @DisplayName("Round-trip with type only")
     void testRoundTripWithTypeOnly() {
@@ -287,6 +396,9 @@ class SensorReadingTest {
       assertEquals(original, result);
     }
 
+    /**
+     * Verifies round-trip with negative value.
+     */
     @Test
     @DisplayName("Round-trip with negative value")
     void testRoundTripWithNegativeValue() {
@@ -297,6 +409,9 @@ class SensorReadingTest {
       assertEquals(original, result);
     }
 
+    /**
+     * Verifies round-trip: of() → toProtocolString() → parse().
+     */
     @Test
     @DisplayName("Round-trip of() -> toProtocolString() -> parse()")
     void testRoundTripOfToProtocolStringParse() {
@@ -312,10 +427,16 @@ class SensorReadingTest {
     }
   }
 
+  /**
+   * Tests for edge cases and boundary conditions.
+   */
   @Nested
   @DisplayName("Edge Case Tests")
   class EdgeCaseTests {
 
+    /**
+     * Verifies handling of very small decimal value.
+     */
     @Test
     @DisplayName("Very small decimal value")
     void testVerySmallDecimal() {
@@ -325,6 +446,9 @@ class SensorReadingTest {
       assertEquals(0.000001, reading.getValue(), 0.0000001);
     }
 
+    /**
+     * Verifies handling of very large value.
+     */
     @Test
     @DisplayName("Very large value")
     void testVeryLargeValue() {
@@ -334,6 +458,9 @@ class SensorReadingTest {
       assertEquals(999999.999999, reading.getValue(), 0.000001);
     }
 
+    /**
+     * Verifies value with many decimal places is preserved.
+     */
     @Test
     @DisplayName("Value with many decimal places")
     void testManyDecimalPlaces() {
@@ -343,6 +470,9 @@ class SensorReadingTest {
       assertEquals(22.123456789, reading.getValue(), 0.0000000001);
     }
 
+    /**
+     * Verifies parse preserves DeviceKey normalization from parse().
+     */
     @Test
     @DisplayName("Parse preserves DeviceKey normalization")
     void testParsePreservesKeyNormalization() {
@@ -352,6 +482,9 @@ class SensorReadingTest {
       assertEquals("SENSOR-01", reading.getDeviceKey().getId());
     }
 
+    /**
+     * Verifies multiple sensor readings can be parsed correctly.
+     */
     @Test
     @DisplayName("Multiple sensor readings format")
     void testMultipleSensorReadingsFormat() {
@@ -368,6 +501,9 @@ class SensorReadingTest {
       }
     }
 
+    /**
+     * Verifies decimal precision is preserved in double values.
+     */
     @Test
     @DisplayName("Decimal precision is preserved")
     void testDecimalPrecisionPreserved() {
@@ -378,10 +514,16 @@ class SensorReadingTest {
     }
   }
 
+  /**
+   * Tests for getter methods.
+   */
   @Nested
   @DisplayName("Getter Tests")
   class GetterTests {
 
+    /**
+     * Verifies getDeviceKey returns the correct DeviceKey.
+     */
     @Test
     @DisplayName("getDeviceKey returns correct DeviceKey")
     void testGetDeviceKey() {
@@ -392,6 +534,9 @@ class SensorReadingTest {
       assertSame(key, reading.getDeviceKey());
     }
 
+    /**
+     * Verifies getValue returns the correct numeric value.
+     */
     @Test
     @DisplayName("getValue returns correct value")
     void testGetValue() {
@@ -401,6 +546,9 @@ class SensorReadingTest {
       assertEquals(65.5, reading.getValue(), 0.0001);
     }
 
+    /**
+     * Verifies getters return consistent values across multiple calls.
+     */
     @Test
     @DisplayName("Getters are consistent across calls")
     void testGettersConsistent() {

@@ -8,15 +8,28 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Comprehensive unit tests for the Message class
  *
- * @author Fidjor
- * @since 0.2.0
+ * Message is the core protocol component for client-server communication using the format
+ * {@code TYPE|nodeId|data}.
+ * Tests verify:
+ * Constructor validation (null/empty nodeId, null messageType)
+ * Serialization to protocol format via {@code toProtocolString()}
+ * Deserialization from protocol format via {@code fromProtocolString()}
+ * Round-trip serialization/deserialization
+ * All MessageType enum values (HELLO, WELCOME, DATA, COMMAND, SUCCESS, FAILURE, ERROR, KEEPALIVE)
+ * Edge cases (long strings, Unicode, special characters, pipes in data)
  */
 public class MessageTest {
 
+  /**
+   * Tests for Message constructor validation.
+   */
   @Nested
   @DisplayName("Constructor Tests")
   class ConstructorTests {
 
+    /**
+     * Verifies Message can be created with all fields populated.
+     */
     @Test
     @DisplayName ("Create message with all fields populated")
     void testCreateMessageWithAllFields() {
@@ -28,6 +41,9 @@ public class MessageTest {
       assertEquals("temperature: 22.5", message.getData());
     }
 
+    /**
+     * Verifies Message can be created with empty data string.
+     */
     @Test
     @DisplayName("Create message with empty data string")
     void testCreateMessageWithEmptyData() {
@@ -38,6 +54,9 @@ public class MessageTest {
       assertEquals("", message.getData());
     }
 
+    /**
+     * Verifies null data is converted to empty string.
+     */
     @Test
     @DisplayName("Null data is converted to empty string")
     void testNullDataConvertsToEmptyString() {
@@ -46,6 +65,9 @@ public class MessageTest {
       assertEquals("", message.getData());
     }
 
+    /**
+     * Verifies null nodeId throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Null nodeId thows IllegalargumentException")
     void testNullNodeIdThrowsException() {
@@ -58,6 +80,9 @@ public class MessageTest {
               errorMessage.contains("blank"));
     }
 
+    /**
+     * Verifies blank nodeId throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Blank nodeId throws IllegalArgumentException")
     void testBlankNodeIdThrowsException() {
@@ -66,6 +91,9 @@ public class MessageTest {
       });
     }
 
+    /**
+     * Verifies empty nodeId throws IllegalArgumentException.
+     */
     @Test
     @DisplayName("Empty nodeId throws IllegalArgumentException")
     void testEmptyNodeIdThrowsException() {
@@ -74,6 +102,9 @@ public class MessageTest {
       });
     }
 
+    /**
+     * Verifies null messageType throws NullPointerException.
+     */
     @Test
     @DisplayName("Null messageType throws NullPointerException")
     void testNullMessageTypeThrowsException() {
@@ -83,10 +114,17 @@ public class MessageTest {
     }
   }
 
+  /**
+   * Tests for serialization to protocol format.
+   */
   @Nested
   @DisplayName("Serialization Tests - toProtocolString()")
   class SerializationTests {
 
+    /**
+     * Verifies message with data is formatted correctly.
+     * Expected format: {@code TYPE|nodeId|data}
+     */
     @Test
     @DisplayName("Formats message with data correctly")
     void testToProtocolStringWithData() {
@@ -95,6 +133,10 @@ public class MessageTest {
       assertEquals("DATA|sensor-01|temperature:22.5", message.toProtocolString());
     }
 
+    /**
+     * Verifies message without data omits the data field.
+     * Expected format: {@code TYPE|nodeId}
+     */
     @Test
     @DisplayName("Formats message without data correctly")
     void testToProtocolStringWithoutData() {
@@ -103,6 +145,9 @@ public class MessageTest {
       assertEquals("HELLO|control-01", message.toProtocolString());
     }
 
+    /**
+     * Verifies null data is handled as empty (no data field in output).
+     */
     @Test
     @DisplayName("Handles null data as empty (no data field)")
     void testToProtocolStringWithNullData() {
@@ -111,6 +156,9 @@ public class MessageTest {
       assertEquals("KEEPALIVE|sensor-01", message.toProtocolString());
     }
 
+    /**
+     * Verifies pipe characters in data are preserved.
+     */
     @Test
     @DisplayName("Includes data with pipe characters")
     void testToProtocolStringWithPipeInData() {
@@ -120,6 +168,9 @@ public class MessageTest {
       assertEquals("DATA|sensor-01|key1:value1|key2:value2", message.toProtocolString());
     }
 
+    /**
+     * Verifies whitespace in data field is preserved.
+     */
     @Test
     @DisplayName("Preserves whitespace in data field")
     void testToProtocolStringPreservesDataWhitespace() {
@@ -129,6 +180,9 @@ public class MessageTest {
       assertEquals("DATA|sensor-01|  data with spaces  ", message.toProtocolString());
     }
 
+    /**
+     * Verifies special characters in data are preserved.
+     */
     @Test
     @DisplayName("Includes special characters in data")
     void testToProtocolStringWithSpecialCharacters() {
@@ -138,10 +192,17 @@ public class MessageTest {
       assertEquals("DATA|sensor-01|temp:22.5°C,status:OK✓", message.toProtocolString());
     }
   }
+
+  /**
+   * Tests for deserialization from protocol format.
+   */
   @Nested
   @DisplayName("Deserialization Tests - fromProtocolString()")
   class DeserializationTests {
 
+    /**
+     * Verifies valid message with data can be parsed.
+     */
     @Test
     @DisplayName("Parses valid message with data")
     void testFromProtocolStringWithData() {
@@ -153,6 +214,9 @@ public class MessageTest {
       assertEquals("temperature:22.5", message.getData());
     }
 
+    /**
+     * Verifies valid message without data field can be parsed.
+     */
     @Test
     @DisplayName("Parses valid message without data field")
     void testFromProtocolStringWithoutData() {
@@ -164,6 +228,9 @@ public class MessageTest {
       assertEquals("", message.getData());
     }
 
+    /**
+     * Verifies message with empty data field is parsed correctly.
+     */
     @Test
     @DisplayName("Parses message with empty data field")
     void testFromProtocolStringWithEmptyDataField() {
@@ -175,6 +242,10 @@ public class MessageTest {
       assertEquals("", message.getData());
     }
 
+    /**
+     * Verifies data containing pipe characters is parsed correctly.
+     * Uses split limit of 3 to preserve pipes in data field.
+     */
     @Test
     @DisplayName("Handles data with pipe characters (split limit 3)")
     void testFromProtocolStringDataWithPipes() {
@@ -184,6 +255,9 @@ public class MessageTest {
       assertEquals("key1:value1|key2:value2", message.getData());
     }
 
+    /**
+     * Verifies whitespace in data field is preserved.
+     */
     @Test
     @DisplayName("Preserves whitespace in data field")
     void testFromProtocolStringPreservesDataWhitespace() {
@@ -193,6 +267,9 @@ public class MessageTest {
       assertEquals("  data with spaces  ", message.getData());
     }
 
+    /**
+     * Verifies whitespace is trimmed from outer protocol string.
+     */
     @Test
     @DisplayName("Trims whitespace from outer protocol string")
     void testFromProtocolStringTrimsOuterWhitespace() {
@@ -204,6 +281,9 @@ public class MessageTest {
       assertEquals("temperature:22.5", message.getData());
     }
 
+    /**
+     * Verifies whitespace is trimmed from messageType field.
+     */
     @Test
     @DisplayName("Trims whitespace from messageType")
     void testFromProtocolStringTrimsMessageType() {
@@ -213,6 +293,9 @@ public class MessageTest {
       assertEquals(MessageType.DATA, message.getMessageType());
     }
 
+    /**
+     * Verifies whitespace is trimmed from nodeId field.
+     */
     @Test
     @DisplayName("Trims whitespace from nodeId")
     void testFromProtocolStringTrimsNodeId() {
@@ -222,48 +305,72 @@ public class MessageTest {
       assertEquals("sensor-01", message.getNodeId());
     }
 
+    /**
+     * Verifies null input returns null.
+     */
     @Test
     @DisplayName("Returns null for null input")
     void testFromProtocolStringWithNull() {
       assertNull(Message.fromProtocolString(null));
     }
 
+    /**
+     * Verifies empty string returns null.
+     */
     @Test
     @DisplayName("Returns null for empty string")
     void testFromProtocolStringWithEmptyString() {
       assertNull(Message.fromProtocolString(""));
     }
 
+    /**
+     * Verifies blank string returns null.
+     */
     @Test
     @DisplayName("Returns null for blank string")
     void testFromProtocolStringWithBlankString() {
       assertNull(Message.fromProtocolString("   "));
     }
 
+    /**
+     * Verifies invalid format without pipe returns null.
+     */
     @Test
     @DisplayName("Returns null for invalid format (no pipe)")
     void testFromProtocolStringWithInvalidFormat() {
       assertNull(Message.fromProtocolString("INVALID_FORMAT"));
     }
 
+    /**
+     * Verifies single field (no nodeId) returns null.
+     */
     @Test
     @DisplayName("Returns null for invalid format (single field)")
     void testFromProtocolStringWithSingleField() {
       assertNull(Message.fromProtocolString("DATA"));
     }
 
+    /**
+     * Verifies unknown message type returns null.
+     */
     @Test
     @DisplayName("Returns null for unknown message type")
     void testFromProtocolStringWithUnknownType() {
       assertNull(Message.fromProtocolString("UNKNOWN_TYPE|sensor-01|data"));
     }
 
+    /**
+     * Verifies empty nodeId returns null.
+     */
     @Test
     @DisplayName("Returns null for empty nodeId")
     void testFromProtocolStringWithEmptyNodeId() {
       assertNull(Message.fromProtocolString("DATA||temperature:22.5"));
     }
 
+    /**
+     * Verifies blank nodeId (after trimming) returns null.
+     */
     @Test
     @DisplayName("Returns null for blank nodeId (after trim)")
     void testFromProtocolStringWithBlankNodeId() {
@@ -271,10 +378,16 @@ public class MessageTest {
     }
   }
 
+  /**
+   * Tests for round-trip serialization and deserialization.
+   */
   @Nested
   @DisplayName("Round-trip Tests")
   class RoundTripTests {
 
+    /**
+     * Verifies message with data survives round-trip conversion.
+     */
     @Test
     @DisplayName("Preserves message with data")
     void testRoundTripWithData() {
@@ -288,6 +401,9 @@ public class MessageTest {
       assertEquals(original.getData(), parsed.getData());
     }
 
+    /**
+     * Verifies message without data survives round-trip conversion.
+     */
     @Test
     @DisplayName("Preserves message without data")
     void testRoundTripWithoutData() {
@@ -301,6 +417,9 @@ public class MessageTest {
       assertEquals(original.getData(), parsed.getData());
     }
 
+    /**
+     * Verifies complex data with multiple separators survives round-trip.
+     */
     @Test
     @DisplayName("Preserves complex data with multiple separators")
     void testRoundTripWithComplexData() {
@@ -313,6 +432,9 @@ public class MessageTest {
       assertEquals(original.getData(), parsed.getData());
     }
 
+    /**
+     * Verifies data with pipe characters survives round-trip conversion.
+     */
     @Test
     @DisplayName("Preserves data with pipe characters")
     void testRoundTripWithPipesInData() {
@@ -325,10 +447,16 @@ public class MessageTest {
     }
   }
 
+  /**
+   * Tests for all MessageType enum values.
+   */
   @Nested
   @DisplayName("All MessageType Tests")
   class MessageTypeTests {
 
+    /**
+     * Verifies all MessageType values can be serialized.
+     */
     @Test
     @DisplayName("All MessageType values can be serialized")
     void testAllMessageTypesSerialize() {
@@ -342,6 +470,9 @@ public class MessageTest {
       }
     }
 
+    /**
+     * Verifies all MessageType values can be deserialized.
+     */
     @Test
     @DisplayName("All MessageType values can be deserialized")
     void testAllMessageTypesDeserialize() {
@@ -356,6 +487,9 @@ public class MessageTest {
       }
     }
 
+    /**
+     * Verifies all MessageType values survive round-trip conversion.
+     */
     @Test
     @DisplayName("All MessageType values round-trip correctly")
     void testAllMessageTypesRoundTrip() {
@@ -372,10 +506,16 @@ public class MessageTest {
     }
   }
 
+  /**
+   * Tests for specific message types used in the protocol.
+   */
   @Nested
   @DisplayName("Specific Message Type Tests")
   class SpecificMessageTypeTests {
 
+    /**
+     * Verifies DATA message format with sensor readings.
+     */
     @Test
     @DisplayName("DATA message with sensor readings")
     void testDataMessage() {
@@ -387,6 +527,9 @@ public class MessageTest {
               message.toProtocolString());
     }
 
+    /**
+     * Verifies COMMAND message format with actuator command.
+     */
     @Test
     @DisplayName("COMMAND message with actuator command")
     void testCommandMessage() {
@@ -396,6 +539,9 @@ public class MessageTest {
       assertEquals("COMMAND|sensor-01|heater:1", message.toProtocolString());
     }
 
+    /**
+     * Verifies HELLO message format without data.
+     */
     @Test
     @DisplayName("HELLO message without data")
     void testHelloMessage() {
@@ -404,6 +550,9 @@ public class MessageTest {
       assertEquals("HELLO|sensor-01", message.toProtocolString());
     }
 
+    /**
+     * Verifies WELCOME message format without data.
+     */
     @Test
     @DisplayName("WELCOME message without data")
     void testWelcomeMessage() {
@@ -412,6 +561,9 @@ public class MessageTest {
       assertEquals("WELCOME|control-01", message.toProtocolString());
     }
 
+    /**
+     * Verifies ERROR message format with error description.
+     */
     @Test
     @DisplayName("ERROR message with error description")
     void testErrorMessage() {
@@ -421,6 +573,9 @@ public class MessageTest {
       assertEquals("Unknown actuator", message.getData());
     }
 
+    /**
+     * Verifies SUCCESS message format with confirmation data.
+     */
     @Test
     @DisplayName("SUCCESS message with confirmation")
     void testSuccessMessage() {
@@ -430,6 +585,9 @@ public class MessageTest {
       assertEquals("heater:1", message.getData());
     }
 
+    /**
+     * Verifies KEEPALIVE message format without data.
+     */
     @Test
     @DisplayName("KEEPALIVE message without data")
     void testKeepaliveMessage() {
@@ -439,10 +597,16 @@ public class MessageTest {
     }
   }
 
+  /**
+   * Tests for edge cases and boundary conditions.
+   */
   @Nested
   @DisplayName("Edge Case Tests")
   class EdgeCaseTests {
 
+    /**
+     * Verifies handling of very long nodeId strings.
+     */
     @Test
     @DisplayName("Message with very long nodeId")
     void testVeryLongNodeId() {
@@ -456,6 +620,9 @@ public class MessageTest {
       assertEquals(longNodeId, parsed.getNodeId());
     }
 
+    /**
+     * Verifies handling of very long data strings.
+     */
     @Test
     @DisplayName("Message with very long data")
     void testVeryLongData() {
@@ -469,6 +636,9 @@ public class MessageTest {
       assertEquals(longData, parsed.getData());
     }
 
+    /**
+     * Verifies Unicode characters are preserved in round-trip conversion.
+     */
     @Test
     @DisplayName("Message with Unicode characters")
     void testUnicodeCharacters() {
@@ -481,6 +651,9 @@ public class MessageTest {
       assertEquals(unicodeData, parsed.getData());
     }
 
+    /**
+     * Verifies newline characters in data are preserved.
+     */
     @Test
     @DisplayName("Message with newline characters in data")
     void testNewlineInData() {
@@ -493,6 +666,9 @@ public class MessageTest {
       assertEquals(dataWithNewline, parsed.getData());
     }
 
+    /**
+     * Verifies multiple consecutive pipes in data are preserved.
+     */
     @Test
     @DisplayName("Message with multiple consecutive pipes in data")
     void testMultiplePipesInData() {

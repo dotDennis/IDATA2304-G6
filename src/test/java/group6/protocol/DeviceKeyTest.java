@@ -7,13 +7,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Comprehensive unit tests for the DeviceKey class.
+ *
+ * DeviceKey is a protocol component that uniquely identifies devices using the format
+ * Tests verify:
+ * Factory method {@code of()} with normalization (lowercase, trimming)
+ * Parse method {@code parse()} from protocol strings
+ * Serialization to protocol format via {@code toProtocolKey()}
+ * Round-trip serialization/deserialization
+ * Equality and hash code contracts
+ * Edge cases (null, empty, special characters)
  */
 class DeviceKeyTest {
 
+  /**
+   * Tests for the factory method {@code of()}.
+   */
   @Nested
   @DisplayName("Factory Method - of()")
   class FactoryMethodTests {
 
+    /**
+     * Verifies DeviceKey can be created with valid type and id.
+     */
     @Test
     @DisplayName("Create DeviceKey with valid type and id")
     void testOfWithValidTypeAndId() {
@@ -23,6 +38,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies type is normalized to lowercase.
+     */
     @Test
     @DisplayName("Normalizes type to lowercase")
     void testOfNormalizesTypeToLowercase() {
@@ -31,6 +49,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.getType());
     }
 
+    /**
+     * Verifies id is normalized to lowercase.
+     */
     @Test
     @DisplayName("Normalizes id to lowercase")
     void testOfNormalizesIdToLowercase() {
@@ -39,6 +60,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies leading and trailing whitespace is trimmed from type.
+     */
     @Test
     @DisplayName("Trims whitespace from type")
     void testOfTrimsWhitespaceFromType() {
@@ -47,6 +71,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.getType());
     }
 
+    /**
+     * Verifies leading and trailing whitespace is trimmed from id.
+     */
     @Test
     @DisplayName("Trims whitespace from id")
     void testOfTrimsWhitespaceFromId() {
@@ -55,6 +82,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies null type is handled as empty string.
+     */
     @Test
     @DisplayName("Handles null type as empty string")
     void testOfWithNullType() {
@@ -64,6 +94,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies null id is handled as empty string.
+     */
     @Test
     @DisplayName("Handles null id as empty string")
     void testOfWithNullId() {
@@ -73,6 +106,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies both null type and id are handled as empty strings.
+     */
     @Test
     @DisplayName("Handles both null type and id")
     void testOfWithBothNull() {
@@ -82,6 +118,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies blank type (whitespace only) is normalized to empty string.
+     */
     @Test
     @DisplayName("Handles blank type")
     void testOfWithBlankType() {
@@ -91,6 +130,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies blank id (whitespace only) is normalized to empty string.
+     */
     @Test
     @DisplayName("Handles blank id")
     void testOfWithBlankId() {
@@ -101,10 +143,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for the parse method {@code parse()}.
+   */
   @Nested
   @DisplayName("Parse Method - parse()")
   class ParseMethodTests {
 
+    /**
+     * Verifies parsing of valid key in format "type#id".
+     */
     @Test
     @DisplayName("Parses valid key with type and id")
     void testParseWithTypeAndId() {
@@ -114,6 +162,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies parsing of key with type only.
+     */
     @Test
     @DisplayName("Parses key with type only (no hash)")
     void testParseWithTypeOnly() {
@@ -123,6 +174,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies parsing of key with empty id after hash.
+     */
     @Test
     @DisplayName("Parses key with empty id after hash")
     void testParseWithEmptyIdAfterHash() {
@@ -132,6 +186,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies null input returns empty DeviceKey.
+     */
     @Test
     @DisplayName("Returns empty DeviceKey for null input")
     void testParseWithNull() {
@@ -141,6 +198,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies empty string returns empty DeviceKey.
+     */
     @Test
     @DisplayName("Returns empty DeviceKey for empty string")
     void testParseWithEmptyString() {
@@ -150,6 +210,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies blank string returns empty DeviceKey.
+     */
     @Test
     @DisplayName("Returns empty DeviceKey for blank string")
     void testParseWithBlankString() {
@@ -159,6 +222,9 @@ class DeviceKeyTest {
       assertEquals("", key.getId());
     }
 
+    /**
+     * Verifies type is normalized to lowercase during parsing.
+     */
     @Test
     @DisplayName("Normalizes type to lowercase")
     void testParseNormalizesType() {
@@ -167,6 +233,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.getType());
     }
 
+    /**
+     * Verifies id whitespace is trimmed but case is preserved during parsing.
+     */
     @Test
     @DisplayName("Trims whitespace from id")
     void testParseTrimsIdButNotLowercase() {
@@ -176,6 +245,9 @@ class DeviceKeyTest {
       assertEquals("SENSOR-01", key.getId());
     }
 
+    /**
+     * Verifies whitespace is trimmed from entire input string.
+     */
     @Test
     @DisplayName("Trims whitespace from entire input")
     void testParseTrimsWhitespace() {
@@ -185,6 +257,9 @@ class DeviceKeyTest {
       assertEquals("sensor-01", key.getId());
     }
 
+    /**
+     * Verifies multiple hashes use first as delimiter, rest become part of id.
+     */
     @Test
     @DisplayName("Handles multiple hashes - uses first as delimiter")
     void testParseWithMultipleHashes() {
@@ -194,6 +269,9 @@ class DeviceKeyTest {
       assertEquals("sensor#01", key.getId());
     }
 
+    /**
+     * Verifies hash at start results in empty type.
+     */
     @Test
     @DisplayName("Handles hash at start")
     void testParseWithHashAtStart() {
@@ -204,10 +282,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for serialization to protocol format.
+   */
   @Nested
   @DisplayName("Serialization - toProtocolKey()")
   class SerializationTests {
 
+    /**
+     * Verifies serialization of key with both type and id.
+     */
     @Test
     @DisplayName("Formats key with both type and id")
     void testToProtocolKeyWithTypeAndId() {
@@ -216,6 +300,9 @@ class DeviceKeyTest {
       assertEquals("temperature#sensor-01", key.toProtocolKey());
     }
 
+    /**
+     * Verifies serialization of key with type only (no hash).
+     */
     @Test
     @DisplayName("Formats key with type only (no id)")
     void testToProtocolKeyWithTypeOnly() {
@@ -224,6 +311,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.toProtocolKey());
     }
 
+    /**
+     * Verifies null id is omitted from serialization.
+     */
     @Test
     @DisplayName("Formats key with null id as type only")
     void testToProtocolKeyWithNullId() {
@@ -232,6 +322,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.toProtocolKey());
     }
 
+    /**
+     * Verifies blank id is omitted from serialization.
+     */
     @Test
     @DisplayName("Formats key with blank id as type only")
     void testToProtocolKeyWithBlankId() {
@@ -240,6 +333,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.toProtocolKey());
     }
 
+    /**
+     * Verifies whitespace is trimmed from id in serialized output.
+     */
     @Test
     @DisplayName("Trims whitespace from id in output")
     void testToProtocolKeyTrimsId() {
@@ -249,10 +345,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for round-trip serialization and deserialization.
+   */
   @Nested
   @DisplayName("Round-trip Tests")
   class RoundTripTests {
 
+    /**
+     * Verifies round-trip: of() → toProtocolKey() → parse().
+     */
     @Test
     @DisplayName("Round-trip with type and id using of()")
     void testRoundTripOfWithTypeAndId() {
@@ -261,10 +363,12 @@ class DeviceKeyTest {
       DeviceKey parsed = DeviceKey.parse(protocolKey);
 
       assertEquals(original.getType(), parsed.getType());
-      // Note: parsed id is NOT normalized, but of() normalized it
       assertEquals("sensor-01", parsed.getId());
     }
 
+    /**
+     * Verifies round-trip with type only.
+     */
     @Test
     @DisplayName("Round-trip with type only")
     void testRoundTripWithTypeOnly() {
@@ -275,6 +379,9 @@ class DeviceKeyTest {
       assertEquals(original, result);
     }
 
+    /**
+     * Verifies round-trip: parse() → toProtocolKey() → parse().
+     */
     @Test
     @DisplayName("Round-trip parse -> toProtocolKey -> parse")
     void testParseToProtocolKeyRoundTrip() {
@@ -288,10 +395,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for equality contract.
+   */
   @Nested
   @DisplayName("Equality Tests")
   class EqualityTests {
 
+    /**
+     * Verifies DeviceKeys with same type and id are equal.
+     */
     @Test
     @DisplayName("Equal DeviceKeys with same type and id")
     void testEqualsWithSameValues() {
@@ -301,6 +414,9 @@ class DeviceKeyTest {
       assertEquals(key1, key2);
     }
 
+    /**
+     * Verifies DeviceKey equals itself (reflexivity).
+     */
     @Test
     @DisplayName("Equal with self")
     void testEqualsWithSelf() {
@@ -309,6 +425,9 @@ class DeviceKeyTest {
       assertEquals(key, key);
     }
 
+    /**
+     * Verifies DeviceKeys with different types are not equal.
+     */
     @Test
     @DisplayName("Not equal with different type")
     void testNotEqualsWithDifferentType() {
@@ -318,6 +437,9 @@ class DeviceKeyTest {
       assertNotEquals(key1, key2);
     }
 
+    /**
+     * Verifies DeviceKeys with different ids are not equal.
+     */
     @Test
     @DisplayName("Not equal with different id")
     void testNotEqualsWithDifferentId() {
@@ -327,6 +449,9 @@ class DeviceKeyTest {
       assertNotEquals(key1, key2);
     }
 
+    /**
+     * Verifies DeviceKey is not equal to null.
+     */
     @Test
     @DisplayName("Not equal with null")
     void testNotEqualsWithNull() {
@@ -335,6 +460,9 @@ class DeviceKeyTest {
       assertNotEquals(key, null);
     }
 
+    /**
+     * Verifies DeviceKey is not equal to objects of different class.
+     */
     @Test
     @DisplayName("Not equal with different class")
     void testNotEqualsWithDifferentClass() {
@@ -344,6 +472,9 @@ class DeviceKeyTest {
       assertNotEquals(key, notAKey);
     }
 
+    /**
+     * Verifies type comparison is case-insensitive.
+     */
     @Test
     @DisplayName("Case-insensitive type comparison")
     void testEqualsCaseInsensitiveType() {
@@ -353,6 +484,9 @@ class DeviceKeyTest {
       assertEquals(key1, key2);
     }
 
+    /**
+     * Verifies id comparison is case-insensitive when both normalized via of().
+     */
     @Test
     @DisplayName("Case-sensitive id comparison (both via of)")
     void testEqualsCaseSensitiveIdViaOf() {
@@ -363,10 +497,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for hash code contract.
+   */
   @Nested
   @DisplayName("HashCode Tests")
   class HashCodeTests {
 
+    /**
+     * Verifies equal objects have equal hash codes.
+     */
     @Test
     @DisplayName("Equal objects have equal hashCodes")
     void testHashCodeConsistency() {
@@ -376,6 +516,9 @@ class DeviceKeyTest {
       assertEquals(key1.hashCode(), key2.hashCode());
     }
 
+    /**
+     * Verifies different objects typically have different hash codes.
+     */
     @Test
     @DisplayName("Different objects have different hashCodes")
     void testHashCodeDifference() {
@@ -385,6 +528,9 @@ class DeviceKeyTest {
       assertNotEquals(key1.hashCode(), key2.hashCode());
     }
 
+    /**
+     * Verifies hash code is consistent across multiple calls.
+     */
     @Test
     @DisplayName("HashCode is consistent across calls")
     void testHashCodeConsistentAcrossCalls() {
@@ -396,10 +542,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for toString() method.
+   */
   @Nested
   @DisplayName("toString() Tests")
   class ToStringTests {
 
+    /**
+     * Verifies toString() format with both type and id.
+     */
     @Test
     @DisplayName("toString with type and id")
     void testToStringWithTypeAndId() {
@@ -408,6 +560,9 @@ class DeviceKeyTest {
       assertEquals("temperature#sensor-01", key.toString());
     }
 
+    /**
+     * Verifies toString() format with type only.
+     */
     @Test
     @DisplayName("toString with type only")
     void testToStringWithTypeOnly() {
@@ -416,6 +571,9 @@ class DeviceKeyTest {
       assertEquals("temperature", key.toString());
     }
 
+    /**
+     * Verifies toString() matches toProtocolKey().
+     */
     @Test
     @DisplayName("toString matches toProtocolKey")
     void testToStringMatchesToProtocolKey() {
@@ -425,10 +583,16 @@ class DeviceKeyTest {
     }
   }
 
+  /**
+   * Tests for edge cases and boundary conditions.
+   */
   @Nested
   @DisplayName("Edge Case Tests")
   class EdgeCaseTests {
 
+    /**
+     * Verifies handling of very long type strings.
+     */
     @Test
     @DisplayName("Very long type")
     void testVeryLongType() {
@@ -438,6 +602,9 @@ class DeviceKeyTest {
       assertEquals(longType, key.getType());
     }
 
+    /**
+     * Verifies handling of very long id strings.
+     */
     @Test
     @DisplayName("Very long id")
     void testVeryLongId() {
@@ -447,6 +614,9 @@ class DeviceKeyTest {
       assertEquals(longId, key.getId());
     }
 
+    /**
+     * Verifies special characters are allowed in type.
+     */
     @Test
     @DisplayName("Special characters in type")
     void testSpecialCharactersInType() {
@@ -455,6 +625,9 @@ class DeviceKeyTest {
       assertEquals("temp_sensor-01", key.getType());
     }
 
+    /**
+     * Verifies special characters in id are normalized.
+     */
     @Test
     @DisplayName("Special characters in id")
     void testSpecialCharactersInId() {
@@ -464,6 +637,9 @@ class DeviceKeyTest {
     }
 
 
+    /**
+     * Verifies multiple consecutive hashes in parse.
+     */
     @Test
     @DisplayName("Multiple consecutive hashes in parse")
     void testMultipleConsecutiveHashes() {

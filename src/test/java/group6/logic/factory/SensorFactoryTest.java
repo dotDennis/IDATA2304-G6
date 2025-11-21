@@ -11,13 +11,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for SensorFactory.
+ *
+ * Tests verify:
+ * Sensor creation for all types (Temperature, Humidity, Light, pH, Wind, Fertilizer)
+ * Device ID validation (trimming, null/empty/blank checks)
+ * Sensor type validation
+ * Properties of created sensors (valid ranges, functionality)
  */
 class SensorFactoryTest {
 
+  /**
+   * Tests for creating sensors of all supported types.
+   */
   @Nested
   @DisplayName("Sensor Creation - All Types")
   class SensorCreationTests {
 
+    /**
+     * Verifies TemperatureSensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create TemperatureSensor")
     void testCreateTemperatureSensor() {
@@ -29,6 +41,9 @@ class SensorFactoryTest {
       assertEquals(SensorType.TEMPERATURE, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies HumiditySensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create HumiditySensor")
     void testCreateHumiditySensor() {
@@ -40,6 +55,9 @@ class SensorFactoryTest {
       assertEquals(SensorType.HUMIDITY, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies LightSensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create LightSensor")
     void testCreateLightSensor() {
@@ -51,6 +69,9 @@ class SensorFactoryTest {
       assertEquals(SensorType.LIGHT, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies PhSensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create PhSensor")
     void testCreatePhSensor() {
@@ -62,6 +83,9 @@ class SensorFactoryTest {
       assertEquals(SensorType.PH, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies WindSensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create WindSensor")
     void testCreateWindSensor() {
@@ -73,6 +97,9 @@ class SensorFactoryTest {
       assertEquals(SensorType.WIND_SPEED, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies FertilizerSensor can be created with correct properties.
+     */
     @Test
     @DisplayName("Create FertilizerSensor")
     void testCreateFertilizerSensor() {
@@ -84,6 +111,10 @@ class SensorFactoryTest {
       assertEquals(SensorType.FERTILIZER, sensor.getDeviceType());
     }
 
+    /**
+     * Verifies all SensorType enum values can be successfully created.
+     * Iterates through all enum values to ensure factory completeness.
+     */
     @Test
     @DisplayName("All SensorTypes can be created")
     void testAllSensorTypesCanBeCreated() {
@@ -96,10 +127,16 @@ class SensorFactoryTest {
     }
   }
 
+  /**
+   * Tests for device ID validation and sanitization.
+   */
   @Nested
   @DisplayName("Device ID Validation")
   class DeviceIdValidationTests {
 
+    /**
+     * Verifies createSensor() trims leading and trailing whitespace from device IDs.
+     */
     @Test
     @DisplayName("createSensor() trims whitespace from device ID")
     void testCreateSensorTrimsDeviceId() {
@@ -108,6 +145,9 @@ class SensorFactoryTest {
       assertEquals("temp-01", sensor.getDeviceId());
     }
 
+    /**
+     * Verifies createSensor() throws IllegalArgumentException for null device ID.
+     */
     @Test
     @DisplayName("createSensor() throws exception for null device ID")
     void testCreateSensorNullDeviceId() {
@@ -119,6 +159,9 @@ class SensorFactoryTest {
               exception.getMessage().contains("Device id"));
     }
 
+    /**
+     * Verifies createSensor() throws IllegalArgumentException for empty device ID.
+     */
     @Test
     @DisplayName("createSensor() throws exception for empty device ID")
     void testCreateSensorEmptyDeviceId() {
@@ -127,6 +170,10 @@ class SensorFactoryTest {
       });
     }
 
+    /**
+     * Verifies createSensor() throws IllegalArgumentException for blank device ID.
+     * Blank is defined as a string containing only whitespace characters.
+     */
     @Test
     @DisplayName("createSensor() throws exception for blank device ID")
     void testCreateSensorBlankDeviceId() {
@@ -136,10 +183,16 @@ class SensorFactoryTest {
     }
   }
 
+  /**
+   * Tests for sensor type validation.
+   */
   @Nested
   @DisplayName("Sensor Type Validation")
   class SensorTypeValidationTests {
 
+    /**
+     * Verifies createSensor() throws IllegalArgumentException for null sensor type.
+     */
     @Test
     @DisplayName("createSensor() throws exception for null sensor type")
     void testCreateSensorNullType() {
@@ -152,10 +205,17 @@ class SensorFactoryTest {
     }
   }
 
+  /**
+   * Tests for properties and behavior of created sensors.
+   */
   @Nested
   @DisplayName("Created Sensor Properties")
   class SensorPropertiesTests {
 
+    /**
+     * Verifies all created sensors have valid min/max ranges.
+     * Ensures minValue is less than maxValue for proper bounds checking.
+     */
     @Test
     @DisplayName("Created sensors have valid min/max ranges")
     void testCreatedSensorsHaveValidRanges() {
@@ -167,6 +227,12 @@ class SensorFactoryTest {
       }
     }
 
+    /**
+     * Verifies created sensors are fully functional.
+     * Tests that sensors can:
+     * Read values within their valid range
+     * Apply manual adjustments successfully
+     */
     @Test
     @DisplayName("Created sensors are fully functional")
     void testCreatedSensorsAreFunctional() {
@@ -179,6 +245,11 @@ class SensorFactoryTest {
       double adjusted = sensor.manualAdjust(1.0);
       assertNotEquals(Double.NaN, adjusted);
     }
+
+    /**
+     * Verifies multiple sensors of the same type can be created with different IDs.
+     * Ensures factory creates new instances rather than returning singletons.
+     */
 
     @Test
     @DisplayName("Multiple sensors can be created with same type")
